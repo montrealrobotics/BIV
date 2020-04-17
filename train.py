@@ -124,6 +124,9 @@ class Trainer:
             print("Running using Cuda support")
             ##################################################
 
+            model.cuda(0)   # Move the model to the GPU
+
+
             train_runs_table = pd.DataFrame()
             test_runs_table = pd.DataFrame()
             for epoch in range(epochs):
@@ -133,7 +136,6 @@ class Trainer:
                 for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
                     optimizer.zero_grad() 
 
-                    model.cuda(0)
                     batch = batch.cuda(0)
                     labels = torch.unsqueeze(labels,1).cuda(0)
                     lbls_noise = torch.unsqueeze(lbls_noise,1).type(torch.float32).cuda(0)
@@ -150,12 +152,28 @@ class Trainer:
             
                     optimizer.step()
 
+                    # with torch.no_grad():
+                    #     for i,(tst_batch, tst_labels,_,_) in enumerate(test_loader):
+
+                    #     # test_data = test_loader[0].cuda(0)
+                    #     # test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+
+                    #         tst_batch = tst_batch.cuda(0)   # Move data to the GPU.
+                    #         tst_labels = torch.unsqueeze(tst_labels,1).cuda(0)   # Move labels to the GPU.
+                    #         out = model(tst_batch)
+                    #         tloss = loss(out,tst_labels)
+                    #         tst_losses.append(tloss.item())
+
+
                     with torch.no_grad():
+
                         test_data = test_loader[0].cuda(0)
                         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+
                         out = model(test_data)
                         tloss = loss(out,test_labels)
                         tst_losses.append(tloss.item())
+
 
                 # save the train losses in the runs table future calculation.
                 train_runs_table = pd.concat([train_runs_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
@@ -206,9 +224,19 @@ class Trainer:
             
                     optimizer.step()
 
+                    # with torch.no_grad():
+                    #     for i,(tst_batch, tst_labels,_,_) in enumerate(test_loader):
+                    #     # test_data = test_loader[0]
+                    #     # test_labels = torch.unsqueeze(test_loader[1],1)
+                    #         tst_labels = torch.unsqueeze(tst_labels,1)
+                    #         out = model(tst_batch)
+                    #         tloss = loss(out,tst_labels)
+                    #         tst_losses.append(tloss.item())
+
                     with torch.no_grad():
                         test_data = test_loader[0]
                         test_labels = torch.unsqueeze(test_loader[1],1)
+    
                         out = model(test_data)
                         tloss = loss(out,test_labels)
                         tst_losses.append(tloss.item())
@@ -239,6 +267,10 @@ class Trainer:
             print("Running using Cuda support")
             ##################################################
 
+            model.cuda(0)   # Move the model to the GPU
+            mse_loss = MSELoss()    # Create mse loss for the testing part.
+            
+
             train_runs_table = pd.DataFrame()
             test_runs_table = pd.DataFrame()
             for epoch in range(epochs):
@@ -247,29 +279,45 @@ class Trainer:
                 for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
                     optimizer.zero_grad() 
 
-                    model.cuda(0)
                     batch = batch.cuda(0)
                     labels = torch.unsqueeze(labels,1).cuda(0)
                     lbls_noise = torch.unsqueeze(lbls_noise,1).type(torch.float32).cuda(0)
                     noises_var = torch.unsqueeze(noises_var,1).type(torch.float32).cuda(0)
                     labels_noisy = labels + lbls_noise
-
-
+                    
+    
                     out = model(batch)
 
                     mloss = loss(out,labels_noisy,noises_var)
+                    # print(" Epoch: ",epoch," Batch Loss: ",mloss.item(), " Noises:  ",lbls_noise," Varinace of the noises: ", noises_var," IV: ", (1/noises_var))
+                    # print("*"*20)
                 
                     tr_losses.append(mloss.item())
                     mloss.backward()
             
                     optimizer.step()
 
+                    # with torch.no_grad():
+                    #     for i,(tst_batch, tst_labels,_,_) in enumerate(test_loader):
+
+                    #     # test_data = test_loader[0].cuda(0)
+                    #     # test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+
+                    #         tst_batch = tst_batch.cuda(0)   # Move data to the GPU.
+                    #         tst_labels = torch.unsqueeze(tst_labels,1).cuda(0)   # Move labels to the GPU.
+                    #         out = model(tst_batch)
+                    #         tloss = mse_loss(out,tst_labels)
+                    #         tst_losses.append(tloss.item())
+
                     with torch.no_grad():
+
                         test_data = test_loader[0].cuda(0)
                         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+
                         out = model(test_data)
-                        tloss = loss(out,test_labels)
+                        tloss = mse_loss(out,test_labels)
                         tst_losses.append(tloss.item())
+
 
                 # save the train losses in the runs table future calculation.
                 train_runs_table = pd.concat([train_runs_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
@@ -320,17 +368,29 @@ class Trainer:
             
                     optimizer.step()
 
+                    # with torch.no_grad():
+                    #     for i,(tst_batch, tst_labels,_,_) in enumerate(test_loader):
+                    #     # test_data = test_loader[0]
+                    #     # test_labels = torch.unsqueeze(test_loader[1],1)
+                    #         tst_labels = torch.unsqueeze(tst_labels,1)
+                    #         out = model(tst_batch)
+                    #         tloss = mse_loss(out,tst_labels)
+                    #         tst_losses.append(tloss.item())
+
+
                     with torch.no_grad():
                         test_data = test_loader[0]
                         test_labels = torch.unsqueeze(test_loader[1],1)
+    
                         out = model(test_data)
                         tloss = mse_loss(out,test_labels)
                         tst_losses.append(tloss.item())
 
-                # save the train losses in the runs table future calculation.
+
+                # save train losses for each epoch in the runs table for future calculations.
                 train_runs_table = pd.concat([train_runs_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
                 
-                # save the train losses in the runs table future calculation.
+                # save train losses for each epoch in the runs table for future calculations.
                 test_runs_table = pd.concat([test_runs_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
 
                 print('Epoch:', epoch, "has finished.")

@@ -28,11 +28,10 @@ from train import Trainer
 # Configure global settings
 
 torch.manual_seed(42)
-wandb.init(project="test", entity="khamiesw")
+wandb.init(project="iv_w_baseline", entity="khamiesw")
 
 # Get the api key from the environment variables.
 api_key = os.environ.get('WANDB_API_KEY')
-print("API Key:",api_key)
 # login to my wandb account.
 wandb.login(api_key)
 
@@ -44,8 +43,8 @@ if __name__ == "__main__":
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
-    train_data = UTKface("./Datasets/UTKFace/*", transform= trans, train= True, noise= False) 
-    test_data = UTKface("./Datasets/UTKFace/*", transform= trans, train= False)
+    train_data = UTKface("/datasets/UTKFace/*", transform= trans, train= True) 
+    test_data = UTKface("/datasets/UTKFace/*", transform= trans, train= False)
 
     train_loader = DataLoader(train_data, batch_size=64)
     test_loader = DataLoader(test_data, batch_size=1000)

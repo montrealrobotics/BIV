@@ -27,14 +27,6 @@ from train import Trainer
 # Configure global settings
 
 torch.manual_seed(42)
-wandb.init(project="test", entity="khamiesw")
-
-# Get the api key from the environment variables.
-api_key = os.environ.get('WANDB_API_KEY')
-print("API Key:",api_key)
-# login to my wandb account.
-wandb.login(api_key)
-
 
 # Main 
 
@@ -46,8 +38,21 @@ if __name__ == "__main__":
 
     parser.add_argument("--mu" , type=int, default=0)
     parser.add_argument("--v", type= int, default=1)
-
+    parser.add_argument("--tag", type=str, default="default")
     args = parser.parse_args()
+    
+    # Get Wandb tags
+
+    tag = [args.tag,]
+
+    # Initiate wandb client.
+    wandb.init(project="iv-update",tags=tag , entity="khamiesw")
+    # Get the api key from the environment variables.
+    api_key = os.environ.get('WANDB_API_KEY')
+    # login to my wandb account.
+    wandb.login(api_key)
+    
+
     unif_data = (args.mu,args.v) 
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
@@ -60,12 +65,12 @@ if __name__ == "__main__":
 
                              # Take the first sample.
 
-    train_data = UTKface("./Datasets/UTKFace/*", transform= trans, train= True, noise= True, noise_type='uniform', uniform_data = unif_data) 
-    test_data = UTKface("./Datasets/UTKFace/*", transform= trans, train= False, noise= False)
+    train_data = UTKface("/datasets/UTKFace/*", transform= trans, train= True, noise_type='uniform', uniform_data = unif_data) 
+    test_data = UTKface("/datasets/UTKFace/*", transform= trans, train= False)
 
     
     train_loader = DataLoader(train_data, batch_size=64)
-    test_loader = DataLoader(test_data, batch_size=1000)
+    test_loader = DataLoader(test_data, batch_size=2000)
 
     epochs = 20
     model = AgeModel()
@@ -76,6 +81,8 @@ if __name__ == "__main__":
 
     train_dataset = train_loader
     test_dataset = iter(test_loader).next()
+    #test_dataset = test_loader
+
 
 
     # wandb.watch(model)
