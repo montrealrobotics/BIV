@@ -2,9 +2,6 @@ from torch import nn
 from torch import optim
 
 
-
-
-
 class AgeModel(nn.Module):
     def __init__(self):
         super(AgeModel,self).__init__()

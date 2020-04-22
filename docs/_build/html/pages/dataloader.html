@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Dataloader &mdash; IV Update 2020 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2020',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Loss functions" href="losses.html" />
+    <link rel="prev" title="Welcome to IV Update’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> IV Update
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dataloader</a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses.html">Loss functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="losses.html#inverse-variance-loss-ivloss">Inverse Variance Loss (IVLoss):</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Models:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html#vanilla-cnn">Vanilla CNN:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Trainer</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">IV Update</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Dataloader</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/pages/dataloader.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dataloader">
+<h1>Dataloader<a class="headerlink" href="#dataloader" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dataloader.UTKface">
+<em class="property">class </em><code class="descclassname">dataloader.</code><code class="descname">UTKface</code><span class="sig-paren">(</span><em>path</em>, <em>train=True</em>, <em>transform=None</em>, <em>noise_type=None</em>, <em>uniform_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>UTKFace dataset is a large-scale face dataset with long age span (range from 0 to 116 years old). 
+The dataset consists of over 20,000 face images with annotations of age, gender, and ethnicity. 
+The images cover large variation in pose, facial expression, illumination, occlusion, resolution, etc.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">train (bool):</th><td class="field-body">Controls if the data will include the noise and varaince with the actual inputs and labels or not.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">train_size (int):</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">Controls the number of samples in the training set.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">images_path (string):</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Dataset directory path.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">transform (Object):</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A torchvision transofrmer for processing the images.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">noise_type (string):</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Controls the type of noise that will be added to the data</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">unif_data (tuple):</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A tuple of the mean and the variance of the uniform distribution noise.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dataloader.UTKface.get_unif_bounds">
+<code class="descname">get_unif_bounds</code><span class="sig-paren">(</span><em>mu</em>, <em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.get_unif_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd><p class="first">Generates the bounds of the uniform distribution by solving the formula</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Return:</dt>
+<dd>Uniform distribution bounds a and b.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">mu (float):</th><td class="field-body">mean.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">v  (float):</th><td class="field-body">variance.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataloader.UTKface.gaussian_noise">
+<code class="descname">gaussian_noise</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.gaussian_noise" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from a unifrom distribution.</dd>
+<dt>Return:</dt>
+<dd>Guassian noises and their heteroscedasticitical variances.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">a (float):</th><td class="field-body">Uniform lower bound.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">b (float):</th><td class="field-body">Uniform upper bound.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataloader.UTKface.generate_noise">
+<code class="descname">generate_noise</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.generate_noise" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Generates noises.</dd>
+<dt>Return:</dt>
+<dd>Guassian noises and their heteroscedasticitical variances.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd>None.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="losses.html" class="btn btn-neutral float-right" title="Loss functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to IV Update’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Waleed Khamies
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

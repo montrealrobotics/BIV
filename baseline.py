@@ -24,10 +24,26 @@ from dataloader import UTKface
 from model import AgeModel
 from train import Trainer
 
+# expirement settings
+from params import d_params
+from params import n_params
 
-# Configure global settings
 
-torch.manual_seed(42)
+# Global varraibles
+
+seed = d_params.get('seed')
+d_path = d_params.get('d_path')
+tr_size = d_params.get('tr_batch_size')
+tst_size = d_params.get('test_batch_size')
+
+learning_rate = n_params.get('lr')
+epochs = n_params.get('epochs')
+
+
+# Configure Settings
+torch.manual_seed(seed)
+
+# Wandb settings
 wandb.init(project="iv_w_baseline", entity="khamiesw")
 
 # Get the api key from the environment variables.
@@ -43,22 +59,23 @@ if __name__ == "__main__":
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
-    train_data = UTKface("/datasets/UTKFace/*", transform= trans, train= True) 
-    test_data = UTKface("/datasets/UTKFace/*", transform= trans, train= False)
+    train_data = UTKface(d_path, transform= trans, train= True) 
+    test_data = UTKface(d_path, transform= trans, train= False)
 
-    train_loader = DataLoader(train_data, batch_size=64)
-    test_loader = DataLoader(test_data, batch_size=1000)
+    train_loader = DataLoader(train_data, batch_size=tr_size)
+    test_loader = DataLoader(test_data, batch_size=tst_size)
 
-    epochs = 20
+
+# Model
     model = AgeModel()
     loss = torch.nn.MSELoss()
     trainer = Trainer()
-    optimz = torch.optim.Adam(model.parameters(), lr=3e-4)
+    optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
        
 
     train_dataset = train_loader
     test_dataset = iter(test_loader).next()
 
 
-    # wandb.watch(model)
+    wandb.watch(model)
     trainer.train(train_dataset,test_dataset,model,loss,optimz,epochs)

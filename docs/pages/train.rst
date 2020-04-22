@@ -1,0 +1,5 @@
+Trainer
+*******
+
+
+.. autoclass:: train.Trainer
