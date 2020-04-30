@@ -53,7 +53,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--mu" , type=int, default=0)
     parser.add_argument("--v", type= int, default=1)
+    parser.add_argument("--unf_vmax_scale", type=str, default="False")
+    parser.add_argument("--scale_value", type=int, default=1)
     parser.add_argument("--tag", type=str, default="default")
+
     args = parser.parse_args()
     
     # Get Wandb tags
@@ -61,19 +64,19 @@ if __name__ == "__main__":
     tag = [args.tag,]
 
     # Initiate wandb client.
-    wandb.init(project="iv-update",tags=tag , entity="khamiesw")
+    wandb.init(project="IV",tags=tag , entity="khamiesw")
     # Get the api key from the environment variables.
     api_key = os.environ.get('WANDB_API_KEY')
     # login to my wandb account.
     wandb.login(api_key)
     
 
-    unif_data = (args.mu,args.v) 
+    unif_data = (args.mu,args.v, args.unf_vmax_scale, args.scale_value) 
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
 
-    train_data = UTKface(d_path, transform= trans, train= True, noise_type='uniform', uniform_data = unif_data) 
+    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', uniform_data = unif_data) 
     test_data = UTKface(d_path, transform= trans, train= False)
 
     

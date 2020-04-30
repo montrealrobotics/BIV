@@ -1,8 +1,9 @@
-Models:
-*******
+=========
+models.py
+=========
 
 
-Vanilla CNN:
+Vanilla CNN
 ************
 
 .. autoclass:: model.AgeModel

@@ -10,10 +10,43 @@ import wandb
 class Trainer:
 
     def __init__(self):
+
+        """
+        Description:
+            A class with multiple training methods:
+                - Baseline (The model without injecting any noises)
+                - Baseline with noise.
+                - Baseline with IV loss.
+                - Baseline with batch normalized IV loss.
+
+        Args:
+            :cuda (bool) [private]: Controls if the model will be run on GPU or not.
+        """
+
         # Check Cuda avaliability
         self.cuda = torch.cuda.is_available()
 
     def train(self, train_loader, test_loader, model,loss, optimizer,epochs):
+
+        """
+        Description:
+
+            Train the network without injecting any noises.
+
+        Return:
+            Model
+        Return type:
+            nn.Module
+        
+        Args:
+            :train_loader: A data loader for the training set.
+            :test_loader:  A data loader for the testing set.
+            :model: A random model. (i.e CNN).
+            :loss: A loss function. (i.e MSE, IV, normalized IV)
+            :optimizer: An optimizer. (i.e Adam)
+            :epochs: Number of epochs
+            """
+
         if self.cuda:
             ############################
             print("Running with Cuda support")
@@ -24,7 +57,7 @@ class Trainer:
             for epoch in range(epochs):
                 tr_losses = []
                 tst_losses = []
-                for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
+                for i,(batch, labels) in enumerate(train_loader):
                     optimizer.zero_grad() 
 
                     model.cuda(0)
@@ -77,7 +110,7 @@ class Trainer:
             for epoch in range(epochs):
                 tr_losses = []
                 tst_losses = []
-                for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
+                for i,(batch, labels) in enumerate(train_loader):
                     optimizer.zero_grad() 
 
                     batch = batch
@@ -119,6 +152,26 @@ class Trainer:
             wandb.save('./outputs/test_run_at'+time+'.csv')
 
     def train_w_iv(self,train_loader, test_loader, model,loss, optimizer,epochs):
+
+        """
+        Description:
+
+            Train the network with injecting noises.
+
+        Return:
+            Model
+        Return type:
+            nn.Module
+        
+        Args:
+            :train_loader: A data loader for the training set.
+            :test_loader:  A data loader for the testing set.
+            :model: A random model. (i.e CNN).
+            :loss: A loss function. (i.e MSE, IV, normalized IV)
+            :optimizer: An optimizer. (i.e Adam)
+            :epochs: Number of epochs
+            """
+
         if self.cuda:
             #################################################
             print("Running using Cuda support")
@@ -261,6 +314,26 @@ class Trainer:
             wandb.save('./outputs/test_wiv_run_at'+time+'.csv')
 
     def train_iv(self,train_loader, test_loader, model,loss, optimizer,epochs):
+
+        """
+        Description:
+
+            Train the network using IV loss.
+
+        Return:
+            Model
+        Return type:
+            nn.Module
+        
+        Args:
+            :train_loader: A data loader for the training set.
+            :test_loader:  A data loader for the testing set.
+            :model: A random model. (i.e CNN).
+            :loss: IV (or normalized) loss function.
+            :optimizer: An optimizer. (i.e Adam)
+            :epochs: Number of epochs
+            """
+
 
         if self.cuda:
             #################################################

@@ -8,10 +8,13 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 
+from params import d_params
+from utils import get_unif_Vmax
+
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, transform = None, noise_type = None, uniform_data = None):
+    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, uniform_data = None):
 
         """
         Description:
@@ -21,7 +24,7 @@ class UTKface(Dataset):
 
 
         Args:
-            :train (bool): Controls if the data will include the noise and varaince with the actual inputs and labels or not.
+            :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not.
             :train_size (int): Controls the number of samples in the training set.
             :images_path (string): Dataset directory path.
             :transform (Object): A torchvision transofrmer for processing the images.
@@ -33,9 +36,10 @@ class UTKface(Dataset):
         self.data_paths = glob.glob(path)
         self.dataset_size  = len(self.data_paths)
         self.transform = transform
+        self.noise = noise
         self.noise_type = noise_type
         self.unif_data = uniform_data
-        self.train_size=16000
+        self.train_size= d_params.get('train_size')
         
 
         # This is not the proper implementation, but doing that for research purproses.
@@ -46,12 +50,13 @@ class UTKface(Dataset):
 
         # Generate noise for the training samples.
         if self.train:
-            if self.noise_type == 'uniform':
-                self.lbl_noises, self.noise_variances = self.generate_noise()       
-            # elif self.noise_type == 'gauss':
-            #     lbl_noise, noise_variance = self.gauss_label_noise()
-            else:
-                print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
+            if self.noise:
+                if self.noise_type == 'uniform':
+                    self.lbl_noises, self.noise_variances = self.generate_noise()       
+                # elif self.noise_type == 'gauss':
+                #     lbl_noise, noise_variance = self.gauss_label_noise()
+                else:
+                    print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
                 
         
     
@@ -76,6 +81,9 @@ class UTKface(Dataset):
             for path in train_img_paths:
                 label = path.split("/")[3].split("_")[0]
                 train_labels.append(int(label))
+
+            # set the length of the dataset to be the length of the test size.
+            self.data_length = len(train_labels)
             return (train_img_paths,train_labels)
 
         else:
@@ -84,17 +92,11 @@ class UTKface(Dataset):
             for path in test_img_paths:
                 label = path.split("/")[3].split("_")[0]
                 test_labels.append(int(label))
+
+            # set the length of the dataset to be the length of the test size.
+            self.data_length = len(test_labels)
             return (test_img_paths,test_labels)
 
-    # def gauss_label_noise(self):
-    #     global_mean = 0
-    #     variance_dist = torch.distributions.normal.Normal(global_mean,self.v_variance)
-
-    #     noise_variance = variance_dist.sample((1,))
-    #     noise_variance = torch.abs(noise_variance).item()
-        
-    #     noisy_label = torch.distributions.normal.Normal(global_mean, noise_variance).sample((1,)).item() 
-    #     return (noisy_label, noise_variance)
     
     def get_unif_bounds(self, mu,v):
         """ Description:
@@ -135,14 +137,15 @@ class UTKface(Dataset):
             :a (float): Uniform lower bound.
             :b (float): Uniform upper bound.
         """
-        variance_dist = torch.distributions.uniform.Uniform(a,b)
+        std_dist = torch.distributions.uniform.Uniform(a,b)
             
-        # Sample heteroscedasticitical noises variances for the whole training set.
-        noise_variances = variance_dist.sample((self.train_size,))
+        # Sample heteroscedasticitical noises stds for the whole training set.
+        noises_stds = std_dist.sample((self.train_size,))
 
         # Sample gaussian noises.
-        noisy_labels = [torch.distributions.normal.Normal(0, var).sample((1,)).item() for var in noise_variances]
-        return (noisy_labels, noise_variances)
+        noisy_labels = [torch.distributions.normal.Normal(0, std).sample((1,)).item() for std in noises_stds]
+        return (noisy_labels, noises_stds)
+
 
     
     def generate_noise(self):
@@ -160,8 +163,16 @@ class UTKface(Dataset):
         Args:
             None.
         """
-        
-        a,b = self.get_unif_bounds(self.unif_data[0], self.unif_data[1])
+
+    
+        mu = self.unif_data[0]
+        scale = bool(self.unif_data[2]) # True or False
+        if scale:
+            v = get_unif_Vmax(mu, scale_value=self.unif_data[3])
+        else:
+            v =  self.unif_data[1]
+
+        a,b = self.get_unif_bounds(mu, v)
         lbl_noises, noise_variances = self.gaussian_noise(a, b)
         return (lbl_noises, noise_variances)
 
@@ -181,7 +192,7 @@ class UTKface(Dataset):
         Args:
             None.
         """
-        return self.dataset_size
+        return self.data_length
 
     def __getitem__(self, idx):
 
@@ -200,35 +211,25 @@ class UTKface(Dataset):
             :idx: auto-sampled generated index.
         """
 
+        img_path = self.images_pth[idx]
+        label = self.labels[idx]
+
+        # Convert the label to a tensor
+        label = torch.tensor(label,dtype=torch.float32)
+        image = Image.open(img_path)
+
+        # Apply some transformation to the images.
+        if self.transform:
+            image = self.transform(image)
+
         if self.train:
-            img_path = self.images_pth[idx]
-            label = self.labels[idx]
+            if self.noise:
+                if self.noise_type == 'uniform':
+                    noise = self.lbl_noises[idx]
+                    variance = self.noise_variances[idx]
+                return (image, label, noise, variance)
 
-        if self.noise_type == 'uniform'
-                noise = self.lbl_noises[idx]
-                variance = self.noise_variances[idx]
-
-            # Convert the label to a tensor
-
-            label = torch.tensor(label,dtype=torch.float32)
-            image = Image.open(img_path)
-
-
-            if self.transform:
-                image = self.transform(image)
-
-            return (image, label,noise,variance)
+            else:
+                return (image, label)
         else:
-            img_path = self.images_pth[idx]
-            label = self.labels[idx]
-
-            # Convert the label to a tensor
-
-            label = torch.tensor(label,dtype=torch.float32)
-            image = Image.open(img_path)
-
-
-            if self.transform:
-                image = self.transform(image)
-
             return (image, label)  

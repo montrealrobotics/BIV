@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; IV Update 2020 documentation</title>
+  <title>Index &mdash; Inverse Variance Weighting Update 2020 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> IV Update
+            <a href="index.html" class="icon icon-home"> Inverse Variance Weighting Update
           
 
           
@@ -91,12 +91,12 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/dataloader.html">Dataloader</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/losses.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/losses.html#inverse-variance-loss-ivloss">Inverse Variance Loss (IVLoss):</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/model.html">Models:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/model.html#vanilla-cnn">Vanilla CNN:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/train.html">Trainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/dataloader.html">dataloader.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/losses.html">loss.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/model.html">models.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/params.html">params.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/train.html">train.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/utils.html">utils.py</a></li>
 </ul>
 
             
@@ -111,7 +111,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">IV Update</a>
+          <a href="index.html">Inverse Variance Weighting Update</a>
         
       </nav>
 
@@ -196,11 +196,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/dataloader.html#dataloader.UTKface.gaussian_noise">gaussian_noise() (dataloader.UTKface method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/dataloader.html#dataloader.UTKface.generate_noise">generate_noise() (dataloader.UTKface method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/dataloader.html#dataloader.UTKface.get_unif_bounds">get_unif_bounds() (dataloader.UTKface method)</a>
+</li>
+      <li><a href="pages/utils.html#utils.get_unif_Vmax">get_unif_Vmax() (in module utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -216,6 +218,14 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/train.html#train.Trainer.train">train() (train.Trainer method)</a>
+</li>
+      <li><a href="pages/train.html#train.Trainer.train_iv">train_iv() (train.Trainer method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/train.html#train.Trainer.train_w_iv">train_w_iv() (train.Trainer method)</a>
+</li>
       <li><a href="pages/train.html#train.Trainer">Trainer (class in train)</a>
 </li>
   </ul></td>

@@ -66,7 +66,7 @@ if __name__ == "__main__":
     tag = [args.tag,]       # Get Wandb tags
 
     # Initiate wandb client.
-    wandb.init(project="iv-update",tags=tag , entity="khamiesw")
+    wandb.init(project="IV",tags=tag , entity="khamiesw")
     # Get the api key from the environment variables.
     api_key = os.environ.get('WANDB_API_KEY')
     # login to my wandb account.
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
 
-    train_data = UTKface(d_path, transform= trans, train= True, noise_type='uniform', uniform_data = unif_data) 
+    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', uniform_data = unif_data) 
     test_data = UTKface(d_path, transform= trans, train= False)
 
     

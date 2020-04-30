@@ -4,7 +4,102 @@ from torch import optim
 
 class AgeModel(nn.Module):
     def __init__(self):
+
+        """
+        Description:
+            The model is a CNN with 6 convolutional layers and 1 linear layer. The images has been transformed to gray before feeding them to the network,
+
+
+        Args:
+            :Conv 1: 
+                Conv layer 
+                    in_channels = 1, out_channels =10, kernel_size= 3, Stride= 1, Padding= 1
+
+                BatchNorm2d
+                    num_features= 10
+
+                ReLU
+                    a non linear function.
+
+                MaxPool2d
+                    kernel_size=2
+
+
+                
+
+            :Conv 2: 
+                Conv layer 
+                    in_channels = 10, out_channels =20, kernel_size= 3, Stride= 1, Padding= 1
+
+                BatchNorm2d
+                    num_features= 20
+
+                ReLU
+                    a non linear function.
+
+                MaxPool2d
+                    kernel_size=2, stride =2
+
+
+            :Conv 3: 
+                Conv layer 
+                    in_channels = 20, out_channels =32, kernel_size= 3, Stride= 1, Padding= 1
+
+                BatchNorm2d
+                    num_features= 32
+
+                ReLU
+                    a non linear function.
+
+                MaxPool2d
+                    kernel_size=2, stride =2
+
+
+            :Conv 4: 
+                Conv layer 
+                    in_channels = 32, out_channels =64, kernel_size= 3, Stride= 1, Padding= 1
+
+                BatchNorm2d
+                    num_features= 64
+
+                ReLU
+                    a non linear function.
+
+                MaxPool2d
+                    kernel_size=2, stride =2
+
+            :Conv 5: 
+                Conv layer 
+                    in_channels = 64, out_channels =128, kernel_size= 3, Stride= 1, Padding= 1
+
+                BatchNorm2d
+                    num_features= 128
+
+                ReLU
+                    a non linear function.
+
+                MaxPool2d
+                    kernel_size=2, stride =2
+
+            :Conv 6: 
+                Conv layer 
+                    in_channels = 128, out_channels =256, kernel_size= 3, Stride= 1, Padding= 1
+
+                BatchNorm2d
+                    num_features= 256
+
+                ReLU
+                    a non linear function.
+
+                MaxPool2d
+                    kernel_size=2, stride =2
+            :Linear: 
+               
+                in_features = 256*3*3 , out_features = 1        
+        """
         super(AgeModel,self).__init__()
+
+
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels = 1, out_channels = 10, kernel_size = 3, stride=1, padding=1),
@@ -52,6 +147,21 @@ class AgeModel(nn.Module):
             torch.nn.init.normal_(m.weight, mean=0, std=100)
 
     def forward(self,x):
+
+        """
+        Description:
+            Predict an age using an image.
+
+        Return:
+            Batch of labels (ages)
+
+        Return Type:
+            Tensor
+        
+        Args:
+            :x (tensor): Batch of images.
+        """
+
         out = self.conv1(x)
         out = self.conv2(out)
         out = self.conv3(out)

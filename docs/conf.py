@@ -28,7 +28,7 @@ html_theme =  'sphinx_rtd_theme'
 
 # -- Project information -----------------------------------------------------
 
-project = 'IV Update'
+project = 'Inverse Variance Weighting Update'
 copyright = '2020, Waleed Khamies'
 author = 'Waleed Khamies'
 
@@ -54,6 +54,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
     'sphinx_rtd_theme',
+    
 ]
 
 # Add any paths that contain templates here, relative to this directory.

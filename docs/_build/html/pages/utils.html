@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>params.py &mdash; Inverse Variance Weighting Update 2020 documentation</title>
+  <title>utils.py &mdash; Inverse Variance Weighting Update 2020 documentation</title>
   
 
   
@@ -45,8 +45,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="train.py" href="train.html" />
-    <link rel="prev" title="models.py" href="model.html" /> 
+    <link rel="prev" title="train.py" href="train.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,9 +94,9 @@
 <li class="toctree-l1"><a class="reference internal" href="dataloader.html">dataloader.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="losses.html">loss.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">models.py</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">params.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">params.py</a></li>
 <li class="toctree-l1"><a class="reference internal" href="train.html">train.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">utils.py</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utils.py</a></li>
 </ul>
 
             
@@ -143,13 +142,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>params.py</li>
+      <li>utils.py</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/pages/params.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/pages/utils.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -162,25 +161,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="params-py">
-<h1>params.py<a class="headerlink" href="#params-py" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="utils-py">
+<h1>utils.py<a class="headerlink" href="#utils-py" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="utils.get_unif_Vmax">
+<code class="descclassname">utils.</code><code class="descname">get_unif_Vmax</code><span class="sig-paren">(</span><em>mu</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_unif_Vmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>”
+Description:</p>
+<blockquote>
+<div>Estimates the maximum variance needed for the uniform distribution to produce maximum heteroscedasticity.</div></blockquote>
 <dl class="docutils">
-<dt>This is the main file to configure all the code base, you can configure:</dt>
-<dd><ul class="first last simple">
-<li>Dataloaders.</li>
-<li>Models.</li>
-<li>Training parameters.</li>
-</ul>
+<dt>Return:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">vmax:</th><td class="field-body">the maximum uniform variance.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt>Return type:</dt>
+<dd>float</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">mu:</th><td class="field-body">mean of the the uniform.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">scale [optional]:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">controls scaling the Vmax to different values.</td>
+</tr>
+</tbody>
+</table>
 </dd>
 </dl>
-<p>Keep in mind that there are another parameters that need to be specified through the command line, as they are considered the most important paramters in our experiments, they are:</p>
-<blockquote>
-<div><ul class="simple">
-<li><span class="math notranslate nohighlight">\(\mu\)</span> and V of uniform noise. (float)</li>
-<li>IV batch normalization. (boolean)</li>
-<li>Experiment tag. (string)</li>
-</ul>
-</div></blockquote>
+<p>Here is the formula for estimating <span class="math notranslate nohighlight">\(V_{max}\)</span></p>
+<div class="math notranslate nohighlight">
+\[V_{max} = \frac{4 \mu^2}{12}\]</div>
+</dd></dl>
+
 </div>
 
 
@@ -191,10 +212,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="train.html" class="btn btn-neutral float-right" title="train.py" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="model.html" class="btn btn-neutral float-left" title="models.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="train.html" class="btn btn-neutral float-left" title="train.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

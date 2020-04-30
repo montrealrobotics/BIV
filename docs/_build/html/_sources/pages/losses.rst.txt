@@ -1,7 +1,7 @@
-Loss functions
-***************
+loss.py
+=======
 
-Inverse Variance Loss (IVLoss):
+Inverse Variance Loss (IVLoss)
 *******************************
 
 

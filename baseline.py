@@ -44,7 +44,7 @@ epochs = n_params.get('epochs')
 torch.manual_seed(seed)
 
 # Wandb settings
-wandb.init(project="iv_w_baseline", entity="khamiesw")
+wandb.init(project="IV", entity="khamiesw")
 
 # Get the api key from the environment variables.
 api_key = os.environ.get('WANDB_API_KEY')
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
-    train_data = UTKface(d_path, transform= trans, train= True) 
+    train_data = UTKface(d_path, transform= trans, train= True, noise=False) 
     test_data = UTKface(d_path, transform= trans, train= False)
 
     train_loader = DataLoader(train_data, batch_size=tr_size)

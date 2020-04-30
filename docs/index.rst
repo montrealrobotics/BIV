@@ -1,10 +1,10 @@
-.. IV Update documentation master file, created by
+.. Inverse Variance Weighting Update documentation master file, created by
    sphinx-quickstart on Thu Apr 16 17:15:06 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to IV Update's documentation!
-=====================================
+Welcome to Inverse Variance Weighting Update's documentation!
+=============================================================
 
 .. toctree::
    :maxdepth: 2
@@ -15,6 +15,7 @@ Welcome to IV Update's documentation!
    pages/model
    pages/params
    pages/train
+   pages/utils
     
 
 
