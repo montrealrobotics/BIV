@@ -19,6 +19,6 @@ def get_unif_Vmax(mu, scale_value =1):
 
     """
     vmax = (4*mu**2)/12
-    vmax = vmax/scale
+    vmax = vmax/scale_value
 
     return vmax
