@@ -196,8 +196,8 @@ The images cover large variation in pose, facial expression, illumination, occlu
 <tr class="field-odd field"><th class="field-name" colspan="2">noise_type (string):</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body">Controls the type of noise that will be added to the data</td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2">unif_data (tuple):</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body">A tuple of the mean and the variance of the uniform distribution noise.</td>
+<tr class="field-even field"><th class="field-name" colspan="2">dist_data (tuple):</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A tuple of the mean and the variance of the noise distribution.</td>
 </tr>
 </tbody>
 </table>
@@ -234,11 +234,68 @@ The images cover large variation in pose, facial expression, illumination, occlu
 </dd></dl>
 
 <dl class="method">
-<dt id="dataloader.UTKface.gaussian_noise">
-<code class="descname">gaussian_noise</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.gaussian_noise" title="Permalink to this definition">¶</a></dt>
+<dt id="dataloader.UTKface.get_gamma_params">
+<code class="descname">get_gamma_params</code><span class="sig-paren">(</span><em>mu</em>, <em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.get_gamma_params" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Description:</dt>
-<dd>Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from a unifrom distribution.</dd>
+<dd><p class="first">Generates the shape or concentration (alpha) and rate (beta) using the mean and variance of gamma distribution</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">k</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">theta</span>
+<span class="o">**</span>
+<span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">v</span>
+<span class="n">theta</span> <span class="o">=</span> <span class="n">v</span><span class="o">/</span><span class="n">mu</span>
+</pre></div>
+</div>
+</dd>
+<dt>Return:</dt>
+<dd>Alpha and Beta of gamma distribution.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">mu (float):</th><td class="field-body">mean.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">v  (float):</th><td class="field-body">variance.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataloader.UTKface.get_distribution">
+<code class="descname">get_distribution</code><span class="sig-paren">(</span><em>dist_type</em>, <em>mu</em>, <em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.get_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Create a distribution function from specified family by dist_type argument (uniform or gamma).</dd>
+<dt>Return:</dt>
+<dd>A distribution function.</dd>
+<dt>Return type:</dt>
+<dd>Object.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">std_dist(function):</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">a distribution function for sampling the noises variances.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dataloader.UTKface.gaussian_noise">
+<code class="descname">gaussian_noise</code><span class="sig-paren">(</span><em>std_dist</em><span class="sig-paren">)</span><a class="headerlink" href="#dataloader.UTKface.gaussian_noise" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).</dd>
 <dt>Return:</dt>
 <dd>Guassian noises and their heteroscedasticitical variances.</dd>
 <dt>Return type:</dt>
@@ -248,9 +305,8 @@ The images cover large variation in pose, facial expression, illumination, occlu
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">a (float):</th><td class="field-body">Uniform lower bound.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">b (float):</th><td class="field-body">Uniform upper bound.</td>
+<tr class="field-odd field"><th class="field-name" colspan="2">std_dist(object):</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">a distribution function for sampling the noises variances.</td>
 </tr>
 </tbody>
 </table>

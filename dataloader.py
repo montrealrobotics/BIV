@@ -29,7 +29,7 @@ class UTKface(Dataset):
             :images_path (string): Dataset directory path.
             :transform (Object): A torchvision transofrmer for processing the images.
             :noise_type (string): Controls the type of noise that will be added to the data
-            :unif_data (tuple): A tuple of the mean and the variance of the uniform distribution noise.
+            :dist_data (tuple): A tuple of the mean and the variance of the noise distribution.
         
         """
         self.train = train
@@ -38,7 +38,7 @@ class UTKface(Dataset):
         self.transform = transform
         self.noise = noise
         self.noise_type = noise_type
-        self.unif_data = uniform_data
+        self.dist_data = uniform_data
         self.train_size= d_params.get('train_size')
         
 
@@ -121,10 +121,68 @@ class UTKface(Dataset):
         return a,b
     
 
-    def gaussian_noise(self, a,b):
+    def get_gamma_params(self,mu,v):
+        """ Description:
+            Generates the shape or concentration (alpha) and rate (beta) using the mean and variance of gamma distribution ::
+
+                alpha = 1/k
+                beta = 1/theta
+                **
+                k = (mu**2)/v
+                theta = v/mu
+
+        Return:
+            Alpha and Beta of gamma distribution.
+
+
+        Return type:
+            Tuple.
+
+        Args:
+            :mu (float): mean.
+            :v  (float): variance.
+        """
+        
+        theta = v/mu    # estimate the scale.
+        k = (mu**2)/v   # estimate the shape.
+        
+        alpha = k       # estimate the shape
+        beta = 1/theta  # estimate rate or beta
+
+        return (alpha,beta)
+
+
+    def get_distribution(self, dist_type, mu, v):
+        """ Description:
+            Create a distribution function from specified family by dist_type argument (uniform or gamma).
+
+        Return:
+            A distribution function.
+
+
+        Return type:
+            Object.
+
+        Args:
+            :std_dist(function): a distribution function for sampling the noises variances.
+        """
+
+        if dist_type =="uniform":
+            a,b = self.get_unif_bounds(mu, v)
+            std_dist = torch.distributions.uniform.Uniform(a,b)
+
+        
+        elif dist_type == "gamma":
+            alpha, beta = self.get_gamma_params(mu,v)
+            std_dist = torch.distributions.gamma.Gamma(alpha,beta)
+
+        return std_dist
+
+
+    def gaussian_noise(self, std_dist):
 
         """ Description:
-            Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from a unifrom distribution.
+            Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).
 
         Return:
             Guassian noises and their heteroscedasticitical variances.
@@ -134,10 +192,8 @@ class UTKface(Dataset):
             Tuple.
 
         Args:
-            :a (float): Uniform lower bound.
-            :b (float): Uniform upper bound.
+            :std_dist(object): a distribution function for sampling the noises variances.
         """
-        std_dist = torch.distributions.uniform.Uniform(a,b)
             
         # Sample heteroscedasticitical noises stds for the whole training set.
         noises_stds = std_dist.sample((self.train_size,))
@@ -164,16 +220,22 @@ class UTKface(Dataset):
             None.
         """
 
-    
-        mu = self.unif_data[0]
-        scale = bool(self.unif_data[2]) # True or False
-        if scale:
-            v = get_unif_Vmax(mu, scale_value=self.unif_data[3])
-        else:
-            v =  self.unif_data[1]
+        if self.noise_type == "uniform":
+        
+            mu = self.dist_data[0]
+            scale = bool(self.dist_data[2]) # True or False
+            if scale:
+                v = get_unif_Vmax(mu, scale_value=self.dist_data[3])
+            else:
+                v =  self.dist_data[1]
+        
+        elif self.noise_type == "gamma":
+            mu = self.dist_data[0]
+            v =  self.dist_data[1]
+ 
 
-        a,b = self.get_unif_bounds(mu, v)
-        lbl_noises, noise_variances = self.gaussian_noise(a, b)
+        dist = self.get_distribution(self.noise_type,mu,v)
+        lbl_noises, noise_variances = self.gaussian_noise(dist)
         return (lbl_noises, noise_variances)
 
             
