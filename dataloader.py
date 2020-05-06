@@ -14,7 +14,7 @@ from utils import get_unif_Vmax
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, uniform_data = None):
+    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, distribution_data = None):
 
         """
         Description:
@@ -38,7 +38,7 @@ class UTKface(Dataset):
         self.transform = transform
         self.noise = noise
         self.noise_type = noise_type
-        self.dist_data = uniform_data
+        self.dist_data = distribution_data
         self.train_size= d_params.get('train_size')
         
 
@@ -53,8 +53,6 @@ class UTKface(Dataset):
             if self.noise:
                 if self.noise_type == 'uniform':
                     self.lbl_noises, self.noise_variances = self.generate_noise()       
-                # elif self.noise_type == 'gauss':
-                #     lbl_noise, noise_variance = self.gauss_label_noise()
                 else:
                     print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
                 

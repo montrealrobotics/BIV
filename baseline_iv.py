@@ -78,7 +78,7 @@ if __name__ == "__main__":
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
 
-    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', uniform_data = unif_data) 
+    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data) 
     test_data = UTKface(d_path, transform= trans, train= False)
 
     
