@@ -4,6 +4,8 @@ import pandas as pd
 import torch
 from torch.nn import MSELoss
 
+from utils import group_testing, group_labels
+
 import wandb
 
 
@@ -86,10 +88,21 @@ class Trainer:
                 # save the train losses in the runs table future calculation.
                 test_runs_table = pd.concat([test_runs_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
 
-                print('Epoch:', epoch, "has finished.")
+                print('Epoch:', epoch, "has finished.") 
                 # log the results to wandb 
                 for i in range(len(tr_losses)):
                     wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
+
+
+                # check test loss for categorical y_pred
+                if epoch==9:
+                    with torch.no_grad():
+                        test_data = test_loader[0].cuda(0)
+                        test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+
+                        y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
+
+
             
             time = str(datetime.now())
             train_runs_table.to_csv('/final_outps/train_run_at'+time+'.csv')
@@ -131,6 +144,7 @@ class Trainer:
                         out = model(test_data)
                         tloss = loss(out,test_labels)
                         tst_losses.append(tloss.item())
+
 
                 # save the train losses in the runs table future calculation.
                 train_runs_table = pd.concat([train_runs_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
