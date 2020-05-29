@@ -1,8 +1,14 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+
 
 import torch
 
 import wandb
+
+from params import d_params
 
 def get_unif_Vmax(mu, scale_value =1):
      
@@ -30,7 +36,7 @@ def get_unif_Vmax(mu, scale_value =1):
     return vmax
 
 
-def get_dataset_stats(xtrain, ytrain):
+def compute_dataset_stats(xtrain, ytrain):
 
     """"
     Description:
@@ -61,6 +67,19 @@ def get_dataset_stats(xtrain, ytrain):
     
     return (xtrain_mean, xtrain_std, ytrain_mean, ytrain_std)
     
+
+
+def get_dataset_stats():
+
+    images_mean = torch.Tensor(pd.read_csv(d_params['d_img_mean_path']).values)[0][1]
+    images_std = torch.Tensor(pd.read_csv(d_params['d_img_std_path']).values)[0][1]
+    
+    labels_mean = torch.Tensor(pd.read_csv(d_params['d_lbl_mean_path']).values)[0][1]
+    labels_std = torch.Tensor(pd.read_csv(d_params['d_lbl_std_path']).values)[0][1]
+
+    return ( images_mean, images_std, labels_mean, labels_std ) 
+
+
 
 def normalize_labels(labels, labels_mean, labels_std):
     
@@ -107,6 +126,7 @@ def normalize_images(images, images_mean, images_std):
     images = images.squeeze().view(1,-1) # rolling out the whole training dataset to be a one vector.
     # print("##################################")
     # print(images.shape)
+    # print(images_mean.shape)
     # print(images_mean.shape)
     # print(images_std.shape)
     
@@ -161,3 +181,15 @@ def group_testing(x_pred, y_pred, bin_num, model, loss):
         wandb.log({'bin loss':gloss.item()}, step=i)
 
     return 0
+
+
+
+
+def plot_hist(x, name):
+    plot_path = '/final_outps/'+str(name)+'.png'
+    plt.hist(x)
+    plt.savefig(plot_path)
+    wandb.save(plot_path)
+    
+    return 0
+

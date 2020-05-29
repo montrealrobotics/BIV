@@ -11,6 +11,7 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import torch
 import torchvision
@@ -27,6 +28,10 @@ from train import Trainer
 # expirement settings
 from params import d_params
 from params import n_params
+
+# helper functions
+
+from utils import normalize_images, normalize_labels
 
 
 # Global varraibles
@@ -75,7 +80,6 @@ if __name__ == "__main__":
 
     train_dataset = train_loader
     test_dataset = iter(test_loader).next()
-
 
     wandb.watch(model)
     trainer.train(train_dataset,test_dataset,model,loss,optimz,epochs)
