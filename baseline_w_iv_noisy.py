@@ -1,11 +1,3 @@
-###################################################################################################
-
-# Things to do before ruuning the code on the server:
-
-# Change the dataset directory on the dataloder from: "./Dataset/UTKface/*" to "/datasets/UTKface/*"
-# Change Wandb log file from: test      to: iv_w_noisy_baseline
-###################################################################################################
-
 import os
 import argparse
 
@@ -39,9 +31,7 @@ learning_rate = n_params.get('lr')
 epochs = n_params.get('epochs')
 
 
-# Set expirement seed
 
-torch.manual_seed(seed)
 
 # Main 
 
@@ -55,6 +45,8 @@ if __name__ == "__main__":
     parser.add_argument("--v", type= int, default=1)
     parser.add_argument("--unf_vmax_scale", type=str, default="False")
     parser.add_argument("--scale_value", type=int, default=1)
+    parser.add_argument("--normalize", type=str, default="False")
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--tag", type=str, default="default")
 
     args = parser.parse_args()
@@ -70,18 +62,22 @@ if __name__ == "__main__":
     # login to my wandb account.
     wandb.login(api_key)
     
+    # Set expirement seed
+    torch.manual_seed(args.seed)
 
+    # Define the dataset
     unif_data = (args.mu,args.v, args.unf_vmax_scale, args.scale_value) 
-
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
+    normz = bool(args.normalize)
+    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data, normalize=normz) 
+    test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
 
-
-    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data) 
-    test_data = UTKface(d_path, transform= trans, train= False)
-
-    
+    # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
+
+    train_dataset = train_loader
+    test_dataset = iter(test_loader).next()
 
     # Model
     model = AgeModel()
@@ -89,12 +85,17 @@ if __name__ == "__main__":
     trainer = Trainer()
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
        
+# ############################################
+#     train_dataset = iter(train_loader).next()
+# #############################################
+#     import pandas as pd
+#     noises = train_dataset[2]
+#     d = pd.DataFrame(noises)
+#     d.to_csv('/final_outps/noises_'+str(args.mu)+'_'+str(args.v)+'.csv')
+#     wandb.save('/final_outps/noises_'+str(args.mu)+'_'+str(args.v)+'.csv')
 
-    train_dataset = train_loader
-    test_dataset = iter(test_loader).next()
-   
 
-
-
+    #Call wandb to log model performance.
     wandb.watch(model)
+    # train the model
     trainer.train_w_iv(train_dataset,test_dataset,model,loss,optimz,epochs)

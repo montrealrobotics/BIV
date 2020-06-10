@@ -3,18 +3,19 @@ import os
 import math
 
 from PIL import Image
+import pandas as pd
 
 import torch
 import torchvision
 from torch.utils.data import Dataset
 
 from params import d_params
-from utils import get_unif_Vmax
+from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset_stats
 
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, distribution_data = None):
+    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, distribution_data = None, normalize = False):
 
         """
         Description:
@@ -35,6 +36,7 @@ class UTKface(Dataset):
         self.train = train
         self.data_paths = glob.glob(path)
         self.dataset_size  = len(self.data_paths)
+        self.normalize = normalize
         self.transform = transform
         self.noise = noise
         self.noise_type = noise_type
@@ -46,16 +48,20 @@ class UTKface(Dataset):
 
         # Load the dataset
         self.images_pth, self.labels = self.__load_data()
-        
-
+        # Load the normalization constant variables.
+        self.images_mean, self.images_std, self.labels_mean, self.labels_std = get_dataset_stats()
         # Generate noise for the training samples.
         if self.train:
             if self.noise:
                 if self.noise_type == 'uniform':
-                    self.lbl_noises, self.noise_variances = self.generate_noise()       
+                    self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise.  
                 else:
                     print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
-                
+
+
+
+
+
         
     
     def __load_data(self):
@@ -177,7 +183,7 @@ class UTKface(Dataset):
         return std_dist
 
 
-    def gaussian_noise(self, std_dist):
+    def gaussian_noise(self, std_dist, normalize = False):
 
         """ Description:
             Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).
@@ -197,12 +203,18 @@ class UTKface(Dataset):
         noises_stds = std_dist.sample((self.train_size,))
 
         # Sample gaussian noises.
-        noisy_labels = [torch.distributions.normal.Normal(0, std).sample((1,)).item() for std in noises_stds]
-        return (noisy_labels, noises_stds)
+    
+        if normalize:
+            noises_stds = noises_stds/self.labels_std
+   
+
+        noises = [torch.distributions.normal.Normal(0, std).sample((1,)).item() for std in noises_stds]
+
+        return (noises, noises_stds)
 
 
     
-    def generate_noise(self):
+    def generate_noise(self, norm = False):
 
         """
         Description:
@@ -233,7 +245,8 @@ class UTKface(Dataset):
  
 
         dist = self.get_distribution(self.noise_type,mu,v)
-        lbl_noises, noise_variances = self.gaussian_noise(dist)
+        lbl_noises, noise_variances = self.gaussian_noise(dist, normalize = norm)
+
         return (lbl_noises, noise_variances)
 
             
@@ -272,24 +285,43 @@ class UTKface(Dataset):
         """
 
         img_path = self.images_pth[idx]
-        label = self.labels[idx]
+        self.label = self.labels[idx]
 
         # Convert the label to a tensor
-        label = torch.tensor(label,dtype=torch.float32)
-        image = Image.open(img_path)
+        self.label = torch.tensor(self.label,dtype=torch.float32)
+        self.image = Image.open(img_path)
 
         # Apply some transformation to the images.
         if self.transform:
-            image = self.transform(image)
+            self.image = self.transform(self.image)        
+        
 
         if self.train:
             if self.noise:
                 if self.noise_type == 'uniform':
-                    noise = self.lbl_noises[idx]
-                    variance = self.noise_variances[idx]
-                return (image, label, noise, variance)
-
+                    self.label_noise = self.lbl_noises[idx]
+                    self.noise_variance = self.noise_variances[idx]
+                    self.label = self.label + self.label_noise
+                    # Apply normalization to the noisy training data.
+                    if self.normalize:
+                        self.image = normalize_images(self.image, self.images_mean, self.images_std)
+                        self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+                        # weight the noise value and its varince by the std of the labels of the dataset.
+                        self.label_noise = self.label_noise/self.labels_std
+                        self.noise_variance = self.noise_variance/self.labels_std
+                    return (self.image, self.label, self.label_noise, self.noise_variance)
             else:
-                return (image, label)
+                # Apply normalization to the training data.
+                if self.normalize:
+                    self.image = normalize_images(self.image, self.images_mean, self.images_std)
+                    self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+                return (self.image, self.label)
         else:
-            return (image, label)  
+            # Apply normalization to the testing data.
+            if self.normalize:
+                self.image = normalize_images(self.image, self.images_mean, self.images_std)
+                self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+            return (self.image, self.label)  
+
+        
+

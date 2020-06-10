@@ -11,7 +11,6 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
-import pandas as pd
 
 import torch
 import torchvision
@@ -28,10 +27,6 @@ from train import Trainer
 # expirement settings
 from params import d_params
 from params import n_params
-
-# helper functions
-
-from utils import normalize_images, normalize_labels
 
 
 # Global varraibles
@@ -64,8 +59,8 @@ if __name__ == "__main__":
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
-    train_data = UTKface(d_path, transform= trans, train= True, noise=False) 
-    test_data = UTKface(d_path, transform= trans, train= False)
+    train_data = UTKface(d_path, transform= trans, train= True, noise=False, normalize=True) 
+    test_data = UTKface(d_path, transform= trans, train= False, normalize=True)
 
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)

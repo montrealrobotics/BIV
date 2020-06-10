@@ -1,11 +1,3 @@
-###################################################################################################
-
-# Things to do before ruuning the code on the server:
-
-# Change the dataset directory on the dataloder from: "./Dataset/UTKface/*" to "/datasets/UTKface/*"
-# Change Wandb log file from: test      to: iv_w_noisy_baseline
-###################################################################################################
-
 import argparse
 import os
 
@@ -31,7 +23,6 @@ from params import n_params
 
 # Global varraibles
 
-seed = d_params.get('seed')
 d_path = d_params.get('d_path')
 tr_size = d_params.get('tr_batch_size')
 tst_size = d_params.get('test_batch_size')
@@ -40,30 +31,26 @@ learning_rate = n_params.get('lr')
 epochs = n_params.get('epochs')
 
 
-# Configure global settings
-
-torch.manual_seed(seed)
-
-
 # Main 
 
 if __name__ == "__main__":
-
     # Parse arguments from the commandline
-
+    
     parser =  argparse.ArgumentParser(description=" A parser for baseline uniform noisy experiment")
 
     parser.add_argument("--mu" , type=int, default=0)
     parser.add_argument("--v", type= int, default=1)
-    parser.add_argument("--avg_noise_batch", type=str, default="False")    # Average the loss over the sum of the inverse variance of all data samples.
+    parser.add_argument("--unf_vmax_scale", type=str, default="False")
+    parser.add_argument("--scale_value", type=int, default=1)
+    parser.add_argument("--iv_avg_batch", type=str, default="False")
+    parser.add_argument("--normalize", type=str, default="False")
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--tag", type=str, default="default")
 
-    # Get controllable parameters from the commandline
     args = parser.parse_args()
-    mu = args.mu
-    v = args.v
-    avg_noise_batch = args.avg_noise_batch
-    tag = [args.tag,]       # Get Wandb tags
+    
+    # Get Wandb tags
+    tag = [args.tag,]
 
     # Initiate wandb client.
     wandb.init(project="IV",tags=tag , entity="khamiesw")
@@ -71,23 +58,28 @@ if __name__ == "__main__":
     api_key = os.environ.get('WANDB_API_KEY')
     # login to my wandb account.
     wandb.login(api_key)
-
-
-    unif_data = (mu,v) 
-
-    trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
-
-
-    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data) 
-    test_data = UTKface(d_path, transform= trans, train= False)
-
     
+    # Set expirement seed
+    torch.manual_seed(args.seed)
+
+    # Define the dataset
+    unif_data = (args.mu,args.v, args.unf_vmax_scale, args.scale_value) 
+    trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
+    normz = bool(args.normalize)
+    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data, normalize=normz) 
+    test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
+
+    # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
+    train_dataset = train_loader
+    test_dataset = iter(test_loader).next()
 
-#   Model
+
+    #Model
     model = AgeModel()
-    loss = IVLoss(avg_batch= avg_noise_batch)
+    iv_avg_batch = bool(args.iv_avg_batch)
+    loss = IVLoss(avg_batch=iv_avg_batch )
     trainer = Trainer()
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
        
@@ -96,5 +88,21 @@ if __name__ == "__main__":
     test_dataset = iter(test_loader).next()
 
 
+# ############################################
+#     print("################## Logging the noises and save them for future analysis.")
+#     temp_d = DataLoader(train_data, batch_size=16000)
+#     temp_dd = iter(temp_d).next()
+# #############################################
+#     import pandas as pd
+#     noises = temp_dd[2]
+#     d = pd.DataFrame(noises)
+#     d.to_csv('/final_outps/noises_'+str(args.mu)+'_'+str(args.v)+'.csv')
+#     wandb.save('/final_outps/noises_'+str(args.mu)+'_'+str(args.v)+'.csv')
+
+#     print("################# Finished logging.")
+# ############################################################################
+    #Call wandb to log model performance.
     wandb.watch(model)
+    # train the model
+
     trainer.train_iv(train_dataset,test_dataset,model,loss,optimz,epochs)

@@ -101,7 +101,44 @@ def normalize_labels(labels, labels_mean, labels_std):
     labels_norm = (labels - labels_mean)/labels_std
     return labels_norm
 
+
 def normalize_images(images, images_mean, images_std):
+    
+    """"
+    Description:
+        Normalize the training images as follow:
+    .. math::
+        normalized images = (images - images mean) / images standard deviation.
+    Return:
+        :images_norm: Normalized images.
+    Return type:
+        Tensor
+    Args:
+        :images: train data. (images)
+        :images_mean: images mean.
+        :images_std: images standard deviation.
+    """
+
+    channels = images.shape[0]
+    width = images.shape[1]
+    length = images.shape[2]
+    
+    images = images.squeeze().view(1,-1) # rolling out the whole training dataset to be a one vector.
+    # print("##################################")
+    # print(images.shape)
+    # print(images_mean.shape)
+    # print(images_mean.shape)
+    # print(images_std.shape)
+    
+    images_norm = (images - images_mean) / images_std
+    
+    # reshape the image
+    images_norm = images_norm.view(channels,length,width)
+    
+    
+    return images_norm
+
+def normalize_images_batch(images, images_mean, images_std):
     
     """"
     Description:
