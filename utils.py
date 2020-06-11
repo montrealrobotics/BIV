@@ -220,7 +220,12 @@ def group_testing(x_pred, y_pred, bin_num, model, loss):
     return 0
 
 
-
+def str_to_bool(arg):
+    if arg =='True':
+        return True
+    elif arg == 'False':
+        return False
+    
 
 def plot_hist(x, name):
     plot_path = '/final_outps/'+str(name)+'.png'

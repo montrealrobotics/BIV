@@ -10,7 +10,7 @@ import torchvision
 from torch.utils.data import Dataset
 
 from params import d_params
-from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset_stats
+from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset_stats, str_to_bool
 
 
 class UTKface(Dataset):
@@ -233,7 +233,9 @@ class UTKface(Dataset):
         if self.noise_type == "uniform":
         
             mu = self.dist_data[0]
-            scale = bool(self.dist_data[2]) # True or False
+            scale = str_to_bool(self.dist_data[2]) # True or False
+            print("###################### Debug #########################")
+            print("Vmax Scale: ", scale)
             if scale:
                 v = get_unif_Vmax(mu, scale_value=self.dist_data[3])
             else:
