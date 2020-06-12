@@ -1,0 +1,18 @@
+{
+    "root": "/home/waleed/Desktop/Research_Code/Estimation/code/IV_RL_server",
+    "program": "baseline_iv.py",
+    "startedAt": "2020-04-13T20:33:11.757803",
+    "host": "home",
+    "username": "waleed",
+    "executable": "/home/waleed/CondaEnvironments/torch/bin/python",
+    "os": "Linux-4.19.0-0.bpo.6-amd64-x86_64-with-debian-stretch",
+    "python": "3.7.5",
+    "cpu_count": 8,
+    "args": [],
+    "state": "failed",
+    "jobType": null,
+    "mode": "run",
+    "project": "iv-update",
+    "heartbeatAt": "2020-04-13T20:33:13.359257",
+    "exitcode": 1
+}

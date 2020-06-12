@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "baseline_iv.py", line 90, in <module>
+    test_dataset = iter(test_loader).next()
+  File "/home/waleed/CondaEnvironments/torch/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 345, in __next__
+    index = self._next_index()  # may raise StopIteration
+  File "/home/waleed/CondaEnvironments/torch/lib/python3.7/site-packages/torch/utils/data/dataloader.py", line 318, in _next_index
+    return next(self._sampler_iter)  # may raise StopIteration
+StopIteration

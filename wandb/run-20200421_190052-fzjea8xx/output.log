@@ -1,0 +1,5 @@
+Exception: you must specify a noise, either 'uniform' or 'gauss' 
+Traceback (most recent call last):
+  File "baseline.py", line 64, in <module>
+    train_data = UTKface(d_path, transform= trans, train= True)
+TypeError: __init__() should return None, not 'int'

@@ -1,0 +1,41 @@
+2020-04-21 15:00:53,377 DEBUG   MainThread:32040 [wandb_config.py:_load_defaults():111] no defaults not found in config-defaults.yaml
+2020-04-21 15:00:53,382 DEBUG   MainThread:32040 [git_repo.py:repo():30] git repository is invalid
+2020-04-21 15:00:53,383 DEBUG   MainThread:32040 [run_manager.py:__init__():535] Initialized sync for iv_w_baseline/fzjea8xx
+2020-04-21 15:00:53,385 INFO    MainThread:32040 [run_manager.py:wrap_existing_process():1133] wrapping existing process 32034
+2020-04-21 15:00:53,386 WARNING MainThread:32040 [io_wrap.py:register():104] SIGWINCH handler was not None: <Handlers.SIG_DFL: 0>
+2020-04-21 15:00:53,388 DEBUG   MainThread:32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): pypi.org:443
+2020-04-21 15:00:53,564 DEBUG   MainThread:32040 [connectionpool.py:_make_request():437] https://pypi.org:443 "GET /pypi/wandb/json HTTP/1.1" 200 42576
+2020-04-21 15:00:53,630 INFO    MainThread:32040 [run_manager.py:init_run():918] system metrics and metadata threads started
+2020-04-21 15:00:53,631 INFO    MainThread:32040 [run_manager.py:init_run():952] upserting run before process can begin, waiting at most 10 seconds
+2020-04-21 15:00:53,652 DEBUG   Thread-14 :32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-04-21 15:00:53,890 DEBUG   Thread-14 :32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-04-21 15:00:53,906 INFO    Thread-14 :32040 [run_manager.py:_upsert_run():1037] saving patches
+2020-04-21 15:00:53,906 INFO    Thread-14 :32040 [run_manager.py:_upsert_run():1041] saving pip packages
+2020-04-21 15:00:53,907 INFO    Thread-14 :32040 [run_manager.py:_upsert_run():1043] initializing streaming files api
+2020-04-21 15:00:53,909 INFO    Thread-14 :32040 [run_manager.py:_upsert_run():1050] unblocking file change observer, beginning sync with W&B servers
+2020-04-21 15:00:53,909 INFO    MainThread:32040 [run_manager.py:wrap_existing_process():1150] informing user process we are ready to proceed
+2020-04-21 15:00:53,919 INFO    MainThread:32040 [run_manager.py:_sync_etc():1257] entering loop for messages from user process
+2020-04-21 15:00:53,920 DEBUG   Thread-15 :32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-04-21 15:00:53,927 INFO    MainThread:32040 [run_manager.py:_sync_etc():1280] received message from user process: {"exitcode": 1}
+2020-04-21 15:00:53,927 INFO    MainThread:32040 [run_manager.py:_sync_etc():1366] closing log streams and sending exitcode to W&B
+2020-04-21 15:00:53,928 INFO    MainThread:32040 [run_manager.py:shutdown():1057] shutting down system stats and metadata service
+2020-04-21 15:00:54,077 DEBUG   Thread-15 :32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-04-21 15:00:54,386 INFO    Thread-3  :32040 [run_manager.py:_on_file_modified():682] file/dir modified: /home/waleed/Desktop/Research| Code/Estimation/code/IV_RL_server/wandb/run-20200421_190052-fzjea8xx/config.yaml
+2020-04-21 15:00:54,409 DEBUG   Thread-3  :32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-04-21 15:00:54,582 DEBUG   Thread-3  :32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-04-21 15:00:54,590 INFO    Thread-3  :32040 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Research| Code/Estimation/code/IV_RL_server/wandb/run-20200421_190052-fzjea8xx/wandb-events.jsonl
+2020-04-21 15:00:54,591 INFO    Thread-3  :32040 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Research| Code/Estimation/code/IV_RL_server/wandb/run-20200421_190052-fzjea8xx/output.log
+2020-04-21 15:00:54,592 INFO    Thread-3  :32040 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Research| Code/Estimation/code/IV_RL_server/wandb/run-20200421_190052-fzjea8xx/wandb-metadata.json
+2020-04-21 15:00:54,593 INFO    Thread-3  :32040 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Research| Code/Estimation/code/IV_RL_server/wandb/run-20200421_190052-fzjea8xx/requirements.txt
+2020-04-21 15:00:54,631 INFO    MainThread:32040 [run_manager.py:shutdown():1069] stopping streaming files and file change observer
+2020-04-21 15:00:55,383 INFO    Thread-3  :32040 [run_manager.py:_on_file_modified():682] file/dir modified: /home/waleed/Desktop/Research| Code/Estimation/code/IV_RL_server/wandb/run-20200421_190052-fzjea8xx/wandb-metadata.json
+2020-04-21 15:00:55,405 DEBUG   MainThread:32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-04-21 15:00:55,561 DEBUG   MainThread:32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-04-21 15:00:56,394 DEBUG   Thread-7  :32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-04-21 15:00:56,407 DEBUG   Thread-18 :32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-04-21 15:00:56,557 DEBUG   Thread-18 :32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-04-21 15:00:56,569 DEBUG   Thread-18 :32040 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): storage.googleapis.com:443
+2020-04-21 15:00:56,605 DEBUG   Thread-7  :32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /files/khamiesw/iv_w_baseline/fzjea8xx/file_stream HTTP/1.1" 200 None
+2020-04-21 15:00:56,695 DEBUG   Thread-7  :32040 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /files/khamiesw/iv_w_baseline/fzjea8xx/file_stream HTTP/1.1" 200 None
+2020-04-21 15:00:56,696 INFO    MainThread:32040 [run_manager.py:_sync_etc():1378] process only ran for 3 seconds, not syncing files
+2020-04-21 15:00:56,696 INFO    MainThread:32040 [fzjea8xx:run_manager.py:_sync_etc():1378] process only ran for 3 seconds, not syncing files
