@@ -225,7 +225,11 @@ def str_to_bool(arg):
         return True
     elif arg == 'False':
         return False
-    
+    else:
+        if isinstance(arg, str) :
+            raise ValueError("Received {} as an argument. Only 'True' or 'False' are accepted.".format(arg))
+        else:
+            raise TypeError("The argument is not a string but a {}.".format(type(arg)))
 
 def plot_hist(x, name):
     plot_path = '/final_outps/'+str(name)+'.png'
