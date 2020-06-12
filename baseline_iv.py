@@ -19,7 +19,7 @@ from losses import IVLoss
 # expirement settings
 from params import d_params
 from params import n_params
-
+from utils import str_to_bool
 
 # Global varraibles
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # Define the dataset
     unif_data = (args.mu,args.v, args.unf_vmax_scale, args.scale_value) 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
-    normz = bool(args.normalize)
+    normz = str_to_bool(args.normalize)
     train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data, normalize=normz) 
     test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     #Model
     model = AgeModel()
-    iv_avg_batch = bool(args.iv_avg_batch)
+    iv_avg_batch = str_to_bool(args.iv_avg_batch)
     loss = IVLoss(avg_batch=iv_avg_batch )
     trainer = Trainer()
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)

@@ -173,12 +173,12 @@ class UTKface(Dataset):
 
         if dist_type =="uniform":
             a,b = self.get_unif_bounds(mu, v)
-            std_dist = torch.distributions.uniform.Uniform(a,b)
+            var_dist = torch.distributions.uniform.Uniform(a,b)
 
         
         elif dist_type == "gamma":
             alpha, beta = self.get_gamma_params(mu,v)
-            std_dist = torch.distributions.gamma.Gamma(alpha,beta)
+            var_dist = torch.distributions.gamma.Gamma(alpha,beta)
 
         return var_dist
 
@@ -202,11 +202,12 @@ class UTKface(Dataset):
         # Sample heteroscedasticitical noises stds for the whole training set.
         noises_vars = var_dist.sample((self.train_size,))
 
-        noises = [torch.distributions.normal.Normal(0, sqrt(var)).sample((1,)).item() for var in noises_vars]
+        noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars]
 
+        
         return (noises, noises_vars)
 
-
+        
     
     def generate_noise(self, norm = False):
 

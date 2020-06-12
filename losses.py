@@ -1,5 +1,6 @@
 import torch
 from torch.nn import Module
+from utils import str_to_bool
 
 
 class IVLoss(Module):
@@ -28,7 +29,8 @@ class IVLoss(Module):
             """
 
         super(IVLoss, self).__init__()
-        self.avg_batch = bool(avg_batch)
+        self.avg_batch = str_to_bool(avg_batch)
+        print(self.avg_batch)
         self.epsilon = 0.0001        # for numerical stability.
     def forward(self, y_pred,y,lbl_var):
         """
