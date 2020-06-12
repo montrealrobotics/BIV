@@ -30,15 +30,14 @@ class IVLoss(Module):
         super(IVLoss, self).__init__()
         self.avg_batch = bool(avg_batch)
         self.epsilon = 1        # for numerical stability.
-    def forward(self, y_pred,y,lbl_std):
+    def forward(self, y_pred,y,lbl_var):
         """
         
         """
         m = y.shape[0]
-        l = torch.matmul(torch.sub(y_pred,y).t(), torch.sub(y_pred,y)*(1/( (lbl_std)**2 + self.epsilon  ) ))
-        l = (l/m)
+        l = torch.matmul(torch.sub(y_pred,y).t(), torch.sub(y_pred,y)*(1/(lbl_var + self.epsilon  ) ))
         if self.avg_batch:
-            return l/(torch.sum(1/( (lbl_std)**2 + self.epsilon  ) ))
+            return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
         else:
             return l
 

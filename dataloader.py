@@ -180,10 +180,10 @@ class UTKface(Dataset):
             alpha, beta = self.get_gamma_params(mu,v)
             std_dist = torch.distributions.gamma.Gamma(alpha,beta)
 
-        return std_dist
+        return var_dist
 
 
-    def gaussian_noise(self, std_dist, normalize = False):
+    def gaussian_noise(self, var_dist):
 
         """ Description:
             Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).
@@ -200,17 +200,11 @@ class UTKface(Dataset):
         """
             
         # Sample heteroscedasticitical noises stds for the whole training set.
-        noises_stds = std_dist.sample((self.train_size,))
+        noises_vars = var_dist.sample((self.train_size,))
 
-        # Sample gaussian noises.
-    
-        if normalize:
-            noises_stds = noises_stds/self.labels_std
-   
+        noises = [torch.distributions.normal.Normal(0, sqrt(var)).sample((1,)).item() for var in noises_vars]
 
-        noises = [torch.distributions.normal.Normal(0, std).sample((1,)).item() for std in noises_stds]
-
-        return (noises, noises_stds)
+        return (noises, noises_vars)
 
 
     
@@ -247,7 +241,7 @@ class UTKface(Dataset):
  
 
         dist = self.get_distribution(self.noise_type,mu,v)
-        lbl_noises, noise_variances = self.gaussian_noise(dist, normalize = norm)
+        lbl_noises, noise_variances = self.gaussian_noise(dist)
 
         return (lbl_noises, noise_variances)
 
@@ -310,7 +304,7 @@ class UTKface(Dataset):
                         self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
                         # weight the noise value and its varince by the std of the labels of the dataset.
                         self.label_noise = self.label_noise/self.labels_std
-                        self.noise_variance = self.noise_variance/self.labels_std
+                        self.noise_variance = self.noise_variance/(self.labels_std**2)
                     return (self.image, self.label, self.label_noise, self.noise_variance)
             else:
                 # Apply normalization to the training data.
