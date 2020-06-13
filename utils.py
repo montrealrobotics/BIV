@@ -10,7 +10,7 @@ import wandb
 
 from params import d_params
 
-def get_unif_Vmax(mu, scale_value =1):
+def get_unif_Vmax(mu, scale_value=1):
      
     """"
     Description:
@@ -31,7 +31,7 @@ def get_unif_Vmax(mu, scale_value =1):
 
     """
     vmax = (4*mu**2)/12
-    vmax = vmax/scale_value
+    vmax = vmax*scale_value
 
     return vmax
 

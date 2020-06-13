@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument("--mu" , type=int, default=0)
     parser.add_argument("--v", type= int, default=1)
     parser.add_argument("--unf_vmax_scale", type=str, default="False")
-    parser.add_argument("--scale_value", type=int, default=1)
+    parser.add_argument("--scale_value", type=str, default='1')
     parser.add_argument("--iv_avg_batch", type=str, default="False")
     parser.add_argument("--normalize", type=str, default="False")
     parser.add_argument("--seed", type=int, default=42)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
 
     # Define the dataset
-    unif_data = (args.mu,args.v, args.unf_vmax_scale, args.scale_value) 
+    unif_data = (args.mu,args.v, args.unf_vmax_scale, float(args.scale_value)) 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
     normz = str_to_bool(args.normalize)
     train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data, normalize=normz) 
