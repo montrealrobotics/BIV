@@ -797,9 +797,10 @@ class Trainer:
 
                     batch = batch
                     labels = torch.unsqueeze(labels,1)
+                    noises_var = torch.unsqueeze(noises_var,1).type(torch.float32)
 
                     out = model(batch)
-                    mloss = loss(out,labels_noisy,noises_var)
+                    mloss = loss(out,labels,noises_var)
                 
                     tr_losses.append(mloss.item())
                     mloss.backward()

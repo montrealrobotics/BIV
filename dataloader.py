@@ -15,7 +15,7 @@ from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, distribution_data = None, normalize = False):
+    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, distribution_data = None, normalize = False, noise_threshold = False):
 
         """
         Description:
@@ -42,6 +42,12 @@ class UTKface(Dataset):
         self.noise_type = noise_type
         self.dist_data = distribution_data
         self.train_size= d_params.get('train_size')
+        self.noise_threshold = noise_threshold
+        if self.noise_threshold != -1:
+            self.apply_noise_thresh = True
+        else:
+            self.apply_noise_thresh = False
+
         
 
         # This is not the proper implementation, but doing that for research purproses.
@@ -53,17 +59,39 @@ class UTKface(Dataset):
         # Generate noise for the training samples.
         if self.train:
             if self.noise:
+                print("I am here!")
                 if self.noise_type == 'uniform':
                     self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise.  
                 else:
                     print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
 
+        if self.apply_noise_thresh and train:
+            print('Filtering...')
+            self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
+            print('Filtered...')
 
-
-
-
-        
     
+    def filter_high_noise(self):
+        filt_images_path = []
+        filt_labels = []
+        filt_lbl_noises = []
+        filt_noise_variances = []
+        i = 0
+
+        for idx in range(len(self.noise_variances)):
+            if self.noise_variances[idx] < self.noise_threshold:
+                i = i+1
+                filt_images_path.append(self.images_pth[idx])
+                filt_labels.append(self.labels[idx])
+                filt_lbl_noises.append(self.lbl_noises[idx])
+                filt_noise_variances.append(self.noise_variances[idx])
+
+        self.data_length = i
+        print('Number of filtered samples: {}'.format(i))
+
+        return filt_images_path, filt_labels, filt_lbl_noises, filt_noise_variances
+
+
     def __load_data(self):
 
         """
