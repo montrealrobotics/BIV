@@ -1,1 +1,13 @@
 Datasets
+
+*.csv
+
+wandb/*
+
+*.log
+
+*.pyc
+
+ICML_paper/*
+
+UTKFace/*
