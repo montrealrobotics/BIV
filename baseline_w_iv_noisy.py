@@ -48,6 +48,8 @@ if __name__ == "__main__":
     parser.add_argument("--normalize", type=str, default="False")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--tag", type=str, default="default")
+    parser.add_argument("--noise_thresh", type=str, default="-1")
+
 
     args = parser.parse_args()
     
@@ -69,7 +71,10 @@ if __name__ == "__main__":
     unif_data = (args.mu,args.v, args.unf_vmax_scale, args.scale_value) 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
     normz = bool(args.normalize)
-    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data, normalize=normz) 
+
+    noise_thresh = float(args.noise_thresh)
+
+    train_data = UTKface(d_path, transform= trans, train= True, noise=True, noise_type='uniform', distribution_data = unif_data, normalize=normz, noise_threshold = noise_thresh) 
     test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
 
     # Load the data
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     test_loader = DataLoader(test_data, batch_size=tst_size)
 
     train_dataset = train_loader
-    test_dataset = iter(test_loader).next()
+    test_dataset = test_loader #iter(test_loader).next()
 
     # Model
     model = AgeModel()
