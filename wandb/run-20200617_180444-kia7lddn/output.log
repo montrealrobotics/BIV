@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "main.py", line 85, in <module>
+    loss_type = str_to_bool(args.loss_type)
+  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/utils.py", line 230, in str_to_bool
+    raise ValueError("Received {} as an argument. Only 'True' or 'False' are accepted.".format(arg))
+ValueError: Received mse as an argument. Only 'True' or 'False' are accepted.

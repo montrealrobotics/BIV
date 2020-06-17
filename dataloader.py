@@ -15,7 +15,8 @@ from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, distribution_data = None, normalize = False, noise_threshold = False):
+    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, \
+                distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None):
 
         """
         Description:
@@ -43,32 +44,26 @@ class UTKface(Dataset):
         self.dist_data = distribution_data
         self.train_size= d_params.get('train_size')
         self.noise_threshold = noise_threshold
-        if self.noise_threshold != -1:
-            self.apply_noise_thresh = True
-        else:
-            self.apply_noise_thresh = False
-
+        self.threshold_value = threshold_value
         
-
         # This is not the proper implementation, but doing that for research purproses.
 
         # Load the dataset
-        self.images_pth, self.labels = self.__load_data()
+        self.images_pth, self.labels = self.load_data()
         # Load the normalization constant variables.
         self.images_mean, self.images_std, self.labels_mean, self.labels_std = get_dataset_stats()
         # Generate noise for the training samples.
         if self.train:
             if self.noise:
-                print("I am here!")
                 if self.noise_type == 'uniform':
                     self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise.  
                 else:
                     print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
 
-        if self.apply_noise_thresh and train:
-            print('Filtering...')
-            self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
-            print('Filtered...')
+                if self.noise_threshold:
+                        print('Training data filtering started...')
+                        self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
+                        print('Training data filtering finished...')
 
     
     def filter_high_noise(self):
@@ -76,23 +71,29 @@ class UTKface(Dataset):
         filt_labels = []
         filt_lbl_noises = []
         filt_noise_variances = []
-        i = 0
+        filtered_data_counter = 0
 
         for idx in range(len(self.noise_variances)):
-            if self.noise_variances[idx] < self.noise_threshold:
-                i = i+1
+            if self.noise_variances[idx] < self.threshold_value:
+
                 filt_images_path.append(self.images_pth[idx])
                 filt_labels.append(self.labels[idx])
                 filt_lbl_noises.append(self.lbl_noises[idx])
                 filt_noise_variances.append(self.noise_variances[idx])
 
-        self.data_length = i
-        print('Number of filtered samples: {}'.format(i))
+                # Increase the counter value of the filtered data.
+                filtered_data_counter = filtered_data_counter+1
+            else:
+                pass
 
-        return filt_images_path, filt_labels, filt_lbl_noises, filt_noise_variances
+        # set the length of the data to be the value of the filtered_data_counter.
+        self.data_length = filtered_data_counter
+        print('Number of filtered samples: {}'.format(filtered_data_counter))
 
+        return (filt_images_path, filt_labels, filt_lbl_noises, filt_noise_variances)
 
-    def __load_data(self):
+    
+    def load_data(self):
 
         """
         Description:
@@ -107,30 +108,25 @@ class UTKface(Dataset):
         Args:
             None.
         """
-        train_labels = []
+        
+        labels = []
+
         if self.train:
-            train_img_paths = self.data_paths[:self.train_size]
-            for path in train_img_paths:
-                label = path.split("/")[3].split("_")[0]
-                train_labels.append(int(label))
-
-            # set the length of the dataset to be the length of the test size.
-            self.data_length = len(train_labels)
-            return (train_img_paths,train_labels)
-
+            img_paths = self.data_paths[:self.train_size]
         else:
-            test_labels = []
-            test_img_paths = self.data_paths[self.train_size:]
-            for path in test_img_paths:
-                label = path.split("/")[3].split("_")[0]
-                test_labels.append(int(label))
+            img_paths = self.data_paths[self.train_size:]
 
-            # set the length of the dataset to be the length of the test size.
-            self.data_length = len(test_labels)
-            return (test_img_paths,test_labels)
+        for path in img_paths:
+            label = float(path.split("/")[-1].split("_")[0])
+            labels.append(label)
+            # set the length of the data to be the length of the train size.
+        self.data_length = len(labels)
+        return (img_paths,labels)
+
+
 
     
-    def get_unif_bounds(self, mu,v):
+    def get_uniform_params(self, mu,v):
         """ Description:
             Generates the bounds of the uniform distribution by solving the formula ::
 
@@ -147,10 +143,13 @@ class UTKface(Dataset):
             :mu (float): mean.
             :v  (float): variance.
         """
-        b = mu + math.sqrt(3*v)
-        a = mu - math.sqrt(3*v)
+        if v<0:
+            raise ValueError(" Varinace is a negative number: {}".format(v))
+        else:
+            a = mu - math.sqrt(3*v)
+            b = mu + math.sqrt(3*v)
 
-        return a,b
+            return a,b
     
 
     def get_gamma_params(self,mu,v):
@@ -175,13 +174,18 @@ class UTKface(Dataset):
             :v  (float): variance.
         """
         
-        theta = v/mu    # estimate the scale.
-        k = (mu**2)/v   # estimate the shape.
-        
-        alpha = k       # estimate the shape
-        beta = 1/theta  # estimate rate or beta
+        if v == 0:
+            raise ValueError("Variance is zaro, alpha and beta can not be estimated because of divideding by zero: {}".format(v))
+        elif v <0:
+            raise ValueError("Variance is a negative value: {}".format(v))
+        else:
+            theta = v/mu    # estimate the scale.
+            k = (mu**2)/v   # estimate the shape.
+            
+            alpha = k       # estimate the shape
+            beta = 1/theta  # estimate rate or beta
 
-        return (alpha,beta)
+            return (alpha,beta)
 
 
     def get_distribution(self, dist_type, mu, v):
@@ -200,7 +204,7 @@ class UTKface(Dataset):
         """
 
         if dist_type =="uniform":
-            a,b = self.get_unif_bounds(mu, v)
+            a,b = self.get_uniform_params(mu, v)
             var_dist = torch.distributions.uniform.Uniform(a,b)
 
         
@@ -256,13 +260,12 @@ class UTKface(Dataset):
         if self.noise_type == "uniform":
         
             mu = self.dist_data[0]
-            scale = str_to_bool(self.dist_data[2]) # True or False
-            print("###################### Debug #########################")
-            print("Vmax Scale: ", scale)
-            if scale:
+            is_vmax = self.dist_data[2] # True or False
+
+            if is_vmax:
                 v = get_unif_Vmax(mu, scale_value=self.dist_data[3])
             else:
-                v =  self.dist_data[1]
+                v =  self.dist_data[1] 
         
         elif self.noise_type == "gamma":
             mu = self.dist_data[0]

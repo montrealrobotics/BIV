@@ -1,0 +1,43 @@
+2020-06-17 16:25:58,600 DEBUG   MainThread:20403 [wandb_config.py:_load_defaults():111] no defaults not found in config-defaults.yaml
+2020-06-17 16:25:58,605 DEBUG   MainThread:20403 [git_repo.py:repo():30] git repository is invalid
+2020-06-17 16:25:58,606 DEBUG   MainThread:20403 [run_manager.py:__init__():535] Initialized sync for IV/qbwfk8iy
+2020-06-17 16:25:58,608 INFO    MainThread:20403 [run_manager.py:wrap_existing_process():1133] wrapping existing process 20397
+2020-06-17 16:25:58,608 WARNING MainThread:20403 [io_wrap.py:register():104] SIGWINCH handler was not None: <Handlers.SIG_DFL: 0>
+2020-06-17 16:25:58,610 DEBUG   MainThread:20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): pypi.org:443
+2020-06-17 16:25:58,935 DEBUG   MainThread:20403 [connectionpool.py:_make_request():437] https://pypi.org:443 "GET /pypi/wandb/json HTTP/1.1" 200 44280
+2020-06-17 16:25:58,990 INFO    MainThread:20403 [run_manager.py:init_run():918] system metrics and metadata threads started
+2020-06-17 16:25:58,990 INFO    MainThread:20403 [run_manager.py:init_run():952] upserting run before process can begin, waiting at most 10 seconds
+2020-06-17 16:25:59,013 DEBUG   Thread-14 :20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-06-17 16:25:59,322 DEBUG   Thread-14 :20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-06-17 16:25:59,340 INFO    Thread-14 :20403 [run_manager.py:_upsert_run():1037] saving patches
+2020-06-17 16:25:59,340 INFO    Thread-14 :20403 [run_manager.py:_upsert_run():1041] saving pip packages
+2020-06-17 16:25:59,341 INFO    Thread-14 :20403 [run_manager.py:_upsert_run():1043] initializing streaming files api
+2020-06-17 16:25:59,343 INFO    Thread-14 :20403 [run_manager.py:_upsert_run():1050] unblocking file change observer, beginning sync with W&B servers
+2020-06-17 16:25:59,344 INFO    MainThread:20403 [run_manager.py:wrap_existing_process():1150] informing user process we are ready to proceed
+2020-06-17 16:25:59,355 DEBUG   Thread-15 :20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-06-17 16:25:59,356 INFO    MainThread:20403 [run_manager.py:_sync_etc():1257] entering loop for messages from user process
+2020-06-17 16:25:59,504 INFO    MainThread:20403 [run_manager.py:_sync_etc():1280] received message from user process: {"exitcode": 0}
+2020-06-17 16:25:59,504 INFO    MainThread:20403 [run_manager.py:_sync_etc():1366] closing log streams and sending exitcode to W&B
+2020-06-17 16:25:59,504 INFO    MainThread:20403 [run_manager.py:shutdown():1057] shutting down system stats and metadata service
+2020-06-17 16:25:59,607 INFO    Thread-3  :20403 [run_manager.py:_on_file_modified():682] file/dir modified: /home/waleed/Desktop/Code/Estimation/code/IV_RL_local/wandb/run-20200617_202558-qbwfk8iy/config.yaml
+2020-06-17 16:25:59,626 DEBUG   Thread-3  :20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-06-17 16:25:59,692 DEBUG   Thread-15 :20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-06-17 16:25:59,887 DEBUG   Thread-3  :20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-06-17 16:25:59,895 INFO    Thread-3  :20403 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Code/Estimation/code/IV_RL_local/wandb/run-20200617_202558-qbwfk8iy/wandb-metadata.json
+2020-06-17 16:25:59,896 INFO    Thread-3  :20403 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Code/Estimation/code/IV_RL_local/wandb/run-20200617_202558-qbwfk8iy/requirements.txt
+2020-06-17 16:25:59,897 INFO    Thread-3  :20403 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Code/Estimation/code/IV_RL_local/wandb/run-20200617_202558-qbwfk8iy/wandb-events.jsonl
+2020-06-17 16:25:59,898 INFO    Thread-3  :20403 [run_manager.py:_on_file_created():671] file/dir created: /home/waleed/Desktop/Code/Estimation/code/IV_RL_local/wandb/run-20200617_202558-qbwfk8iy/output.log
+2020-06-17 16:25:59,992 INFO    MainThread:20403 [run_manager.py:shutdown():1069] stopping streaming files and file change observer
+2020-06-17 16:26:00,605 INFO    Thread-3  :20403 [run_manager.py:_on_file_modified():682] file/dir modified: /home/waleed/Desktop/Code/Estimation/code/IV_RL_local/wandb/run-20200617_202558-qbwfk8iy/wandb-metadata.json
+2020-06-17 16:26:00,628 DEBUG   MainThread:20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-06-17 16:26:00,917 DEBUG   MainThread:20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-06-17 16:26:01,622 DEBUG   Thread-18 :20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-06-17 16:26:01,847 DEBUG   Thread-18 :20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /graphql HTTP/1.1" 200 None
+2020-06-17 16:26:01,860 DEBUG   Thread-18 :20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): storage.googleapis.com:443
+2020-06-17 16:26:01,904 DEBUG   Thread-7  :20403 [connectionpool.py:_new_conn():959] Starting new HTTPS connection (1): api.wandb.ai:443
+2020-06-17 16:26:02,259 DEBUG   Thread-7  :20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /files/khamiesw/IV/qbwfk8iy/file_stream HTTP/1.1" 200 None
+2020-06-17 16:26:02,418 DEBUG   Thread-18 :20403 [connectionpool.py:_make_request():437] https://storage.googleapis.com:443 "PUT /wandb-production.appspot.com/khamiesw/IV/qbwfk8iy/___batch_archive_1.tgz?Expires=1592511878&GoogleAccessId=gorilla-cloud-storage%40wandb-production.iam.gserviceaccount.com&Signature=Vro1YKiHrncVtayZgDPNduBP%2F9rnpbQvaoyChC7eFslCIUhjBpJyJqdn2AjPeA2HxYxMBAaqfV2sXpn5Q%2F64vlhSZ%2F8Wynj%2F%2F5RQGphFlnDwO%2B65vYRx6qIkhgzg0kVfsxE7XcZtV7p%2BC%2BXzIicDpCbiAolt4HwzRIY2DecUOsmkVxlZaNxArg78jtdFNTS%2Bpfkl7STMVH2BycrsVEmUUklJ3dviD7hvJWCsMNn5Po6%2BV3IvEV2Iq%2Be5robbS5khVIeSMBTczgPLPWzv0Me2UbldPBoyMWJDXHAAhnChJ9xyv0gUZEbRfQ0szdcjhV2xo2gQJ0Y5r2tuc%2BloCLN7TA%3D%3D HTTP/1.1" 200 0
+2020-06-17 16:26:02,678 DEBUG   Thread-7  :20403 [connectionpool.py:_make_request():437] https://api.wandb.ai:443 "POST /files/khamiesw/IV/qbwfk8iy/file_stream HTTP/1.1" 200 None
+2020-06-17 16:26:02,679 INFO    MainThread:20403 [run_manager.py:_sync_etc():1418] syncing files to cloud storage
+2020-06-17 16:26:03,681 INFO    MainThread:20403 [run_manager.py:_sync_etc():1433] syncing complete: https://app.wandb.ai/khamiesw/IV/runs/qbwfk8iy
+2020-06-17 16:26:03,681 INFO    MainThread:20403 [qbwfk8iy:run_manager.py:_sync_etc():1433] syncing complete: https://app.wandb.ai/khamiesw/IV/runs/qbwfk8iy

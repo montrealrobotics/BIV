@@ -1,0 +1,13 @@
+tag hello
+seed 23
+is noise:  False
+n_type uniform
+normalize: True
+noise-thresh True
+mu 30.0
+v 4.0
+uniform_vmax True
+vmax_scale 5.0
+loss_type mse
+thres True
+thres_value 3.0

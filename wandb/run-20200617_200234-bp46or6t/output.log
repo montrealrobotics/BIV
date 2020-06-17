@@ -1,0 +1,12 @@
+16000
+Filtering...
+Number of filtered samples: 4775
+Filtered...
+Traceback (most recent call last):
+  File "main.py", line 115, in <module>
+    test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
+  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 52, in __init__
+    self.images_pth, self.labels = self.load_data()
+  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 128, in load_data
+    test_labels.append(float(label))
+ValueError: could not convert string to float: 'UTKFace'

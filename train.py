@@ -1,6 +1,6 @@
 import itertools
 from datetime import datetime
-import numpy as np
+
 import pandas as pd
 
 import torch
@@ -132,16 +132,12 @@ class Trainer:
                         wandb.save('/final_outps/train_labels.csv')
 
                     with torch.no_grad():
-                        tst_loss = []
-                        for i,(batch, labels) in enumerate(test_loader):
-                            print(i)
-                            test_data = batch.cuda(0)
-
-                            test_labels = torch.unsqueeze(labels,1).cuda(0)
-                            out = model(test_data)
-                            tloss = loss(out,test_labels)
-                            tst_loss.append(tloss.item())
-                        tst_losses.append(torch.mean(tst_loss)) 
+                        test_data = test_loader[0].cuda(0)
+                        test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+                        out = model(test_data)
+                        tloss = loss(out,test_labels)
+                        tst_losses.append(tloss.item()) 
+                    
                         if epoch == (epochs-1):
 
                             # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
@@ -431,14 +427,13 @@ class Trainer:
 
 
                     with torch.no_grad():
-                        tst_loss = []
-                        for _,(batch, labels) in enumerate(test_loader):
-                            test_data = batch.cuda(0)
-                            test_labels = torch.unsqueeze(labels,1).cuda(0)
-                            out = model(test_data)
-                            tloss = loss(out,test_labels)
-                            tst_loss.append(tloss.item())
-                        tst_losses.append(np.mean(tst_loss)) 
+
+                        test_data = test_loader[0].cuda(0)
+                        test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
+
+                        out = model(test_data)
+                        tloss = loss(out,test_labels)
+                        tst_losses.append(tloss.item())
 
                         if epoch == (epochs-1):
 
@@ -802,10 +797,9 @@ class Trainer:
 
                     batch = batch
                     labels = torch.unsqueeze(labels,1)
-                    noises_var = torch.unsqueeze(noises_var,1).type(torch.float32)
 
                     out = model(batch)
-                    mloss = loss(out,labels,noises_var)
+                    mloss = loss(out,labels_noisy,noises_var)
                 
                     tr_losses.append(mloss.item())
                     mloss.backward()

@@ -1,0 +1,9 @@
+Filtering...
+Traceback (most recent call last):
+  File "main.py", line 114, in <module>
+    noise_threshold = noise_thresh, threshold_value = thresh_value)
+  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 65, in __init__
+    self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
+  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 76, in filter_high_noise
+    for idx in range(len(self.noise_variances)):
+AttributeError: 'UTKface' object has no attribute 'noise_variances'
