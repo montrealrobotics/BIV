@@ -1,3 +1,5 @@
+import shutil 
+import os
 import itertools
 from datetime import datetime
 
@@ -9,15 +11,15 @@ from torch.nn import MSELoss
 import matplotlib.pyplot as plt
 
 from utils import group_testing, group_labels, get_dataset_stats, normalize_images, normalize_labels, plot_hist
+from params import d_params
 
 import wandb
 
 
+
 class Trainer:
 
-    def __init__(self):
-
-        """
+    """
         Description:
             A class with multiple training methods:
                 - Baseline (The model without injecting any noises)
@@ -27,596 +29,66 @@ class Trainer:
 
         Args:
             :cuda (bool) [private]: Controls if the model will be run on GPU or not.
-        """
+    """
 
-        # Check Cuda avaliability
-        self.cuda = torch.cuda.is_available()
+    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs):
 
-    def train(self, train_loader, test_loader, model,loss, optimizer,epochs):
-
-        """
-        Description:
-
-            Train the network without injecting any noises.
-
-        Return:
-            Model
-        Return type:
-            nn.Module
-        
-        Args:
-            :train_loader: A data loader for the training set.
-            :test_loader:  A data loader for the testing set.
-            :model: A random model. (i.e CNN).
-            :loss: A loss function. (i.e MSE, IV, normalized IV)
-            :optimizer: An optimizer. (i.e Adam)
-            :epochs: Number of epochs
-            """
-
-  
+        self.expermient_id = experiment_id
+        self.cuda = torch.cuda.is_available()  # Check Cuda avaliability
+        self.train_data = train_loader
+        self.test_data = test_loader
+        self.train_batches_number = len(train_loader)
+        self.test_batches_number = len(test_loader)
+        self.model = model
+        self.loss = loss
+        self.mse_loss = MSELoss()
+        self.optimizer = optimizer
+        self.epochs = epochs
+        self.last_epoch = self.epochs-1
+        self.server_path = d_params.get('server_path')
 
         if self.cuda:
-            ############################
-            print("Running with Cuda support")
-            ##############################
-
-            train_loss_table = pd.DataFrame()
-            test_loss_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing labels into .csv files.
-            train_labels_table = pd.DataFrame()
-            test_labels_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing predictions into .csv files.
-            train_out_table = pd.DataFrame()
-            test_out_table = pd.DataFrame()
-
-            
-            for epoch in range(epochs):
-                #Saving the train and test losses for logging and visualization purposes.
-                tr_losses = []
-                tst_losses = []
-
-                # Saving the train and test predictions for logging and visualization purposes.
-                tr_out = []
-                tst_out = []
-
-                # Saving the train and test labels for logging and visualization purposes.
-                tr_labels = []
-                tst_labels = []
-               
-                for i,(batch, labels) in enumerate(train_loader):
-                    optimizer.zero_grad() 
-
-                    # Feed the data to the model
-                    model.cuda(0)
-                    batch = batch.cuda(0)
-                    labels = torch.unsqueeze(labels,1).cuda(0)
-                    
-                    out = model(batch)  
-
-                    mloss = loss(out,labels)
-                    tr_losses.append(mloss.item())
-
-                    # Update the parameters
-                    mloss.backward()
-            
-                    optimizer.step()
-
-
-                    if epoch == (epochs-1):
-                         # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                        tr_out.append(out.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_out_list = list(itertools.chain.from_iterable(tr_out))
-                        train_out_table =  pd.DataFrame(tr_out_list, columns = [str(epoch)])
-
-                        train_out_table.to_csv('/final_outps/train_out.csv') 
-                        wandb.save('/final_outps/train_out.csv')
-
-                         # 2) Convert the train labels to a dataframe. (y)
-                        tr_labels.append(labels.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_labels_list = list(itertools.chain.from_iterable(tr_labels))
-                        train_labels_table =  pd.DataFrame(tr_labels_list, columns = [str(epoch)])
-
-
-                        # Save the train labels to csv file ,then upload it to wandb.
-                        train_labels_table.to_csv('/final_outps/train_labels.csv')
-                        wandb.save('/final_outps/train_labels.csv')
-
-                    with torch.no_grad():
-                        test_data = test_loader[0].cuda(0)
-                        test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-                        out = model(test_data)
-                        tloss = loss(out,test_labels)
-                        tst_losses.append(tloss.item()) 
-                    
-                        if epoch == (epochs-1):
-
-                            # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
-                            tst_out.append(out.view(1,-1).squeeze(0).tolist()) 
-        
-                            # unpack all tr_out from list of lists to a one list.
-                            tst_out_list = list(itertools.chain.from_iterable(tst_out))
-                            test_out_table =  pd.DataFrame(tst_out_list, columns = [str(epoch)])
-
-                            # Save to csv and upload to wandb.
-                            test_out_table.to_csv('/final_outps/test_out.csv')
-                            wandb.save('/final_outps/test_out.csv')
-
-                            # 2) Convert test labels to a dataframe. (y)
-                            test_labels_flatt = test_labels.view(1,-1).squeeze(0).tolist()
-                            test_labels_table =  pd.DataFrame(test_labels_flatt, columns = [str(epoch)])
-
-                            test_labels_table.to_csv('/final_outps/test_labels.csv')
-                            wandb.save('/final_outps/test_labels.csv')
-
-                            # Plot the histogram for the testing predictions
-
-                            # plot_hist(tst_out_list,"y_test_")
-
-                            # plot_hist(test_labels_flatt,"y_test")
-                   
-                            
-
-                # save the train losses in the runs table future calculation.
-                train_loss_table = pd.concat([train_loss_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-                
-                # save the train losses in the runs table future calculation.
-                test_loss_table = pd.concat([test_loss_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-
-                print('Epoch:', epoch, "has finished.") 
-                # log the results to wandb 
-                for i in range(len(tr_losses)):
-                    wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
-
-
-                # # check test loss for categorical y_pred
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0].cuda(0)
-                #         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
-
-            # Save the train and test losses to .csv files and upload it to the server.
-
-            time = str(datetime.now())
-            train_loss_table.to_csv('/final_outps/train_loss_at'+time+'.csv')
-            test_loss_table.to_csv('/final_outps/test_loss_at'+time+'.csv')
-            wandb.save('/final_outps/train_loss_at'+time+'.csv')
-            wandb.save('/final_outps/test_loss_at'+time+'.csv')
-
-
-        else:
-            ############################
-            print("Running without Cuda support")
-            ##############################
-
-            train_loss_table = pd.DataFrame()
-            test_loss_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing labels into .csv files.
-            train_labels_table = pd.DataFrame()
-            test_labels_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing predictions into .csv files.
-            train_out_table = pd.DataFrame()
-            test_out_table = pd.DataFrame()
-
-
-
-            for epoch in range(epochs):
-                #Saving the train and test losses for logging and visualization purposes.
-                tr_losses = []
-                tst_losses = []
-
-                # Saving the train and test predictions for logging and visualization purposes.
-                tr_out = []
-                tst_out = []
-
-                # Saving the train and test labels for logging and visualization purposes.
-                tr_labels = []
-                tst_labels = []
-
-
-                for i,(batch, labels) in enumerate(train_loader):
-                    optimizer.zero_grad() 
-
-                    labels = torch.unsqueeze(labels,1)
-
-                    out = model(batch)
-
-                    mloss = loss(out,labels)
-                
-                    tr_losses.append(mloss.item())
-                    mloss.backward()
-            
-                    optimizer.step()
-
-
-                    if epoch == (epochs-1):
-                         # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                        tr_out.append(out.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_out_list = list(itertools.chain.from_iterable(tr_out))
-                        train_out_table =  pd.DataFrame(tr_out_list, columns = [str(epoch)])
-
-                        train_out_table.to_csv('./outputs/train_out.csv') 
-                        wandb.save('./outputs/train_out.csv')
-
-                         # 2) Convert the train labels to a dataframe. (y)
-                        tr_labels.append(labels.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_labels_list = list(itertools.chain.from_iterable(tr_labels))
-                        train_labels_table =  pd.DataFrame(tr_labels_list, columns = [str(epoch)])
-
-
-                        # Save the train labels to csv file ,then upload it to wandb.
-                        train_labels_table.to_csv('./outputs/train_labels.csv')
-                        wandb.save('./outputs/train_labels.csv')
-                        
-
-                    with torch.no_grad():
-                        test_data = test_loader[0]
-                        test_labels = torch.unsqueeze(test_loader[1],1)
-                        out = model(test_data)
-                        tloss = loss(out,test_labels)
-                        tst_losses.append(tloss.item())
-
-
-                        if epoch == (epochs-1):
-
-                            # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
-                            tst_out.append(out.view(1,-1).squeeze(0).tolist()) 
-        
-                            # unpack all tr_out from list of lists to a one list.
-                            tst_out_list = list(itertools.chain.from_iterable(tst_out))
-                            test_out_table =  pd.DataFrame(tst_out_list, columns = [str(epoch)])
-
-                            # Save to csv and upload to wandb.
-                            test_out_table.to_csv('./outputs/test_out.csv')
-                            wandb.save('./outputs/test_out.csv')
-
-                            # 2) Convert test labels to a dataframe. (y)
-                            test_labels_flatt = test_labels.view(1,-1).squeeze(0).tolist()
-                            test_labels_table =  pd.DataFrame(test_labels_flatt, columns = [str(epoch)])
-
-                            test_labels_table.to_csv('./outputs/test_labels.csv')
-                            wandb.save('./outputs/test_labels.csv')
-
-
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0]
-                #         test_labels = torch.unsqueeze(test_loader[1],1)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss) 
-
-
-
-
-                # save the train losses in the runs table future calculation.
-                train_loss_table = pd.concat([train_loss_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-                
-                # save the train losses in the runs table future calculation.
-                test_loss_table = pd.concat([test_loss_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-
-                print('Epoch:', epoch, "has finished.") 
-                # log the results to wandb 
-                for i in range(len(tr_losses)):
-                    wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
-
-
-                # # check test loss for categorical y_pred
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0].cuda(0)
-                #         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
-
-            # Save the train and test losses to .csv files and upload it to the server.
-
-            time = str(datetime.now())
-            train_loss_table.to_csv('./outputs/train_loss_at'+time+'.csv')
-            test_loss_table.to_csv('./outputs/test_loss_at'+time+'.csv')
-            wandb.save('./outputs/train_loss_at'+time+'.csv')
-            wandb.save('./outputs/test_loss_at'+time+'.csv')
-
-    def train_w_iv(self,train_loader, test_loader, model,loss, optimizer, epochs):
-
-        """
-        Description:
-
-            Train the network with injecting noises.
-
-        Return:
-            Model
-        Return type:
-            nn.Module
-        
-        Args:
-            :train_loader: A data loader for the training set.
-            :test_loader:  A data loader for the testing set.
-            :model: A random model. (i.e CNN).
-            :loss: A loss function. (i.e MSE, IV, normalized IV)
-            :optimizer: An optimizer. (i.e Adam)
-            :epochs: Number of epochs
-            """
-
-        if self.cuda:
-            #################################################
             print("Running using Cuda support")
-            ##################################################
+            self.model = self.model.cuda(0)
 
-            model.cuda(0)   # Move the model to the GPU
+    def save(self, df, path):
+        df.to_csv(path)
+        wandb.save(path)
 
-            train_loss_table = pd.DataFrame()
-            test_loss_table = pd.DataFrame()
+    def save_last_epoch(self, lst, path):
 
-            # Dataframes for saving the training and testing labels into .csv files.
-            train_labels_table = pd.DataFrame()
-            test_labels_table = pd.DataFrame()
+        # unpack all tr_out from list of lists to a one list.
+        print("********",lst)
+        lst_unpck = list(
+            itertools.chain.from_iterable(lst))
+        print(lst_unpck)
+        # 2) Convert the labels and out to dataframes.
+        lst_df = pd.DataFrame(lst_unpck, columns=['col'])
 
-            # Dataframes for saving the training and testing predictions into .csv files.
-            train_out_table = pd.DataFrame()
-            test_out_table = pd.DataFrame()
+        self.save(lst_df, path)
 
-            
-            for epoch in range(epochs):
-                
-                #Saving the train and test losses for logging and visualization purposes.
-                tr_losses = []
-                tst_losses = []
+    def zip_results(self, files):
+        path = './'  # Current directory
+        directory_name = str(self.expermient_id)
 
-                # Saving the train and test predictions for logging and visualization purposes.
-                tr_out = []
-                tst_out = []
+        try:
+            folder = os.mkdir(path+directory_name)
+            for file_name in files:
+                shutil.copyfile("./"+ file_name,"./"+path+directory_name+"/"+file_name)
+            shutil.make_archive(directory_name,'zip',directory_name)
+        except OSError:
+            print("zip operation has faild")
 
-                # Saving the train and test labels for logging and visualization purposes.
-                tr_labels = []
-                tst_labels = []
-               
-                for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
-                    optimizer.zero_grad() 
-
-                    batch = batch.cuda(0)
-                    labels = torch.unsqueeze(labels,1).cuda(0)
-
-                    out = model(batch)
-
-                    mloss = loss(out,labels)
-                
-                    tr_losses.append(mloss.item())
-                    mloss.backward()
-            
-                    optimizer.step()
-
-                    if epoch == (epochs-1):
-                         # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                        tr_out.append(out.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_out_list = list(itertools.chain.from_iterable(tr_out))
-                        train_out_table =  pd.DataFrame(tr_out_list, columns = [str(epoch)])
-
-                        train_out_table.to_csv('/final_outps/train_out.csv') 
-                        wandb.save('/final_outps/train_out.csv')
-
-                         # 2) Convert the train labels to a dataframe. (y)
-                        tr_labels.append(labels.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_labels_list = list(itertools.chain.from_iterable(tr_labels))
-                        train_labels_table =  pd.DataFrame(tr_labels_list, columns = [str(epoch)])
-
-
-                        # Save the train labels to csv file ,then upload it to wandb.
-                        train_labels_table.to_csv('/final_outps/train_labels.csv')
-                        wandb.save('/final_outps/train_labels.csv')
-
-
-                    with torch.no_grad():
-
-                        test_data = test_loader[0].cuda(0)
-                        test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                        out = model(test_data)
-                        tloss = loss(out,test_labels)
-                        tst_losses.append(tloss.item())
-
-                        if epoch == (epochs-1):
-
-                            # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
-                            tst_out.append(out.view(1,-1).squeeze(0).tolist()) 
-        
-                            # unpack all tr_out from list of lists to a one list.
-                            tst_out_list = list(itertools.chain.from_iterable(tst_out))
-                            test_out_table =  pd.DataFrame(tst_out_list, columns = [str(epoch)])
-
-                            # Save to csv and upload to wandb.
-                            test_out_table.to_csv('/final_outps/test_out.csv')
-                            wandb.save('/final_outps/test_out.csv')
-
-                            # 2) Convert test labels to a dataframe. (y)
-                            test_labels_flatt = test_labels.view(1,-1).squeeze(0).tolist()
-                            test_labels_table =  pd.DataFrame(test_labels_flatt, columns = [str(epoch)])
-
-                            test_labels_table.to_csv('/final_outps/test_labels.csv')
-                            wandb.save('/final_outps/test_labels.csv')
-
-
-
-                # save the train losses in the runs table future calculation.
-                train_loss_table = pd.concat([train_loss_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-                
-                # save the train losses in the runs table future calculation.
-                test_loss_table = pd.concat([test_loss_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-
-                print('Epoch:', epoch, "has finished.") 
-                # log the results to wandb 
-                for i in range(len(tr_losses)):
-                    wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
-
-
-                # # check test loss for categorical y_pred
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0].cuda(0)
-                #         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
-
-            # Save the train and test losses to .csv files and upload it to the server.
-
-            time = str(datetime.now())
-            train_loss_table.to_csv('/final_outps/train_loss_at'+time+'.csv')
-            test_loss_table.to_csv('/final_outps/test_loss_at'+time+'.csv')
-            wandb.save('/final_outps/train_loss_at'+time+'.csv')
-            wandb.save('/final_outps/test_loss_at'+time+'.csv')
-            
-        else:
-            #################################################
-            print("Running without Cuda support")
-            ##################################################
-
-            train_loss_table = pd.DataFrame()
-            test_loss_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing labels into .csv files.
-            train_labels_table = pd.DataFrame()
-            test_labels_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing predictions into .csv files.
-            train_out_table = pd.DataFrame()
-            test_out_table = pd.DataFrame()
-
-    
-            for epoch in range(epochs):
-                
-                #Saving the train and test losses for logging and visualization purposes.
-                tr_losses = []
-                tst_losses = []
-
-                # Saving the train and test predictions for logging and visualization purposes.
-                tr_out = []
-                tst_out = []
-
-                # Saving the train and test labels for logging and visualization purposes.
-                tr_labels = []
-                tst_labels = []
-
-                for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
-                    optimizer.zero_grad() 
-
-                    batch = batch
-                    labels = torch.unsqueeze(labels,1)
-                    out = model(batch)
-                    mloss = loss(out,labels)
-                
-                    tr_losses.append(mloss.item())
-                    mloss.backward()
-            
-                    optimizer.step()
-
-                    if epoch == (epochs-1):
-                         # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                        tr_out.append(out.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_out_list = list(itertools.chain.from_iterable(tr_out))
-                        train_out_table =  pd.DataFrame(tr_out_list, columns = [str(epoch)])
-
-                        train_out_table.to_csv('./outputs/train_out.csv') 
-                        wandb.save('./outputs/train_out.csv')
-
-                         # 2) Convert the train labels to a dataframe. (y)
-                        tr_labels.append(labels.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_labels_list = list(itertools.chain.from_iterable(tr_labels))
-                        train_labels_table =  pd.DataFrame(tr_labels_list, columns = [str(epoch)])
-
-
-                        # Save the train labels to csv file ,then upload it to wandb.
-                        train_labels_table.to_csv('./outputs/train_labels.csv')
-                        wandb.save('./outputs/train_labels.csv')
-
-                    with torch.no_grad():
-                        test_data = test_loader[0]
-                        test_labels = torch.unsqueeze(test_loader[1],1)
-    
-                        out = model(test_data)
-                        tloss = loss(out,test_labels)
-                        tst_losses.append(tloss.item())
-
-                        if epoch == (epochs-1):
-
-                            # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
-                            tst_out.append(out.view(1,-1).squeeze(0).tolist()) 
-        
-                            # unpack all tr_out from list of lists to a one list.
-                            tst_out_list = list(itertools.chain.from_iterable(tst_out))
-                            test_out_table =  pd.DataFrame(tst_out_list, columns = [str(epoch)])
-
-                            # Save to csv and upload to wandb.
-                            test_out_table.to_csv('./outputs/test_out.csv')
-                            wandb.save('./outputs/test_out.csv')
-
-                            # 2) Convert test labels to a dataframe. (y)
-                            test_labels_flatt = test_labels.view(1,-1).squeeze(0).tolist()
-                            test_labels_table =  pd.DataFrame(test_labels_flatt, columns = [str(epoch)])
-
-                            test_labels_table.to_csv('./outputs/test_labels.csv')
-                            wandb.save('./outputs/test_labels.csv')
-
-
-                # save the train losses in the runs table future calculation.
-                train_loss_table = pd.concat([train_loss_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-                
-                # save the train losses in the runs table future calculation.
-                test_loss_table = pd.concat([test_loss_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-
-                print('Epoch:', epoch, "has finished.") 
-                # log the results to wandb 
-                for i in range(len(tr_losses)):
-                    wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
-
-
-                # # check test loss for categorical y_pred
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0].cuda(0)
-                #         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
-
-            # Save the train and test losses to .csv files and upload it to the server.
-
-            time = str(datetime.now())
-            train_loss_table.to_csv('./outputs/train_loss_at'+time+'.csv')
-            test_loss_table.to_csv('./outputs/test_loss_at'+time+'.csv')
-            wandb.save('./outputs/train_loss_at'+time+'.csv')
-            wandb.save('./outputs/test_loss_at'+time+'.csv')
-
-    def train_iv(self,train_loader, test_loader, model,loss, optimizer,epochs):
-
+    def train(self, alogrithm='default'):
         """
         Description:
-
             Train the network using IV loss.
 
         Return:
             Model
         Return type:
             nn.Module
-        
+
         Args:
             :train_loader: A data loader for the training set.
             :test_loader:  A data loader for the testing set.
@@ -626,260 +98,109 @@ class Trainer:
             :epochs: Number of epochs
             """
 
+        train_loss_df = pd.DataFrame()
+        test_loss_df = pd.DataFrame()
 
-        if self.cuda:
-            #################################################
-            print("Running using Cuda support")
-            ##################################################
+        # Dataframes for saving the training and testing labels into .csv files.
+        train_labels_df = pd.DataFrame()
+        test_labels_df = pd.DataFrame()
 
-            model.cuda(0)   # Move the model to the GPU
-            mse_loss = MSELoss()    # Create mse loss for the testing part.
+        # Dataframes for saving the training and testing predictions into .csv files.
+        train_out_df = pd.DataFrame()
+        test_out_df = pd.DataFrame()
 
-            train_loss_table = pd.DataFrame()
-            test_loss_table = pd.DataFrame()
+        for epoch in range(self.epochs):
+            # Saving the train and test losses for logging and visualization purposes.
+            tr_losses = []
+            tst_losses = []
 
-            # Dataframes for saving the training and testing labels into .csv files.
-            train_labels_table = pd.DataFrame()
-            test_labels_table = pd.DataFrame()
+            # Saving the train and test predictions for logging and visualization purposes.
+            tr_out_lst_epoch = []
+            tst_out_lst_epoch = []
 
-            # Dataframes for saving the training and testing predictions into .csv files.
-            train_out_table = pd.DataFrame()
-            test_out_table = pd.DataFrame()
+            # Saving the train and test labels for logging and visualization purposes.
+            tr_lbl_lst_epoch = []
+            tst_lbl_lst_epoch = []
 
-            for epoch in range(epochs):
-                #Saving the train and test losses for logging and visualization purposes.
-                tr_losses = []
-                tst_losses = []
+            for train_sample_idx, train_sample in enumerate(self.train_data):
+                self.optimizer.zero_grad()
 
-                # Saving the train and test predictions for logging and visualization purposes.
-                tr_out = []
-                tst_out = []
+                # Moving data to cuda
+                if self.cuda:
+                    tr_batch = train_sample[0].cuda(0)
+                    tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
+                    if alogrithm == "iv" or alogrithm == "biv":
+                        noises_vars = torch.unsqueeze(
+                            train_sample[3], 1).type(torch.float32).cuda(0)
+                else:
+                    tr_batch = train_sample[0]
+                    tr_labels = torch.unsqueeze(train_sample[1], 1)
+                    if alogrithm == "iv" or alogrithm == "biv":
+                        noises_vars = torch.unsqueeze(
+                            train_sample[3], 1).type(torch.float32)
+                # feeding the data into the model.
+                tr_out = self.model(tr_batch)
 
-                # Saving the train and test labels for logging and visualization purposes.
-                tr_labels = []
-                tst_labels = []
+                # Choose the loss function.
+                if alogrithm =="iv" or alogrithm == "biv":
+                    mloss = self.loss(tr_out, tr_labels, noises_vars)
+                else:
+                    mloss = self.mse_loss(tr_out,tr_labels)
 
-                for i,(batch, labels, lbls_noises, noises_vars) in enumerate(train_loader):
-                    optimizer.zero_grad() 
+                tr_losses.append(mloss.item())
 
-                    batch = batch.cuda(0)
-                    labels = torch.unsqueeze(labels,1).cuda(0)
-                    noises_vars = torch.unsqueeze(noises_vars,1).type(torch.float32).cuda(0)
-                    
-                    out = model(batch)
-                    mloss = loss(out,labels,noises_vars)
+                # Optimize the model.
+                mloss.backward()
+                self.optimizer.step()
                 
-                    tr_losses.append(mloss.item())
-                    mloss.backward()
-            
-                    optimizer.step()
 
-                    if epoch == (epochs-1):
-                         # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                        tr_out.append(out.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_out_list = list(itertools.chain.from_iterable(tr_out))
-                        train_out_table =  pd.DataFrame(tr_out_list, columns = [str(epoch)])
+                with torch.no_grad():
+                    for test_sample_idx, test_sample in enumerate(self.test_data):
+                        if self.cuda:
+                            tst_batch = test_sample[0].cuda(0)
+                            tst_labels = torch.unsqueeze(test_sample[1], 1).cuda(0)
+                        else:
+                            tst_batch = test_sample[0]
+                            tst_labels = torch.unsqueeze(test_sample[1], 1)
 
-                        train_out_table.to_csv('/final_outps/train_out.csv') 
-                        wandb.save('/final_outps/train_out.csv')
-
-                         # 2) Convert the train labels to a dataframe. (y)
-                        tr_labels.append(labels.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_labels_list = list(itertools.chain.from_iterable(tr_labels))
-                        train_labels_table =  pd.DataFrame(tr_labels_list, columns = [str(epoch)])
-
-
-                        # Save the train labels to csv file ,then upload it to wandb.
-                        train_labels_table.to_csv('/final_outps/train_labels.csv')
-                        wandb.save('/final_outps/train_labels.csv')
-
-
-                    with torch.no_grad():
-
-                        test_data = test_loader[0].cuda(0)
-                        test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                        out = model(test_data)
-                        tloss = mse_loss(out,test_labels)
+                        # feed the data into the model.
+                        tst_out = self.model(tst_batch)
+                        # estimate the loss.
+                        tloss = self.mse_loss(tst_out, tst_labels)
+                        # append the loss.
                         tst_losses.append(tloss.item())
-
-                        if epoch == (epochs-1):
-
-                            # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
-                            tst_out.append(out.view(1,-1).squeeze(0).tolist()) 
-        
-                            # unpack all tr_out from list of lists to a one list.
-                            tst_out_list = list(itertools.chain.from_iterable(tst_out))
-                            test_out_table =  pd.DataFrame(tst_out_list, columns = [str(epoch)])
-
-                            # Save to csv and upload to wandb.
-                            test_out_table.to_csv('/final_outps/test_out.csv')
-                            wandb.save('/final_outps/test_out.csv')
-
-                            # 2) Convert test labels to a dataframe. (y)
-                            test_labels_flatt = test_labels.view(1,-1).squeeze(0).tolist()
-                            test_labels_table =  pd.DataFrame(test_labels_flatt, columns = [str(epoch)])
-
-                            test_labels_table.to_csv('/final_outps/test_labels.csv')
-                            wandb.save('/final_outps/test_labels.csv')
-
                         
+                        # log the train and test outputs on the last epoch and the last batch.
+                        if epoch == self.last_epoch :#and train_sample_idx == self.train_batches_number-1 :
+                            # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
+                            tr_out_lst_epoch.append(
+                                tr_out.view(1, -1).squeeze(0).tolist())
+                            tr_lbl_lst_epoch.append(
+                            tr_labels.view(1, -1).squeeze(0).tolist())
 
-                # save the train losses in the runs table future calculation.
-                train_loss_table = pd.concat([train_loss_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-                
-                # save the train losses in the runs table future calculation.
-                test_loss_table = pd.concat([test_loss_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-
-                print('Epoch:', epoch, "has finished.") 
-                # log the results to wandb 
-                for i in range(len(tr_losses)):
-                    wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
-
-
-                # # check test loss for categorical y_pred
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0].cuda(0)
-                #         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
-
-            # Save the train and test losses to .csv files and upload it to the server.
-
-            time = str(datetime.now())
-            train_loss_table.to_csv('/final_outps/train_loss_at'+time+'.csv')
-            test_loss_table.to_csv('/final_outps/test_loss_at'+time+'.csv')
-            wandb.save('/final_outps/train_loss_at'+time+'.csv')
-            wandb.save('/final_outps/test_loss_at'+time+'.csv')
-
-        else:
-            #################################################
-            print("Running without Cuda support")
-            ##################################################
-            # Create mse loss for the testing part.
-            mse_loss = MSELoss()
-
-            train_loss_table = pd.DataFrame()
-            test_loss_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing labels into .csv files.
-            train_labels_table = pd.DataFrame()
-            test_labels_table = pd.DataFrame()
-
-            # Dataframes for saving the training and testing predictions into .csv files.
-            train_out_table = pd.DataFrame()
-            test_out_table = pd.DataFrame()
-            
-            for epoch in range(epochs):
-                #Saving the train and test losses for logging and visualization purposes.
-                tr_losses = []
-                tst_losses = []
-
-                # Saving the train and test predictions for logging and visualization purposes.
-                tr_out = []
-                tst_out = []
-
-                # Saving the train and test labels for logging and visualization purposes.
-                tr_labels = []
-                tst_labels = []
-
-                for i,(batch, labels, lbls_noise, noises_var) in enumerate(train_loader):
-                    optimizer.zero_grad() 
-
-                    batch = batch
-                    labels = torch.unsqueeze(labels,1)
-
-                    out = model(batch)
-                    mloss = loss(out,labels_noisy,noises_var)
-                
-                    tr_losses.append(mloss.item())
-                    mloss.backward()
-            
-                    optimizer.step()
-
-                    if epoch == (epochs-1):
-                         # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                        tr_out.append(out.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_out_list = list(itertools.chain.from_iterable(tr_out))
-                        train_out_table =  pd.DataFrame(tr_out_list, columns = [str(epoch)])
-
-                        train_out_table.to_csv('./outputs/train_out.csv') 
-                        wandb.save('./outputs/train_out.csv')
-
-                         # 2) Convert the train labels to a dataframe. (y)
-                        tr_labels.append(labels.view(1,-1).squeeze(0).tolist())
-                      
-                        # unpack all tr_out from list of lists to a one list.
-                        tr_labels_list = list(itertools.chain.from_iterable(tr_labels))
-                        train_labels_table =  pd.DataFrame(tr_labels_list, columns = [str(epoch)])
+                            # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
+                            tst_out_lst_epoch.append(
+                                tst_out.view(1, -1).squeeze(0).tolist())
+                            tst_lbl_lst_epoch.append(
+                            tst_labels.view(1, -1).squeeze(0).tolist())
 
 
-                        # Save the train labels to csv file ,then upload it to wandb.
-                        train_labels_table.to_csv('./outputs/train_labels.csv')
-                        wandb.save('./outputs/train_labels.csv')
+                if epoch == self.last_epoch:
+                    time = str(datetime.now())
+                    self.save_last_epoch(tr_out_lst_epoch, self.server_path+"train_out.csv")
+                    self.save_last_epoch(tr_lbl_lst_epoch,self.server_path+"train_labels.csv")
+                    self.save_last_epoch(tst_out_lst_epoch,self.server_path+"test_out.csv")
+                    self.save_last_epoch(tst_lbl_lst_epoch,self.server_path+"test_labels.csv")
 
-                    with torch.no_grad():
-                        test_data = test_loader[0]
-                        test_labels = torch.unsqueeze(test_loader[1],1)
-    
-                        out = model(test_data)
-                        tloss = mse_loss(out,test_labels)
-                        tst_losses.append(tloss.item())
+                    self.save_last_epoch([tr_losses],self.server_path+"train_loss_"+time+".csv")
+                    self.save_last_epoch([tst_losses],self.server_path+"test_loss_"+time+".csv")
+                    # Zip all the files and upload them to wandb.
+                    self.zip_results([self.server_path+"train_loss_"+time+".csv", self.server_path+"test_loss_"+time+".csv", \
+                      self.server_path+"train_out.csv", self.server_path+"train_labels.csv", self.server_path+"test_out.csv", \
+                        self.server_path+"test_labels.csv"])
+                    # log the results to wandb
+            for i in range(len(tr_losses)):
+                wandb.log({"train loss": tr_losses[i], "test loss": tst_losses[i]})
 
-                        if epoch == (epochs-1):
-
-                            # 1) Convert predictions of the test labels in the last epoch to a dataframe. (y_)
-                            tst_out.append(out.view(1,-1).squeeze(0).tolist()) 
-        
-                            # unpack all tr_out from list of lists to a one list.
-                            tst_out_list = list(itertools.chain.from_iterable(tst_out))
-                            test_out_table =  pd.DataFrame(tst_out_list, columns = [str(epoch)])
-
-                            # Save to csv and upload to wandb.
-                            test_out_table.to_csv('./outputs/test_out.csv')
-                            wandb.save('./outputs/test_out.csv')
-
-                            # 2) Convert test labels to a dataframe. (y)
-                            test_labels_flatt = test_labels.view(1,-1).squeeze(0).tolist()
-                            test_labels_table =  pd.DataFrame(test_labels_flatt, columns = [str(epoch)])
-
-                            test_labels_table.to_csv('./outputs/test_labels.csv')
-                            wandb.save('./outputs/test_labels.csv')
-
-
-
-                # save the train losses in the runs table future calculation.
-                train_loss_table = pd.concat([train_loss_table, pd.DataFrame(tr_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-                
-                # save the train losses in the runs table future calculation.
-                test_loss_table = pd.concat([test_loss_table, pd.DataFrame(tst_losses, columns = ['#epoch_'+str(epoch)])], axis = 1)
-
-                print('Epoch:', epoch, "has finished.") 
-                # log the results to wandb 
-                for i in range(len(tr_losses)):
-                    wandb.log({"train loss": tr_losses[i], "test loss":tst_losses[i]})
-
-
-                # # check test loss for categorical y_pred
-                # if epoch==19:
-                #     with torch.no_grad():
-                #         test_data = test_loader[0].cuda(0)
-                #         test_labels = torch.unsqueeze(test_loader[1],1).cuda(0)
-
-                #         y_red_groups = group_testing(test_data, test_labels, 10, model, loss)
-
-            # Save the train and test losses to .csv files and upload it to the server.
-
-            time = str(datetime.now())
-            train_loss_table.to_csv('./outputs/train_loss_at'+time+'.csv')
-            test_loss_table.to_csv('./outputs/test_loss_at'+time+'.csv')
-            wandb.save('./outputs/train_loss_at'+time+'.csv')
-            wandb.save('./outputs/test_loss_at'+time+'.csv')
-            
+                print("Batch {} has finished".format(train_sample_idx))
+            print('Epoch:{} has finished'.format(epoch))

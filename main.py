@@ -92,26 +92,8 @@ if __name__ == "__main__":
         dist_data = (float(args.mu), float(args.v))
 
 
-    # print('tag',args.tag)
-    # print('seed',int(args.seed))
-    # print('is noise: ',is_noise)
-    # print('n_type',noise_type)
-    # print('normalize:',normz)
-    # print('noise-thresh',noise_thresh)
-    # print('mu',float(args.mu))
-    # print('v', float(args.v))
-    # print('uniform_vmax', str_to_bool(args.uniform_vmax))
-    # print('vmax_scale', float(args.vmax_scale))
-    # print('loss_type', loss_type)
-    # print('thres', noise_thresh)
-    # print('thres_value', thresh_value)
-
-
-
-
-
-    train_data = UTKface(d_path, transform= trans, train= True, noise=is_noise, noise_type=noise_type, distribution_data = dist_data, normalize=normz, \
-                                                                                                    noise_threshold = noise_thresh, threshold_value = thresh_value) 
+    train_data = UTKface(d_path, transform= trans, train= True, noise=is_noise, noise_type=noise_type, distribution_data = \
+                                        dist_data, normalize=normz, noise_threshold = noise_thresh, threshold_value = thresh_value) 
     test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
 
     # Load the data
@@ -130,10 +112,12 @@ if __name__ == "__main__":
         loss = torch.nn.MSELoss()
 
     model = AgeModel()
-    trainer = Trainer()
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    trainer = Trainer(experiment_id=args.mu, train_loader= train_dataset, test_loader= test_dataset, \
+        model=model, loss= loss, optimizer= optimz, epochs = epochs)
+
 
     # #Call wandb to log model performance.
-    # wandb.watch(model)
+    # # wandb.watch(model)
     # # train the model
-    # trainer.train_w_iv(train_dataset,test_dataset,model,loss,optimz,epochs)
+    trainer.train()
