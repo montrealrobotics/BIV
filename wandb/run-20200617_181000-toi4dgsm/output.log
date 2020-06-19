@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "main.py", line 114, in <module>
-    noise_threshold = noise_thresh, threshold_value = thresh_value)
-  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 52, in __init__
-    self.images_pth, self.labels = self.load_data()
-  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 117, in load_data
-    train_labels.append(float(label))
-ValueError: could not convert string to float: 'UTKFace'

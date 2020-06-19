@@ -1,9 +1,0 @@
-16000
-Traceback (most recent call last):
-  File "main.py", line 114, in <module>
-    noise_threshold = noise_thresh, threshold_value = thresh_value)
-  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 59, in __init__
-    self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise.
-  File "/home/waleed/Desktop/Code/Estimation/code/IV_RL_local/dataloader.py", line 271, in generate_noise
-    if isVmax:
-NameError: name 'isVmax' is not defined
