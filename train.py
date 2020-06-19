@@ -72,9 +72,6 @@ class Trainer:
             test_out_table = pd.DataFrame()
 
             
-
-
-
             for epoch in range(epochs):
                 #Saving the train and test losses for logging and visualization purposes.
                 tr_losses = []
@@ -96,7 +93,6 @@ class Trainer:
                     batch = batch.cuda(0)
                     labels = torch.unsqueeze(labels,1).cuda(0)
                     
-
                     out = model(batch)  
 
                     mloss = loss(out,labels)
