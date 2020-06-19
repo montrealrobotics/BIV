@@ -4,6 +4,7 @@ import itertools
 from datetime import datetime
 
 import pandas as pd
+import numpy as np
 
 import torch
 from torch.nn import MSELoss
@@ -72,6 +73,7 @@ class Trainer:
             for file_name in files:
                 shutil.copyfile(self.server_path+file_name, self.server_path+directory_name+"/"+file_name)
             shutil.make_archive(self.server_path+directory_name,'zip', self.server_path+directory_name)
+            wandb.save(self.server_path+directory_name+".zip")
         except OSError:
             print("zip operation has faild")
 
@@ -93,7 +95,6 @@ class Trainer:
             :optimizer: An optimizer. (i.e Adam)
             :epochs: Number of epochs
             """
-
         train_loss_df = pd.DataFrame()
         test_loss_df = pd.DataFrame()
 
@@ -117,12 +118,12 @@ class Trainer:
             # Saving the train and test labels for logging and visualization purposes.
             tr_lbl_lst_epoch = []
             tst_lbl_lst_epoch = []
-
+        
             for train_sample_idx, train_sample in enumerate(self.train_data):
                 self.optimizer.zero_grad()
-
                 # Moving data to cuda
                 if self.cuda:
+                    print(" cuda and the data")
                     tr_batch = train_sample[0].cuda(0)
                     tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
                     if alogrithm == "iv" or alogrithm == "biv":
@@ -145,12 +146,14 @@ class Trainer:
 
                 tr_losses.append(mloss.item())
 
+                print()
+                
                 # Optimize the model.
                 mloss.backward()
                 self.optimizer.step()
-                
 
                 with torch.no_grad():
+                    tst_b_losses= []
                     for test_sample_idx, test_sample in enumerate(self.test_data):
                         if self.cuda:
                             tst_batch = test_sample[0].cuda(0)
@@ -165,9 +168,10 @@ class Trainer:
                         # estimate the loss.
                         tloss = self.mse_loss(tst_out, tst_labels)
                         # append the loss.
-                        tst_losses.append(tloss.item())
-                        
+                        tst_b_losses.append(tloss.item())
+                    
                         # log the train and test outputs on the last epoch and the last batch.
+
                         if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1 :
                             # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
                             tr_out_lst_epoch.append(
@@ -181,8 +185,8 @@ class Trainer:
                             tst_lbl_lst_epoch.append(
                             tst_labels.view(1, -1).squeeze(0).tolist())
 
-                            
 
+                    tst_losses.append(np.mean(tst_b_losses))                            
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:
                     time = str(datetime.now())
@@ -201,8 +205,6 @@ class Trainer:
             print('#################### Epoch:{} has finished ####################'.format(epoch))
             # log the results to wandb
             for i in range(len(tr_losses)):
-                print(tr_losses)
                 wandb.log({"train loss": tr_losses[i], "test loss": tst_losses[i]})
-                print("done")
                 
             

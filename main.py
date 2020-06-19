@@ -118,6 +118,6 @@ if __name__ == "__main__":
 
 
     # #Call wandb to log model performance.
-    # # wandb.watch(model)
+    wandb.watch(model)
     # # train the model
     trainer.train(alogrithm=loss_type)
