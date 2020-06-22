@@ -239,3 +239,20 @@ def plot_hist(x, name):
     
     return 0
 
+
+
+def flip_coin(c_type = 'fair', p =0.1):
+    
+    if c_type == 'fair':
+        p = 0.5
+    else:
+        p = p*1.5  # decrease p with time. i will look to nice way to decrease that later.
+    
+    random_number = torch.rand(size=(1,1))
+    # print("random_number: ", random_number)
+    # print("p:", p)
+    if random_number <p:
+        return "low"
+    else:
+        return "high"
+

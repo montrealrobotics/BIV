@@ -11,6 +11,7 @@ from torch.utils.data import Dataset
 
 from params import d_params
 from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset_stats, str_to_bool
+from utils import flip_coin
 
 
 class UTKface(Dataset):
@@ -58,7 +59,7 @@ class UTKface(Dataset):
                 if self.noise_type == 'uniform':
                     self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise.  
                 else:
-                    print("Exception: you must specify a noise, either 'uniform' or 'gauss' ")
+                    raise ValueError("Gamma noise is not supported at the current moment.")
 
                 if self.noise_threshold:
                         print('Training data filtering started...')
@@ -206,7 +207,6 @@ class UTKface(Dataset):
         if dist_type =="uniform":
             a,b = self.get_uniform_params(mu, v)
             var_dist = torch.distributions.uniform.Uniform(a,b)
-
         
         elif dist_type == "gamma":
             alpha, beta = self.get_gamma_params(mu,v)
@@ -215,7 +215,7 @@ class UTKface(Dataset):
         return var_dist
 
 
-    def gaussian_noise(self, var_dist):
+    def gaussian_noise(self, var_dists, noise_complexity="simple"):
 
         """ Description:
             Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).
@@ -232,12 +232,32 @@ class UTKface(Dataset):
         """
             
         # Sample heteroscedasticitical noises stds for the whole training set.
-        noises_vars = var_dist.sample((self.train_size,))
-
-        noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars]
-
         
-        return (noises, noises_vars)
+
+        if noise_complexity == "simple":
+            noises_vars = var_dists.get("1").sample((self.train_size,))
+            noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars]
+            return (noises, noises_vars)
+
+        else:
+            low = 0
+            high = 0
+            noises_vars = []
+            for idx in range(self.train_size):
+                coin_decision = flip_coin(c_type=self.coin_fairness)
+                if coin_decision == "low":
+                    noises_vars.append(var_dists.get("1").sample((1,)))
+                    low+=1
+                else:
+                    noises_vars.append(var_dists.get("2").sample((1,)))
+                    high+=1
+
+            print("Sample ratio from the low noise distribution: ", low/self.train_size*100)
+            print("Sample ratio from the high noise distribution: ",high/self.train_size*100)
+
+            noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars]
+            return (noises, noises_vars)
+
 
         
     
@@ -256,26 +276,54 @@ class UTKface(Dataset):
         Args:
             None.
         """
-
+        dists = {}
         if self.noise_type == "uniform":
-        
-            mu = self.dist_data[0]
-            is_vmax = self.dist_data[2] # True or False
+            noise_complexity = self.dist_data.get('noise_complexity')
+            print("Uniform is: {}".format(noise_complexity))
 
+            mu = self.dist_data.get("mu")
+            is_vmax = self.dist_data.get("is_vmax") # True or False
             if is_vmax:
-                v = get_unif_Vmax(mu, scale_value=self.dist_data[3])
+                v = get_unif_Vmax(mu, scale_value=self.dist_data.get("vmax_scale"))
             else:
-                v =  self.dist_data[1] 
+                v =  self.dist_data["v"] 
+
+
+            if noise_complexity == "simple":
+                dists["1"] = self.get_distribution(self.noise_type,mu,v)
+                lbl_noises, noise_variances = self.gaussian_noise(dists)
+                return (lbl_noises, noise_variances)
+
+            else:
+                mu_2 = self.dist_data.get("mu_unf_2")
+                is_vmax_2 = self.dist_data.get("is_vmax_unf_2") # True or False
+                if is_vmax_2:
+                    v_2 = get_unif_Vmax(mu_2, scale_value=self.dist_data.get("vmax_scale_unf_2"))
+                else:
+                    v_2 =  self.dist_data["v_unf_2"] 
+                # flip a coin for choosing between the two distributions.
+                data = [(mu,v),(mu_2,v_2)]
+                for idx, d in enumerate(data):
+                    dists[str(idx+1)] = self.get_distribution(self.noise_type,d[0],d[1])
+
+                # set the fairness of the coin.
+                self.coin_fairness = self.dist_data.get("coin_fairness")
+            
         
+                lbl_noises, noise_variances = self.gaussian_noise(dists, noise_complexity)
+                return (lbl_noises, noise_variances)
+            
+
         elif self.noise_type == "gamma":
-            mu = self.dist_data[0]
-            v =  self.dist_data[1]
- 
+            mu = self.dist_data.get("mu")
+            v =  self.dist_data.get("v")
+            dists["1"] = self.get_distribution(self.noise_type,mu,v)
+            lbl_noises, noise_variances = self.gaussian_noise(dists)
+            return (lbl_noises, noise_variances)
+        
+        else:
+            raise ValueError("{} is not supported yet.".format(self.noise_type))
 
-        dist = self.get_distribution(self.noise_type,mu,v)
-        lbl_noises, noise_variances = self.gaussian_noise(dist)
-
-        return (lbl_noises, noise_variances)
 
             
     def __len__(self):
