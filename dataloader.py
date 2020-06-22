@@ -244,7 +244,7 @@ class UTKface(Dataset):
             high = 0
             noises_vars = []
             for idx in range(self.train_size):
-                coin_decision = flip_coin(c_type=self.coin_fairness)
+                coin_decision = flip_coin(p=self.coin_fairness)
                 if coin_decision == "low":
                     noises_vars.append(var_dists.get("1").sample((1,)))
                     low+=1

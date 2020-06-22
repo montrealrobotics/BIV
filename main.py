@@ -102,8 +102,9 @@ if __name__ == "__main__":
 
 
     if noise_type == 'uniform':
-        dist_data = {"noise_complexity": args.noise_complexity,"coin_fairness":args.coin_fairness, "mu": float(args.mu), "v": float(args.v), "is_vmax":str_to_bool(args.uniform_vmax), "vmax_scale":float(args.vmax_scale),\
-            "mu_unf_2": float(args.mu_unf_2), "v_unf_2": float(args.v_unf_2), "is_vmax_unf_2":str_to_bool(args.uniform_vmax_unf_2), "vmax_scale_unf_2":float(args.vmax_scale_unf_2) }
+        dist_data = {"noise_complexity": args.noise_complexity,"coin_fairness":float(args.coin_fairness), "mu": float(args.mu), "v": float(args.v), "is_vmax":str_to_bool(args.uniform_vmax), "vmax_scale":float(args.vmax_scale),\
+            "mu_unf_2": float(args.mu_unf_2), "v_unf_2": float(args.v_unf_2), "is_vmax_unf_2":str_to_bool(args.uniform_vmax_unf_2),\
+             "vmax_scale_unf_2":float(args.vmax_scale_unf_2) }
     elif noise_type == 'gamma':
         dist_data = {"mu": float(args.mu), "v": float(args.v)}
 
