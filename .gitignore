@@ -1,5 +1,21 @@
 Datasets
+<<<<<<< HEAD
 wandb
 outputs
 *.pyc
 *
+||||||| merged common ancestors
+=======
+
+*.csv
+
+wandb/*
+
+*.log
+
+*.pyc
+
+ICML_paper/*
+
+UTKFace/*
+>>>>>>> 252b9e670c3deadeaf7e9b85fe67cf5eadf37da1
