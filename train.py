@@ -9,9 +9,7 @@ import numpy as np
 import torch
 from torch.nn import MSELoss
 
-import matplotlib.pyplot as plt
-
-from utils import group_testing, group_labels, get_dataset_stats, normalize_images, normalize_labels, plot_hist
+from utils import  get_dataset_stats, normalize_images, normalize_labels
 from params import d_params
 
 import wandb
@@ -123,7 +121,6 @@ class Trainer:
                 self.optimizer.zero_grad()
                 # Moving data to cuda
                 if self.cuda:
-                    print(" cuda and the data")
                     tr_batch = train_sample[0].cuda(0)
                     tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
                     if alogrithm == "iv" or alogrithm == "biv":
@@ -146,8 +143,6 @@ class Trainer:
 
                 tr_losses.append(mloss.item())
 
-                print()
-                
                 # Optimize the model.
                 mloss.backward()
                 self.optimizer.step()
@@ -171,7 +166,6 @@ class Trainer:
                         tst_b_losses.append(tloss.item())
                     
                         # log the train and test outputs on the last epoch and the last batch.
-
                         if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1 :
                             # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
                             tr_out_lst_epoch.append(
@@ -185,7 +179,7 @@ class Trainer:
                             tst_lbl_lst_epoch.append(
                             tst_labels.view(1, -1).squeeze(0).tolist())
 
-
+                    # Estimating the mean of the losses over the test batches.
                     tst_losses.append(np.mean(tst_b_losses))                            
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:

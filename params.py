@@ -23,6 +23,6 @@ d_params = {
 n_params = {
 
     'lr': 10e-4,
-    'epochs': 1,
+    'epochs': 20,
     'architecture': "vCnn",
 }

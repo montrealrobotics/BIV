@@ -30,7 +30,7 @@ class IVLoss(Module):
 
         super(IVLoss, self).__init__()
         self.avg_batch = avg_batch
-        self.epsilon = 0.0001        # for numerical stability.
+        self.epsilon = 0.00001        # for numerical stability.
     def forward(self, y_pred,y,lbl_var):
         """
         

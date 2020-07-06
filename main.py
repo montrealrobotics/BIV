@@ -1,3 +1,7 @@
+# How to run the code:
+#python main.py --exp_settings="hello,42,True,mse" --noise_settings="True,uniform,False,False,0.5,0.5,False,3" \\
+# --noise_params="1,100,1000,5000,10000,100000,100,2000,30000,400000" --estim_noise_params="100,500,1000,5000"
+#########################################################################
 import os
 import argparse
 
@@ -19,7 +23,7 @@ from train import Trainer
 from params import d_params
 from params import n_params
 
-from utils import str_to_bool
+from utils import str_to_bool, average_noise_mean
 
 # Global varraibles
 
@@ -38,76 +42,76 @@ if __name__ == "__main__":
     # Parse arguments from the commandline
     
     parser =  argparse.ArgumentParser(description=" A parser for baseline uniform noisy experiment")
-
-    parser.add_argument("--tag", type=str, default="default")
-    parser.add_argument("--seed", type=str, default="42")
-    parser.add_argument("--normalize", type=str, default="False")
-
-    parser.add_argument("--noise", type=str,default="False")
-    parser.add_argument("--noise_type", type=str,default="uniform")
-
-    # type of the uniform that been added.
-    parser.add_argument("--noise_complexity", type=str, default="simple")
-    # coin fairness for controlling noises sampling.
-    parser.add_argument("--coin_fairness" , type=str, default="fair")
-
-    # mu and v for the first distribution.
-    parser.add_argument("--mu" , type=str, default="0")
-    parser.add_argument("--v", type= str, default="1")
-
-    # mu and v for the second uniform distribution.
-    parser.add_argument("--mu_unf_2" , type=str, default="0")
-    parser.add_argument("--v_unf_2", type= str, default="1")
-
-    # is_vmax and vmax_scale for the first distribution.
-    parser.add_argument("--uniform_vmax", type=str, default="False")
-    parser.add_argument("--vmax_scale", type=str, default="1")
-
-    # is_vmax and vmax_scale for the second distribution.
-    parser.add_argument("--uniform_vmax_unf_2", type=str, default="False")
-    parser.add_argument("--vmax_scale_unf_2", type=str, default="1")
-
-    parser.add_argument("--loss_type", type=str, default="mse")
-
-
-    parser.add_argument("--noise_threshold", type=str, default="False")
-    parser.add_argument("--threshold_value", type=str, default="1")
+    parser.add_argument("--exp_settings", type=str, default="0")
+    parser.add_argument("--noise_settings", type=str, default="0")
+    parser.add_argument("--noise_params", type=str, default="0")
+    parser.add_argument("--estim_noise_params", type=str, default="0")    
 
     args = parser.parse_args()
-    
-    # Get Wandb tags
-    tag = [args.tag,]
+
+    # Define global varriables.
+
+    exp_settings = args.exp_settings.split(",")
+    noise_settings = args.noise_settings.split(",")
+    noise_params = args.noise_params.split(",")
+    estim_noise_params = args.estim_noise_params.split(",")
+
+
+    # Extract commandline parameters
+
+    tag = exp_settings[0]
+    seed = float(exp_settings[1])
+    normalize = exp_settings[2]
+    loss_type = exp_settings[3]
+    average_mean_factor = float(exp_settings[4])
+
+    noise = noise_settings[0]
+    noise_type = noise_settings[1]
+    estimate_noise_params = str_to_bool(noise_settings[2])
+    maximum_hetero = str_to_bool(noise_settings[3])
+    hetero_scale = float(noise_settings[4])
+    coin_fairness = float(noise_settings[5])
+    noise_threshold = noise_settings[6]
+    threshold_value = float(noise_settings[7])
+
+
+    noise_params = list(map(lambda x: float(x), noise_params))
+    estim_noise_params =  list(map(lambda x: float(x), estim_noise_params))
+
+
+  
+    #Get Wandb tags
+    tag = [tag,]
     # Initiate wandb client.
     wandb.init(project="IV",tags=tag , entity="khamiesw")
     # Get the api key from the environment variables.
     api_key = os.environ.get('WANDB_API_KEY')
     # login to my wandb account.
     wandb.login(api_key)
-    
-    # Set expirement seed
-    torch.manual_seed(int(args.seed))
-    # Set experiment id
-    exp_id = args.mu +"_"+ args.v
 
     # Define the dataset
-    is_noise = str_to_bool(args.noise)
-    noise_type =args.noise_type
+    is_noise = str_to_bool(noise)
+    noise_type = noise_type
 
-    normz = bool(args.normalize)
-    noise_thresh = str_to_bool(args.noise_threshold)
-    thresh_value = float(args.threshold_value)
-    loss_type = args.loss_type
+    normz = str_to_bool(normalize)
+    noise_thresh = str_to_bool(noise_threshold)
+    thresh_value = float(threshold_value)
+
+    # Set expirement seed
+    torch.manual_seed(int(seed))
+    # Set experiment id
+    if estimate_noise_params:
+        exp_id = str(coin_fairness)+"_"+str(estim_noise_params[0])+"_"+str(estim_noise_params[len(estim_noise_params)//2])
+        if average_mean_factor>=0 and len(estim_noise_params)//2==2:
+            estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[1],coin_fairness)
+
+        dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":estim_noise_params}
+    else:
+        exp_id = str(coin_fairness)+"_"+str(noise_params[0])+"_"+str(noise_params[len(noise_params)//2])
+        dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "data":noise_params}
+
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
-
-
-    if noise_type == 'uniform':
-        dist_data = {"noise_complexity": args.noise_complexity,"coin_fairness":float(args.coin_fairness), "mu": float(args.mu), "v": float(args.v), "is_vmax":str_to_bool(args.uniform_vmax), "vmax_scale":float(args.vmax_scale),\
-            "mu_unf_2": float(args.mu_unf_2), "v_unf_2": float(args.v_unf_2), "is_vmax_unf_2":str_to_bool(args.uniform_vmax_unf_2),\
-             "vmax_scale_unf_2":float(args.vmax_scale_unf_2) }
-    elif noise_type == 'gamma':
-        dist_data = {"mu": float(args.mu), "v": float(args.v)}
-
 
     train_data = UTKface(d_path, transform= trans, train= True, noise=is_noise, noise_type=noise_type, distribution_data = \
                                         dist_data, normalize=normz, noise_threshold = noise_thresh, threshold_value = thresh_value) 
@@ -116,9 +120,6 @@ if __name__ == "__main__":
     # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
-
-    train_dataset = train_loader
-    test_dataset = test_loader 
 
     # Model
     if loss_type == "iv":
@@ -130,7 +131,7 @@ if __name__ == "__main__":
 
     model = AgeModel()
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    trainer = Trainer(experiment_id=exp_id, train_loader= train_dataset, test_loader= test_dataset, \
+    trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
         model=model, loss= loss, optimizer= optimz, epochs = epochs)
 
 

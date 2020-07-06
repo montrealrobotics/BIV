@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('agg')
@@ -207,8 +208,6 @@ def group_testing(x_pred, y_pred, bin_num, model, loss):
         x = group['x']
         y = group['y']
         binq =group['bin']
-        # print(binq)
-        # print("+++++++++++++++")
         # Reshape the images 
         x = torch.stack(x.values.tolist()).cuda(0)
         y = torch.unsqueeze(torch.Tensor(y.values.tolist()),1).cuda(0)
@@ -249,3 +248,50 @@ def flip_coin(p =0.5):
     else:
         return "high"
 
+
+def generate_luck_boundaries(num_dists, p=0.5):
+
+    if num_dists ==0:
+        raise ValueError(" number of distributions are zero: {}".format(num_dists))
+    elif num_dists ==1:
+        p =1
+        l = np.linspace(0,p,num_dists+1, endpoint=True)
+    else:
+        l1 = np.linspace(0,p,(num_dists//2)+num_dists%2, endpoint=False)
+        l2 = np.linspace(p,1,(num_dists//2)+1, endpoint=True,)
+        l = np.concatenate((l1,l2))
+
+    boundaries = {}
+
+    for i in range(len(l)-1):
+        boundaries[str(i+1)] = (l[i], l[i+1])
+    
+    return boundaries
+
+
+def choose_luck_boundary(boundaries):
+    random_number = torch.rand((1,1)).item()
+    for key in boundaries.keys():
+        if random_number> boundaries.get(key)[0] and random_number< boundaries.get(key)[1]:
+            return key
+    
+    raise RuntimeError("generated random number does not fall into any category: {}".format(random_number))
+
+
+
+def incremental_average(x,x_old, i):
+    average = x_old + (x-x_old)*1/(i+1)
+    return average
+
+def incremental_average_full(x):
+    x_old =0
+    for i, e in enumerate(x):
+        average = x_old + (e-x_old)*1/(i+1)
+        x_old = average
+    
+    return x_old
+
+
+def average_noise_mean(avg_m,mu1,p):
+    mu2 = (avg_m-p*mu1)/(1-p)
+    return mu2
