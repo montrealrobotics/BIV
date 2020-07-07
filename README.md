@@ -6,18 +6,22 @@ One  of  the fundamental  assumptions  in  super-vised deep learning is that the
 
 To run the code, we wrapped up all the libraries inside a singularity container, you can download it [here](). To manually build your environment using anaconda, we provide yml file [here](). 
 
-### Running
+### Run the Code
 
 To run the code:
 
 ```bash
-python main.py --exp_settings="hello,42,False,mse, 5000" --noise_settings="True,uniform,True,False,0.5,0.5,False,3" --noise_params="1,100,100,1000" --estim_noise_params="2,500,1,0"
+python main.py --exp_settings="hello,42,False,mse, 5000" \\
+--noise_settings="True,uniform,True,False,0.5,0.5,False,3" \\
+--noise_params="1,100,100,1000" --estim_noise_params="2,500,1,0"
 ```
 
 To run the code inside singularity container:
 
 ```bash
-singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python ~/apps/IV_RL_server/main.py --exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
+singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ \\
+-B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python ~/apps/IV_RL_server/main.py \\
+--exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
 ```
 
 ## Command-line Arguments
@@ -61,19 +65,7 @@ singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPD
 
 - **--estim_noise_params:** Noise distribution estimated parameters, in this case you should pass the mean (mu) and the variance (v) of the noise distribution.
 
-
-
-```
-| Column 1 Header | Column 2 Header | Column 3 Header |
-| --------------- | --------------- | --------------- |
-| Row 1 Column 1 | Row 1 Column 2 | Row 1 Column 3 |
-| Row 2 Column 1 | Row 2 Column 2 | Row 2 Column 3 |
-| Row 3 Column 1 | Row 3 Column 2 | Row 3 Column 3 |
-```
-
 ## Contributors
-
-
 
 * **Waleed Khamies**
 * **Vincent Mai**
