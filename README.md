@@ -1,5 +1,7 @@
 # Inverse Variance Weighting for Heteroscedastic Noisy Labels in Deep Learning
 
+## Introduction
+
 One  of  the fundamental  assumptions  in  super-vised deep learning is that the labels are correct. However, this assumption does not hold in many cases.  Error (noise) on the labels can severely impact the ability of the model to learn. In many cases, the noise on the labels is heteroscedastic and the variable variance is either known, or can be readily estimated from analysis on the dataset. In this work, we propose to leverage the known label variance as a tool to improve learning. Intuitively, we use an information theoretic approach and weight training samples by the inverse variance in the training loss function. We also show that weight normalization by mini-batch (rather than at the level of the entire dataset) improves stability in the learning process. 
 
 ### Prerequisites
@@ -52,18 +54,18 @@ singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ \\
 
 - **--noise_settings:** The arguments that are controlling the noises that are being added to the data.
 
-  - Noise: add the noise or not: bool
-  - Noise type:
-  - Noise parameters estimation
-  - Maximum heteroscedasticty
-  - heteroscedasticty scale 
-  - Flip-coin
-  - Noise threshold
-  - Threshold value
+  - Noise: add the noise or not: ***bool***
+  - Noise type: uniform or gamma : ***str***
+  - Noise parameters estimation : estimate the noise distribution parameters rather than providing them directly: ***bool***
+  - Maximum heteroscedasticty: ***bool***
+  - heteroscedasticty scale : scale the maximum heteroscedasticty value with an scalar: ***float***
+  - Flip-coin: random probability over noise distributions: ***float***
+  - Noise threshold : noise cutoff threshold: ***bool***
+  - Threshold value : threshold cutoff value: ***float***
 
-- **--noise_params:**  Noise distribution parameters,  i.e  a and b in the case of uniform distribution, you can pass as many parameters you want.
+- **--noise_params:**  Noise distribution parameters,  i.e  a and b in the case of uniform distribution, you can pass as many parameters you want: ***str***
 
-- **--estim_noise_params:** Noise distribution estimated parameters, in this case you should pass the mean (mu) and the variance (v) of the noise distribution.
+- **--estim_noise_params:** Noise distribution estimated parameters, in this case you should pass the mean (mu) and the variance (v) of the noise distribution: ***str***
 
 ## Contributors
 
@@ -72,7 +74,7 @@ singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ \\
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the [???] License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgement
 
