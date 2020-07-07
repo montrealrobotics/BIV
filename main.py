@@ -1,5 +1,5 @@
 # How to run the code:
-#python main.py --exp_settings="hello,42,True,mse" --noise_settings="True,uniform,False,False,0.5,0.5,False,3" \\
+#python main.py --exp_settings="hello,42,True,mse, 5000" --noise_settings="True,uniform,False,False,0.5,0.5,False,3" \\
 # --noise_params="1,100,1000,5000,10000,100000,100,2000,30000,400000" --estim_noise_params="100,500,1000,5000"
 #########################################################################
 import os
@@ -100,14 +100,13 @@ if __name__ == "__main__":
     # Set expirement seed
     torch.manual_seed(int(seed))
     # Set experiment id
-    if estimate_noise_params:
-        exp_id = str(coin_fairness)+"_"+str(estim_noise_params[0])+"_"+str(estim_noise_params[len(estim_noise_params)//2])
-        if average_mean_factor>=0 and len(estim_noise_params)//2==2:
-            estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[1],coin_fairness)
+    exp_id = str(coin_fairness)
 
+    if estimate_noise_params:
+        if average_mean_factor>=0 and len(estim_noise_params)//2==2:
+            estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[0],coin_fairness)
         dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":estim_noise_params}
     else:
-        exp_id = str(coin_fairness)+"_"+str(noise_params[0])+"_"+str(noise_params[len(noise_params)//2])
         dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "data":noise_params}
 
 

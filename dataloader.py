@@ -13,7 +13,7 @@ from torch.utils.data import Dataset
 from params import d_params
 from utils import get_unif_Vmax, normalize_images, normalize_labels, get_dataset_stats, str_to_bool
 from utils import generate_luck_boundaries, choose_luck_boundary, incremental_average
-
+from utils import flip_coin
 
 
 
@@ -61,6 +61,10 @@ class UTKface(Dataset):
             if self.noise:
                 if self.noise_type == 'uniform':
                     self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise. 
+                    # print("noises been added", self.lbl_noises)
+                    print("maximum noise", max(self.lbl_noises))
+                    # print("noise variances:", self.noise_variances)
+                    print("maximum noise variance:", max(self.noise_variances))
                      
                 else:
                     raise NotImplementedError("Gamma noise is not supported at the current moment.")
@@ -150,6 +154,8 @@ class UTKface(Dataset):
         """
         if v<0:
             raise ValueError(" Varinace is a negative number: {}".format(v))
+        if mu<=math.sqrt(3*v):
+            raise ValueError(" mu value is not valid, minimum value of mu: {}. Lower bound (a) will be negative, and that is not valid when variance is generated".format(math.sqrt(3*v)))
         else:
             a = mu - math.sqrt(3*v)
             b = mu + math.sqrt(3*v)
@@ -268,6 +274,11 @@ class UTKface(Dataset):
         print("noise distributions ratio:", noise_dists_ratio)
 
         noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars] 
+        # for item in noises:
+        #     if torch.isnan(torch.Tensor([item,])):
+        #         print("NAN")
+        # # print(noises_vars)
+        
             
         return (noises, noises_vars)
 
