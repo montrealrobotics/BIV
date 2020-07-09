@@ -27,7 +27,6 @@ from utils import str_to_bool, average_noise_mean
 
 # Global varraibles
 
-seed = d_params.get('seed')
 d_path = d_params.get('d_path')
 tr_size = d_params.get('tr_batch_size')
 tst_size = d_params.get('test_batch_size')
@@ -60,7 +59,7 @@ if __name__ == "__main__":
     # Extract commandline parameters
 
     tag = exp_settings[0]
-    seed = float(exp_settings[1])
+    seed = int(exp_settings[1])
     normalize = exp_settings[2]
     loss_type = exp_settings[3]
     average_mean_factor = float(exp_settings[4])
@@ -98,12 +97,12 @@ if __name__ == "__main__":
     thresh_value = float(threshold_value)
 
     # Set expirement seed
-    torch.manual_seed(int(seed))
+    torch.manual_seed(seed)
     # Set experiment id
     exp_id = str(coin_fairness)
 
     if estimate_noise_params:
-        if average_mean_factor>=0 and len(estim_noise_params)//2==2:
+        if average_mean_factor>=0 and len(estim_noise_params)//2==2 and coin_fairness<1:
             estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[0],coin_fairness)
         dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":estim_noise_params}
     else:

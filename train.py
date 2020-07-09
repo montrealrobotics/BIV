@@ -125,14 +125,13 @@ class Trainer:
                     tr_batch = train_sample[0].cuda(0)
                     tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
                     if alogrithm == "iv" or alogrithm == "biv":
-                        noises_vars = torch.unsqueeze(
-                            train_sample[3], 1).type(torch.float32).cuda(0)
+                        noises_vars = train_sample[3].type(torch.float32).cuda(0)
+                     
                 else:
                     tr_batch = train_sample[0]
                     tr_labels = torch.unsqueeze(train_sample[1], 1)
                     if alogrithm == "iv" or alogrithm == "biv":
-                        noises_vars = torch.unsqueeze(
-                            train_sample[3], 1).type(torch.float32)
+                        noises_vars = train_sample[3].type(torch.float32)
                 # feeding the data into the model.
                 tr_out = self.model(tr_batch)
 

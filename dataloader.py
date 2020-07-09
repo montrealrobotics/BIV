@@ -154,7 +154,7 @@ class UTKface(Dataset):
         """
         if v<0:
             raise ValueError(" Varinace is a negative number: {}".format(v))
-        if mu<=math.sqrt(3*v):
+        if mu<math.sqrt(3*v): # to prevent having negative values :), bc variance is a positive number.
             raise ValueError(" mu value is not valid, minimum value of mu: {}. Lower bound (a) will be negative, and that is not valid when variance is generated".format(math.sqrt(3*v)))
         else:
             a = mu - math.sqrt(3*v)
