@@ -53,7 +53,7 @@ class UTKface(Dataset):
         # This is not the proper implementation, but doing that for research purproses.
 
         # Load the dataset
-        self.images_pth, self.labels = self.load_data()
+        self.images_path, self.labels = self.load_data()
         # Load the normalization constant variables.
         self.images_mean, self.images_std, self.labels_mean, self.labels_std = get_dataset_stats()
         # Generate noise for the training samples.
@@ -73,7 +73,7 @@ class UTKface(Dataset):
                         print('Training data filtering started...')
                         self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
                         print('Training data filtering finished...')
-
+    
     
     def filter_high_noise(self):
         filt_images_path = []
@@ -82,10 +82,12 @@ class UTKface(Dataset):
         filt_noise_variances = []
         filtered_data_counter = 0
 
+
+
         for idx in range(len(self.noise_variances)):
             if self.noise_variances[idx] < self.threshold_value:
 
-                filt_images_path.append(self.images_pth[idx])
+                filt_images_path.append(self.images_path[idx])
                 filt_labels.append(self.labels[idx])
                 filt_lbl_noises.append(self.lbl_noises[idx])
                 filt_noise_variances.append(self.noise_variances[idx])
@@ -356,7 +358,7 @@ class UTKface(Dataset):
             :idx: auto-sampled generated index.
         """
 
-        img_path = self.images_pth[idx]
+        img_path = self.images_path[idx]
         self.label = self.labels[idx]
 
         # Convert the label to a tensor

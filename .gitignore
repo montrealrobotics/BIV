@@ -5,3 +5,11 @@ outputs
 *.csv
 wandb/*
 *.log
+
+ICML_paper/__MACOSX/
+
+ICML_paper/icml_udl2020_style/
+
+UTKFace/
+
+ICML_paper/
