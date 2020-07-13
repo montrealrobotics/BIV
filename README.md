@@ -109,4 +109,5 @@ This project is licensed under the [???] License - see the [LICENSE.md](LICENSE.
 ## Acknowledgement
 
 * [Liam Paull](https://liampaull.ca/) - Principle Investigator - [Robotics Lab (UdeM University)](https://montrealrobotics.ca/)
-
+* [National Sciences and Engineering Research Council of Canada](https://www.nserc-crsng.gc.ca/) 
+ 
