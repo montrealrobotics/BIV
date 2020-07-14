@@ -19,7 +19,7 @@ from utils import flip_coin
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, \
+    def __init__(self, path, train = True, model="vanilla_cnn" ,transform = None, noise = False , noise_type = None, \
                 distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None):
 
         """
@@ -42,6 +42,7 @@ class UTKface(Dataset):
         self.data_paths = glob.glob(path)
         self.dataset_size  = len(self.data_paths)
         self.normalize = normalize
+        self.model = model
         self.transform = transform
         self.noise = noise
         self.noise_type = noise_type
@@ -369,7 +370,6 @@ class UTKface(Dataset):
         if self.transform:
             self.image = self.transform(self.image)        
         
-
         if self.train:
             if self.noise:
                 if self.noise_type == 'uniform':
@@ -383,18 +383,34 @@ class UTKface(Dataset):
                         # weight the noise value and its varince by the std of the labels of the dataset.
                         self.label_noise = self.label_noise/self.labels_std
                         self.noise_variance = self.noise_variance/(self.labels_std**2)
+                    if self.model == "resnet":
+                        image_shape = self.image.shape
+                        new_channels_num = 3
+                        self.image = self.image.view(-1,1).repeat(1,new_channels_num).view(new_channels_num,image_shape[1],image_shape[2])
+
                     return (self.image, self.label, self.label_noise, self.noise_variance)
             else:
                 # Apply normalization to the training data.
                 if self.normalize:
                     self.image = normalize_images(self.image, self.images_mean, self.images_std)
                     self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+                
+                if self.model == "resnet":
+                    image_shape = self.image.shape
+                    new_channels_num = 3
+                    self.image = self.image.view(-1,1).repeat(1,new_channels_num).view(new_channels_num,image_shape[1],image_shape[2])
                 return (self.image, self.label)
         else:
             # Apply normalization to the testing data.
             if self.normalize:
                 self.image = normalize_images(self.image, self.images_mean, self.images_std)
                 self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+                
+            if self.model == "resnet":
+                image_shape = self.image.shape
+                new_channels_num = 3
+                self.image = self.image.view(-1,1).repeat(1,new_channels_num).view(new_channels_num,image_shape[1],image_shape[2])
+
             return (self.image, self.label)  
 
         

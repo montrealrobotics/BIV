@@ -62,7 +62,8 @@ if __name__ == "__main__":
     seed = int(exp_settings[1])
     normalize = exp_settings[2]
     loss_type = exp_settings[3]
-    average_mean_factor = float(exp_settings[4])
+    model_type = exp_settings[4]
+    average_mean_factor = float(exp_settings[5])
 
     noise = noise_settings[0]
     noise_type = noise_settings[1]
@@ -79,7 +80,7 @@ if __name__ == "__main__":
 
 
   
-    #Get Wandb tags
+    Get Wandb tags
     tag = [tag,]
     # Initiate wandb client.
     wandb.init(project="IV",tags=tag , entity="khamiesw")
@@ -111,9 +112,9 @@ if __name__ == "__main__":
 
     trans= torchvision.transforms.Compose([ transforms.Grayscale(num_output_channels=1), transforms.ToTensor()])
 
-    train_data = UTKface(d_path, transform= trans, train= True, noise=is_noise, noise_type=noise_type, distribution_data = \
+    train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=is_noise, noise_type=noise_type, distribution_data = \
                                         dist_data, normalize=normz, noise_threshold = noise_thresh, threshold_value = thresh_value) 
-    test_data = UTKface(d_path, transform= trans, train= False, normalize=normz)
+    test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normz)
 
     # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
@@ -127,14 +128,19 @@ if __name__ == "__main__":
     else:
         loss = torch.nn.MSELoss()
 
-    model = AgeModel()
+    if model_type == "resnet":
+        model = torchvision.models.resnet18(pretrained=False)
+        model.fc = torch.nn.Linear(512,1)   # converting resnet to a regression layer
+    else:
+        model = AgeModel()
+    
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
     trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
         model=model, loss= loss, optimizer= optimz, epochs = epochs)
 
 
-    # #Call wandb to log model performance.
+    #Call wandb to log model performance.
     wandb.watch(model)
-    # # train the model
+    # train the model
     trainer.train(alogrithm=loss_type)
 

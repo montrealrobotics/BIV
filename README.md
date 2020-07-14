@@ -70,6 +70,11 @@ rsync -avz $SLURM_TMPDIR --exclude="Datasets" --exclude="pytorch_f.simg"  /home/
     -  **Inverse variance**: **iv**
     -  **batch Inverse variance**: **biv**
 
+  - **Model type**: Model type: ***str***
+
+    - **Vanilla CNN**: **6 convolutional layers** :**vanilla_cnn **   ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))
+    - **Resnet** : Resnet 18: **resnet**  ([click here for more details](https://pytorch.org/hub/pytorch_vision_resnet/))
+
   - **Noise average mean**: Average over distributions mean
 
     - > average mean = p*mu1 + (1-p)*mu2
@@ -110,4 +115,4 @@ This project is licensed under the [???] License - see the [LICENSE.md](LICENSE.
 
 * [Liam Paull](https://liampaull.ca/) - Principle Investigator - [Robotics Lab (UdeM University)](https://montrealrobotics.ca/)
 * [National Sciences and Engineering Research Council of Canada](https://www.nserc-crsng.gc.ca/) 
- 
+
