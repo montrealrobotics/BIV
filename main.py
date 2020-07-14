@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
 
   
-    Get Wandb tags
+    #Get Wandb tags
     tag = [tag,]
     # Initiate wandb client.
     wandb.init(project="IV",tags=tag , entity="khamiesw")
@@ -131,8 +131,10 @@ if __name__ == "__main__":
     if model_type == "resnet":
         model = torchvision.models.resnet18(pretrained=False)
         model.fc = torch.nn.Linear(512,1)   # converting resnet to a regression layer
+        print("#################### Model is:{} ####################".format(model_type))
     else:
         model = AgeModel()
+        print("#################### Model is:{} ####################".format(model_type))
     
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
     trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
