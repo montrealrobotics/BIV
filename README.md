@@ -72,7 +72,7 @@ rsync -avz $SLURM_TMPDIR --exclude="Datasets" --exclude="pytorch_f.simg"  /home/
 
   - **Model type**: Model type: ***str***
 
-    - **Vanilla CNN**: **6 convolutional layers** :**vanilla_cnn **   ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))
+    - **Vanilla CNN**: **6 convolutional layers** :**vanilla_cnn**   ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))
     - **Resnet** : Resnet 18: **resnet**  ([click here for more details](https://pytorch.org/hub/pytorch_vision_resnet/))
 
   - **Noise average mean**: Average over distributions mean
