@@ -13,7 +13,7 @@ To run the code, we wrapped up all the libraries inside a singularity container,
 To run the code:
 
 ```bash
-python main.py --exp_settings="classical_1_7159,7159,True,mse,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
+python main.py --exp_settings="classical_1_7159,7159,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
 --noise_params="0,0,0,0"  --estim_noise_params="0.52,500,0.09,0"
 ```
 
