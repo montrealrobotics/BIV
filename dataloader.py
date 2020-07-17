@@ -344,7 +344,6 @@ class UTKface(Dataset):
 
     def __getitem__(self, idx):
 
-
         """
         Description:
             Sample batch of images, labels, noises and variances.
@@ -368,8 +367,8 @@ class UTKface(Dataset):
 
         # Apply some transformation to the images.
         if self.transform:
-            self.image = self.transform(self.image)        
-        
+            self.image = self.transform(self.image)
+
         if self.train:
             if self.noise:
                 if self.noise_type == 'uniform':
@@ -383,22 +382,13 @@ class UTKface(Dataset):
                         # weight the noise value and its varince by the std of the labels of the dataset.
                         self.label_noise = self.label_noise/self.labels_std
                         self.noise_variance = self.noise_variance/(self.labels_std**2)
-                    if self.model == "resnet":
-                        image_shape = self.image.shape
-                        new_channels_num = 3
-                        self.image = self.image.view(-1,1).repeat(1,new_channels_num).view(new_channels_num,image_shape[1],image_shape[2])
 
                     return (self.image, self.label, self.label_noise, self.noise_variance)
             else:
-                # Apply normalization to the training data.
+            # Apply normalization to the training data.
                 if self.normalize:
                     self.image = normalize_images(self.image, self.images_mean, self.images_std)
                     self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
-                
-                if self.model == "resnet":
-                    image_shape = self.image.shape
-                    new_channels_num = 3
-                    self.image = self.image.view(-1,1).repeat(1,new_channels_num).view(new_channels_num,image_shape[1],image_shape[2])
                 return (self.image, self.label)
         else:
             # Apply normalization to the testing data.
@@ -406,11 +396,6 @@ class UTKface(Dataset):
                 self.image = normalize_images(self.image, self.images_mean, self.images_std)
                 self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
                 
-            if self.model == "resnet":
-                image_shape = self.image.shape
-                new_channels_num = 3
-                self.image = self.image.view(-1,1).repeat(1,new_channels_num).view(new_channels_num,image_shape[1],image_shape[2])
-
             return (self.image, self.label)  
 
         

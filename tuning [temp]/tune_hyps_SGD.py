@@ -1,3 +1,7 @@
+# How to run the code:
+#python main.py --exp_settings="hello,42,True,mse, 5000" --noise_settings="True,uniform,False,False,0.5,0.5,False,3" \\
+# --noise_params="1,100,1000,5000,10000,100000,100,2000,30000,400000" --estim_noise_params="100,500,1000,5000"
+#########################################################################
 import os
 import argparse
 
@@ -27,7 +31,7 @@ d_path = d_params.get('d_path')
 tr_size = d_params.get('tr_batch_size')
 tst_size = d_params.get('test_batch_size')
 
-learning_rate = n_params.get('lr')
+# learning_rate = n_params.get('lr')
 epochs = n_params.get('epochs')
 
 # Main 
@@ -60,7 +64,8 @@ if __name__ == "__main__":
     loss_type = exp_settings[3]
     model_type = exp_settings[4]
     average_mean_factor = float(exp_settings[5])
-    
+    learning_rate = float(exp_settings[6])
+    momentum = float(exp_settings[7])
 
     noise = noise_settings[0]
     noise_type = noise_settings[1]
@@ -77,7 +82,7 @@ if __name__ == "__main__":
 
 
   
-    # Get Wandb tags
+    #Get Wandb tags
     tag = [tag,]
     # Initiate wandb client.
     wandb.init(project="IV",tags=tag , entity="khamiesw")
@@ -107,7 +112,6 @@ if __name__ == "__main__":
         dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "data":noise_params}
 
 
-
     trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
     train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=is_noise, noise_type=noise_type, distribution_data = \
@@ -134,13 +138,12 @@ if __name__ == "__main__":
         model = AgeModel()
         print("#################### Model is:{} ####################".format(model_type))
     
-    optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimz = torch.optim.SGD(model.parameters(), lr=learning_rate,momentum=momentum)
     trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
         model=model, loss= loss, optimizer= optimz, epochs = epochs)
 
 
-
-    # Call wandb to log model performance.
+    #Call wandb to log model performance.
     wandb.watch(model)
     # train the model
     trainer.train(alogrithm=loss_type)

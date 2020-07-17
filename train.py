@@ -14,6 +14,8 @@ from params import d_params
 
 import wandb
 
+from ray import tune
+
 
 
 class Trainer:
@@ -30,7 +32,7 @@ class Trainer:
             :cuda (bool) [private]: Controls if the model will be run on GPU or not.
     """
 
-    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs):
+    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs, tuner=False):
 
         self.expermient_id = experiment_id
         self.cuda = torch.cuda.is_available()  # Check Cuda avaliability
@@ -65,7 +67,7 @@ class Trainer:
         self.save(lst_df, path)
 
     def zip_results(self, files):
-        directory_name = str(self.expermient_id)
+        directory_name = str(self.expermient_id)    
         try:
             folder = os.mkdir(self.server_path+directory_name)
             for file_name in files:
@@ -140,7 +142,8 @@ class Trainer:
                     mloss = self.loss(tr_out, tr_labels, noises_vars)
                 else:
                     mloss = self.mse_loss(tr_out,tr_labels)
-
+                
+                print(mloss)
                 tr_losses.append(mloss.item())
                 wandb_tr_losses.append(mloss.item())
                 
@@ -182,7 +185,8 @@ class Trainer:
                             tst_labels.view(1, -1).squeeze(0).tolist())
 
                     # Estimating the mean of the losses over the test batches.
-                    tst_losses.append(np.mean(tst_b_losses))     
+                    mean_tst_b_losses = np.mean(tst_b_losses)
+                    tst_losses.append(mean_tst_b_losses)    
                     wandb_tst_losses.append(np.mean(tst_b_losses))                       
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:
