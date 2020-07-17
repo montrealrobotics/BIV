@@ -1,5 +1,6 @@
 import os
 import argparse
+import types
 
 import matplotlib.pyplot as plt
 
@@ -51,32 +52,65 @@ if __name__ == "__main__":
     noise_params = args.noise_params.split(",")
     estim_noise_params = args.estim_noise_params.split(",")
 
-
     # Extract commandline parameters
 
     tag = exp_settings[0]
-    seed = int(exp_settings[1])
+    seed = exp_settings[1]
     normalize = exp_settings[2]
     loss_type = exp_settings[3]
     model_type = exp_settings[4]
-    average_mean_factor = float(exp_settings[5])
+    average_mean_factor = exp_settings[5]
     
-
     noise = noise_settings[0]
     noise_type = noise_settings[1]
+    estimate_noise_params = noise_settings[2]
+    maximum_hetero = noise_settings[3]
+    hetero_scale = noise_settings[4]
+    coin_fairness = noise_settings[5]
+    noise_threshold = noise_settings[6]
+    threshold_value = noise_settings[7]
+  
+    # Assert the commandline arguments values.
+    messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
+
+    assert isinstance(float(seed), float), "Argument: seed: " + messages.get('datatype')
+    assert isinstance( str_to_bool(normalize), bool), "Argument: normalize: " + messages.get('bool')
+    assert loss_type in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
+    assert model_type in ["vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
+    assert average_mean_factor.replace('.','',1).replace('-','',1).isdigit(), "Argument: average_mean_factor: "+ messages.get('value')
+
+    assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + messages.get('bool')
+    assert noise_type in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
+    assert isinstance( str_to_bool(estimate_noise_params), bool), "Argument: estimate_noise_params: " + messages.get('bool')
+    assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + messages.get('bool')
+    assert float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ messages.get('value')
+    assert float(coin_fairness)>=0 and float(coin_fairness)<=1 , "Argument: coin_fairness: "+ messages.get('value')
+    assert isinstance( str_to_bool(noise_threshold), bool), "Argument: noise_threshold: " + messages.get('bool')
+    assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
+
+    for item in noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: noise_params: " + messages.get('datatype')
+    for item in estim_noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: estim_noise_params: " + messages.get('datatype')
+
+
+    # Convert commandline arguments to appropriate datatype.
+
+    tag = exp_settings[0]
+    seed = int(exp_settings[1])
+    normalize = str_to_bool(exp_settings[2])
+    average_mean_factor = float(exp_settings[5])
+    is_noise = str_to_bool(noise_settings[0])
     estimate_noise_params = str_to_bool(noise_settings[2])
     maximum_hetero = str_to_bool(noise_settings[3])
     hetero_scale = float(noise_settings[4])
     coin_fairness = float(noise_settings[5])
-    noise_threshold = noise_settings[6]
+    noise_threshold = str_to_bool(noise_settings[6])
     threshold_value = float(noise_settings[7])
-
 
     noise_params = list(map(lambda x: float(x), noise_params))
     estim_noise_params =  list(map(lambda x: float(x), estim_noise_params))
 
 
-  
+
     # Get Wandb tags
     tag = [tag,]
     # Initiate wandb client.
@@ -86,19 +120,12 @@ if __name__ == "__main__":
     # login to my wandb account.
     wandb.login(api_key)
 
-    # Define the dataset
-    is_noise = str_to_bool(noise)
-    noise_type = noise_type
-
-    normz = str_to_bool(normalize)
-    noise_thresh = str_to_bool(noise_threshold)
-    thresh_value = float(threshold_value)
-
     # Set expirement seed
     torch.manual_seed(seed)
     # Set experiment id
     exp_id = str(coin_fairness)
 
+    # Define the dataset
     if estimate_noise_params:
         if average_mean_factor>=0 and len(estim_noise_params)//2==2 and coin_fairness<1:
             estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[0],coin_fairness)
@@ -107,12 +134,11 @@ if __name__ == "__main__":
         dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "data":noise_params}
 
 
-
     trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
     train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=is_noise, noise_type=noise_type, distribution_data = \
-                                        dist_data, normalize=normz, noise_threshold = noise_thresh, threshold_value = thresh_value) 
-    test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normz)
+                                        dist_data, normalize=normalize, noise_threshold = noise_threshold, threshold_value = threshold_value) 
+    test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize)
 
     # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
@@ -139,9 +165,9 @@ if __name__ == "__main__":
         model=model, loss= loss, optimizer= optimz, epochs = epochs)
 
 
-
     # Call wandb to log model performance.
     wandb.watch(model)
     # train the model
     trainer.train(alogrithm=loss_type)
+
 
