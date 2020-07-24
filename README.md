@@ -6,14 +6,14 @@ One of the fundamental  assumptions  in  super-vised deep learning is that the l
 
 ### Prerequisites
 
-To run the code, we wrapped up all the libraries inside a singularity container, you can download it [here](). To manually build your environment using anaconda, we provide yml file [here](). 
+To run the code, we wrapped up all the used libraries inside a singularity container, you can download it [here](https://drive.google.com/file/d/1I17AjFeC7GULokpb1_NkBdbXqX2LHT66/view?usp=sharing). To manually build your environment using anaconda, we provide the yml file [here](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/env.yml). 
 
 ### Run the Code
 
-To run the code:
+To run the code locally:
 
 ```bash
-python main.py --exp_settings="classical_1_7159,7159,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
+python main.py --exp_settings="classical_1_7159,7159,utkf,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
 --noise_params="0,0,0,0"  --estim_noise_params="0.52,500,0.09,0"
 ```
 
@@ -54,6 +54,12 @@ rsync -avz $SLURM_TMPDIR --exclude="Datasets" --exclude="pytorch_f.simg"  /home/
 
 
 
+```
+Attempt | #1 | #2 | #3 | #4 | #5 | #6 | #7 | #8 | #9 | #10 | #11
+--- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |---
+Seconds | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 | 269
+```
+
 ## [Explanation] Command-line Arguments
 
 - **--exp_settings:** These are the arguments that controlling whole the experiment.
@@ -61,6 +67,11 @@ rsync -avz $SLURM_TMPDIR --exclude="Datasets" --exclude="pytorch_f.simg"  /home/
   - **Tag** : A wandb tag: ***str***
 
   - **Seed**: Experiment seed : ***int***
+
+  - **Dataset**: Dataset type: **str**
+
+    - **UTKFace** : **utkf** ([click here for more details](https://susanqq.github.io/UTKFace/))
+    - **Wine Quality**: **wine** ([click here for more details](https://archive.ics.uci.edu/ml/datasets/wine+quality))
 
   - **Normalisation**: data normalisation : ***boolean***
 
