@@ -54,7 +54,7 @@ rsync -avz $SLURM_TMPDIR --exclude="Datasets" --exclude="pytorch_f.simg"  /home/
 
 
 
-```
+```markdown
 | First Header  | Second Header |
 | ------------- | ------------- |
 | Content Cell  | Content Cell  |
