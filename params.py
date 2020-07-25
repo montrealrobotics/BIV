@@ -37,6 +37,5 @@ n_params = {
 
     'lr': 0.001,
     'wine_lr': 0.001,
-    'epochs': 20,
-    'architecture': "vCnn",
+    'epochs': 20
 }
