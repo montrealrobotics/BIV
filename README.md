@@ -13,7 +13,7 @@ To run the code, we wrapped up all the used libraries inside a singularity conta
 To run the code locally:
 
 ```bash
-python main.py --exp_settings="exp_tag,7159,utkf,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
+python main.py --exp_settings="exp_tag,1001,utkf,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
 --noise_params="0,0,0,0"  --estim_noise_params="0.52,500,0.09,0"
 ```
 
@@ -54,90 +54,28 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 
 ## [Explanation] Command-line Arguments
 
-| Group                   | Argument                        | Description                                                  | Value                      | Data type | Link |
-| ----------------------- | ------------------------------- | ------------------------------------------------------------ | -------------------------- | --------- | ---- |
-|                         | **Tag**                         | A wandb tag                                                  | Any                        | string    |      |
-|                         | **Seed**                        | Experiment seed                                              | Any                        | float     |      |
-| **--exp_settings**      | **Dataset**                     | **Dataset type. The available datasets:**<br />**1-UTKFace   <br />2-Wine Quality** | **utkf**<br />**wine**     | string    |      |
-|                         | **Normalization**               | Enable dataset normalisation                                 | True or False              | Boolean   |      |
-|                         | **Loss type**                   | Type of loss function. The available loss functions:<br />1- **Mean squared error**. **(MSE)**<br />2- **Inverse variance. (IV)<br />3- Batch inverse varaince. (BIV)** | 1-mse<br />2-iv<br />3-biv | string    |      |
-|                         | **Model type**                  |                                                              |                            |           |      |
-|                         | **Noise Average mean**          |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-| **noise_settings:**     | **Noise**                       |                                                              |                            |           |      |
-|                         | **Noise type**                  |                                                              |                            |           |      |
-|                         | **Noise parameters estimation** |                                                              |                            |           |      |
-|                         | **Maximum heteroscedasticty**   |                                                              |                            |           |      |
-|                         | **heteroscedasticty scale**     |                                                              |                            |           |      |
-|                         | **Flip-coin**                   |                                                              |                            |           |      |
-|                         | **Noise threshold**             |                                                              |                            |           |      |
-|                         | **Threshold value**             |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-| **noise_params:**       |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-| **estim_noise_params:** |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-|                         |                                 |                                                              |                            |           |      |
-
-
-
-- **--exp_settings:** These are the arguments that controlling whole the experiment.
-
-  - **Tag** : A wandb tag: ***str***
-
-  - **Seed**: Experiment seed : ***int***
-
-  - **Dataset**: Dataset type: **str**
-
-    - **UTKFace** : **utkf** ([click here for more details](https://susanqq.github.io/UTKFace/))
-    - **Wine Quality**: **wine** ([click here for more details](https://archive.ics.uci.edu/ml/datasets/wine+quality))
-
-  - **Normalisation**: data normalisation : ***boolean***
-
-  - **Loss type**: Loss function type: ***str***
-
-    - **Mean squared error**: **mse**
-    -  **Inverse variance**: **iv**
-    -  **batch Inverse variance**: **biv**
-
-  - **Model type**: Model type: ***str***
-
-    - **Vanilla CNN**: **6 convolutional layers** :**vanilla_cnn**   ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))
-    - **Resnet** : Resnet 18: **resnet**  ([click here for more details](https://pytorch.org/hub/pytorch_vision_resnet/))
-
-  - **Noise average mean**: Average over distributions mean
-
-    - > average mean = p*mu1 + (1-p)*mu2
-      >
-      > p = flip-coin probability
-      >
-      > mu1 = mean of the first distribution.
-      >
-      > mu2 = mean of the second distribution.
-
-- **--noise_settings:** The arguments that are controlling the noises that are being added to the data.
-
-  - **Noise**: add the noise or not: ***bool***
-  - **Noise type:** type of the noise: ***str***
-    - **uniform distribution:** "uniform" 
-    - **Gamma distribution** : "gamma" 
-  - **Noise parameters estimation** : Enable parameters estimation of the noise distributions, rather than providing them directly: ***bool***
-  - **Maximum heteroscedasticty**: ***bool***
-  - **heteroscedasticty scale** : Scale the maximum heteroscedasticty value with an scalar: ***float***
-  - **Flip-coin**: random Probability over noise distributions: ***float***
-  - **Noise threshold** : Noise cutoff threshold: ***bool***
-  - **Threshold value** : Threshold cutoff value: ***float***
-
-- **--noise_params:**  Noise distribution parameters,  i.e  a and b in the case of uniform distribution, you can pass as many parameters you want: ***str***
-
-- **--estim_noise_params:** A list of  mu and v to estimate the parameters of the noise distributions, in this case you should pass the mean (mu) and the variance (v) of the noise distributions: ***str***
+| Group                  | Argument                         | Description                                                  | Value                                                        | Data type |
+| ---------------------- | :------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | --------- |
+|                        | **Tag**                          | Experiment wandb tag. [(click here for more details)](https://docs.wandb.com/app/features/tags) | Any                                                          | string    |
+|                        | **Seed**                         | Experiment seed.                                             | Any                                                          | float     |
+| **--exp_settings**     | **Dataset**                      | The available datasets:<br />1-UTKFace. ([click here for more details](https://susanqq.github.io/UTKFace/)) <br />2-Wine Quality. ([click here for more details](https://archive.ics.uci.edu/ml/datasets/wine+quality)) | 1- utkf<br />2- wine                                         | string    |
+|                        | **Normalization**                | Enable dataset normalisation                                 | True or False                                                | Boolean   |
+|                        | **Loss type**                    | The available loss functions:<br />1- Mean squared error. (MSE)<br />2- Inverse variance. (IV)<br />3- Batch inverse varaince. (BIV) | 1- mse<br />2- iv<br />3- biv                                | string    |
+|                        | **Model type**                   | The available models:<br />1- Vanilla ANN, ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))<br /> 2-Vanilla CNN. ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))<br />3- Resnet-18. ([click here for more details](https://pytorch.org/hub/pytorch_vision_resnet/))<br /> | 1-vanilla_ann<br />2- vanilla_cnn<br />3- resnet             | string    |
+|                        | **Average mean noise variance**  | Average over means of the noise variance distributions:<br />X = p x <img src="https://render.githubusercontent.com/render/math?math=\mu_1">+ (1-p) x <img src="https://render.githubusercontent.com/render/math?math=\mu_2"><br /><br />X = average mean variance.<br />p =  probability function over noise variance distributions.<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_1">= mean of the first distribution.<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_2"> = mean of the second distribution. | Any                                                          | float     |
+|                        |                                  |                                                              |                                                              |           |
+| **noise_settings**     | **Noise**                        | Enable noise addition to the labels                          | True or False                                                | boolean   |
+|                        | **Noise type**                   | The available noise variance distributions:<br />1- Uniform distribution.<br />2- Gamma distribution. | 1- uniform<br />2- gamma                                     | string    |
+|                        | **Noise parameters estimation**  | Enable parameters estimation of the noise variance distributions, rather than providing them directly. The estimation is done through providing the mean <img src="https://render.githubusercontent.com/render/math?math=(\mu)">and the variance (v) of the noise variance distribution. | True or False                                                | boolean   |
+|                        | **Maximum heteroscedasticty**    | Enable maximum heteroscedasticty.                            | True or False                                                | boolean   |
+|                        | **heteroscedasticty scale**      | Scale the maximum heteroscedasticty value with an scalar.    | [0-1]                                                        | float     |
+|                        | **Noise distributions rate (p)** | Probability function over noise variance distributions. This is to study the contribution effect of low and high noise variance distributions. | [0-1]                                                        | float     |
+|                        | **Noise threshold**              | Enable a cutoff threshold for the added noises. This is to study the effect of removing some of the noises rather than using IV loss to mitigate that. | True or False                                                | boolean   |
+|                        | **Threshold value**              | Noise threshold cutoff value.                                | Any                                                          | float     |
+|                        |                                  |                                                              |                                                              |           |
+| **noise_params**       |                                  | Parameters of the noise variance distributions. <br />1- Uniform (a,b)<br />2- Gamma (<img src="https://render.githubusercontent.com/render/math?math=\alpha"> and <img src="https://render.githubusercontent.com/render/math?math=\beta">)<br />The number of distributions is not limited, you can pass whatever number you want. | 1- Uniform: <br />(<img src="https://render.githubusercontent.com/render/math?math=a_1">, <img src="https://render.githubusercontent.com/render/math?math=a_2">, ..., <img src="https://render.githubusercontent.com/render/math?math=b_1">,<img src="https://render.githubusercontent.com/render/math?math=b_2">, ...)<br />2- Gamma:<br /> (<img src="https://render.githubusercontent.com/render/math?math=\alpha_1">, <img src="https://render.githubusercontent.com/render/math?math=\alpha_2">,..., <img src="https://render.githubusercontent.com/render/math?math=\beta_1">, <img src="https://render.githubusercontent.com/render/math?math=\beta_2">, ...) | float     |
+|                        |                                  |                                                              |                                                              |           |
+| **estim_noise_params** |                                  | <img src="https://render.githubusercontent.com/render/math?math=\mu"> and v of the noise distributions | <img src="https://render.githubusercontent.com/render/math?math=\mu_1">,<img src="https://render.githubusercontent.com/render/math?math=\mu_2">, ..., <img src="https://render.githubusercontent.com/render/math?math=v_1">, <img src="https://render.githubusercontent.com/render/math?math=v_2">, ... | float     |
 
 ## Contributors
 
