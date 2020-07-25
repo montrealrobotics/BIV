@@ -20,14 +20,12 @@ python main.py --exp_settings="exp_tag,1001,utkf,True,mse,vanilla_cnn,5000" --no
 To run the code locally inside singularity container:
 
 ```bash
-singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ \\
--B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python ~/apps/IV_RL_server/main.py \\
---exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
+singularity exec --nv -H $HOME:/home/ -B ./your_dataset_directory:/datasets/ -B ./your_outputs_directory:/final_outps/  ./your_environments_directory/pytorch_f.simg python /path/to/main.py --exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
 ```
 
 
 
-To run the code in a cluster that supporting Slurm workload manager, use this starter code:
+To run the code in a cluster that supporting [slurm workload manager](https://slurm.schedmd.com/), use this starter script:
 
 ```bash
 #!/bin/bash
@@ -36,10 +34,10 @@ To run the code in a cluster that supporting Slurm workload manager, use this st
 #SBATCH --gres=gpu:1        
 #SBATCH --mem=32Gb    
 
-# Load cuda
-module load cuda/10.0 
-# 1. You have to load singularity
-module load singularity
+# Load cuda (it is not needed if have it enabled as a default.)
+module load cuda/10.0    
+# 1. You have to load singularity (it is not needed if have it enabled as a default.)
+module load singularity   
 # 2. Then you copy the container to the local disk
 rsync -avz /path/to/pytorch_f.simg $SLURM_TMPDIR     # Change this!
 # 3. Copy your dataset on the compute node
@@ -50,9 +48,12 @@ export WANDB_API_KEY="put your wandb key here"       # Change this!
 singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python /path/to/main.py --exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
 # 5. Move results back to the login node.
 rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /path/to/outputs  # Change this!
+
+# Note:
+# $SLURM_TMPDIR = The compute node directory.
 ```
 
-## [Explanation] Command-line Arguments
+## Command-line Arguments
 
 | Group                  | Argument                         | Description                                                  | Value                                                        | Data type |
 | ---------------------- | :------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :-------: |
