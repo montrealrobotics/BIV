@@ -17,46 +17,57 @@ from utils import flip_coin
 
 
 
-class UTKface(Dataset):
+class WineQuality(Dataset):
 
-    def __init__(self, path, train = True, model="vanilla_cnn" ,transform = None, noise = False , noise_type = None, \
+    def __init__(self, path, train = True, model="vanilla_cnn" , noise = False , noise_type = None, \
                 distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None):
 
         """
         Description:
-            UTKFace dataset is a large-scale face dataset with long age span (range from 0 to 116 years old). 
-            The dataset consists of over 20,000 face images with annotations of age, gender, and ethnicity. 
-            The images cover large variation in pose, facial expression, illumination, occlusion, resolution, etc. 
+            Wine Quality dataset is a dataset that related to red and white vinho verde wine samples, from the north of Portugal.
+            The goal is to model wine quality based on physicochemical tests.
+            
+        Attribute Information:
+            Input variables (based on physicochemical tests):
+            1 - fixed acidity
+            2 - volatile acidity
+            3 - citric acid
+            4 - residual sugar
+            5 - chlorides
+            6 - free sulfur dioxide
+            7 - total sulfur dioxide
+            8 - density
+            9 - pH
+            10 - sulphates
+            11 - alcohol
+            12 - quality (score between 0 and 10) [Output variable (based on sensory data]
 
 
         Args:
             :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not.
             :train_size (int): Controls the number of samples in the training set.
             :images_path (string): Dataset directory path.
-            :transform (Object): A torchvision transofrmer for processing the images.
             :noise_type (string): Controls the type of noise that will be added to the data
             :dist_data (tuple): A tuple of the mean and the variance of the noise distribution.
         
         """
         self.train = train
-        self.data_paths = glob.glob(path)
-        self.dataset_size  = len(self.data_paths)
+        self.data_path = path
         self.normalize = normalize
         self.model = model
-        self.transform = transform
         self.noise = noise
         self.noise_type = noise_type
         self.dist_data = distribution_data
-        self.train_size= d_params.get('train_size')
+        self.train_size= d_params.get('wine_train_size')
         self.noise_threshold = noise_threshold
         self.threshold_value = threshold_value
         
         # This is not the proper implementation, but doing that for research purproses.
 
         # Load the dataset
-        self.images_path, self.labels = self.load_data()
+        self.features, self.labels = self.load_data()
         # Load the normalization constant variables.
-        self.images_mean, self.images_std, self.labels_mean, self.labels_std = get_dataset_stats()
+        self.features_mean, self.features_std, self.labels_mean, self.labels_std = get_dataset_stats(dataset='WineQuality')
         # Generate noise for the training samples.
         if self.train:
             if self.noise:
@@ -77,7 +88,7 @@ class UTKface(Dataset):
     
     
     def filter_high_noise(self):
-        filt_images_path = []
+        filt_features = []
         filt_labels = []
         filt_lbl_noises = []
         filt_noise_variances = []
@@ -88,7 +99,7 @@ class UTKface(Dataset):
         for idx in range(len(self.noise_variances)):
             if self.noise_variances[idx] < self.threshold_value:
 
-                filt_images_path.append(self.images_path[idx])
+                filt_features.append(self.features[idx])
                 filt_labels.append(self.labels[idx])
                 filt_lbl_noises.append(self.lbl_noises[idx])
                 filt_noise_variances.append(self.noise_variances[idx])
@@ -102,7 +113,7 @@ class UTKface(Dataset):
         self.data_length = filtered_data_counter
         print('Number of filtered samples: {}'.format(filtered_data_counter))
 
-        return (filt_images_path, filt_labels, filt_lbl_noises, filt_noise_variances)
+        return (filt_features, filt_labels, filt_lbl_noises, filt_noise_variances)
 
     
     def load_data(self):
@@ -113,7 +124,7 @@ class UTKface(Dataset):
             Loads the dataset and preprocess it.
 
         Return:
-            images paths and labels.
+            features paths and labels.
         Return type:
             Tuple
         
@@ -122,18 +133,27 @@ class UTKface(Dataset):
         """
         
         labels = []
+        data = pd.read_csv(self.data_path)
+    
+        self.dataset_size  = len(data)
 
+        
         if self.train:
-            img_paths = self.data_paths[:self.train_size]
+            data = data[:self.train_size]
+            y = data['quality']
+            x = data.drop(columns=['quality'])
         else:
-            img_paths = self.data_paths[self.train_size:]
+            data = data[self.train_size:]
+            y = data['quality']
+            x = data.drop(columns=['quality'])
+        
+        # Convert the data to numpy array
+        x = torch.tensor(x.to_numpy(),dtype=torch.float32) 
+        y = torch.tensor(y.to_numpy(),dtype=torch.float32) 
+        # set the length of the data to be the loaded data.
+        self.data_length = len(y)
 
-        for path in img_paths:
-            label = float(path.split("/")[-1].split("_")[0])
-            labels.append(label)
-            # set the length of the data to be the length of the train size.
-        self.data_length = len(labels)
-        return (img_paths,labels)
+        return (x,y)
 
 
 
@@ -346,10 +366,10 @@ class UTKface(Dataset):
 
         """
         Description:
-            Sample batch of images, labels, noises and variances.
+            Sample batch of features, labels, noises and variances.
 
         Return:
-            batch of images, labels, noises (train setting) and variances (train setting).
+            batch of features, labels, noises (train setting) and variances (train setting).
 
         Return Type:
             Tuple.
@@ -358,17 +378,10 @@ class UTKface(Dataset):
             :idx: auto-sampled generated index.
         """
 
-        img_path = self.images_path[idx]
+        self.feature = self.features[idx]
         self.label = self.labels[idx]
 
-        # Convert the label to a tensor
-        self.label = torch.tensor(self.label,dtype=torch.float32)
-        self.image = Image.open(img_path)
-
-        # Apply some transformation to the images.
-        if self.transform:
-            self.image = self.transform(self.image)
-
+    
         if self.train:
             if self.noise:
                 if self.noise_type == 'uniform':
@@ -377,26 +390,27 @@ class UTKface(Dataset):
                     self.label = self.label + self.label_noise
                     # Apply normalization to the noisy training data.
                     if self.normalize:
-                        self.image = normalize_features(self.image, self.images_mean, self.images_std)
+                        self.feature = normalize_features(self.feature, self.features_mean, self.features_std,dataset='WineQuality')
                         self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
                         # weight the noise value and its varince by the std of the labels of the dataset.
                         self.label_noise = self.label_noise/self.labels_std
                         self.noise_variance = self.noise_variance/(self.labels_std**2)
 
-                    return (self.image, self.label, self.label_noise, self.noise_variance)
+                    return (self.feature, self.label, self.label_noise, self.noise_variance)
             else:
             # Apply normalization to the training data.
                 if self.normalize:
-                    self.image = normalize_features(self.image, self.images_mean, self.images_std)
+                    self.feature = normalize_features(self.feature, self.features_mean, self.features_std,dataset='WineQuality')
                     self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
-                return (self.image, self.label)
+                 
+                return (self.feature, self.label)
         else:
             # Apply normalization to the testing data.
             if self.normalize:
-                self.image = normalize_features(self.image, self.images_mean, self.images_std)
+                self.feature = normalize_features(self.feature, self.features_mean, self.features_std,dataset='WineQuality')
                 self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
                 
-            return (self.image, self.label)  
+            return (self.feature, self.label)  
 
         
 

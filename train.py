@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch.nn import MSELoss
 
-from utils import  get_dataset_stats, normalize_images, normalize_labels
+from utils import  get_dataset_stats, normalize_features, normalize_labels
 from params import d_params
 
 import wandb

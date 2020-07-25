@@ -70,15 +70,34 @@ def compute_dataset_stats(xtrain, ytrain):
     
 
 
-def get_dataset_stats():
+def get_dataset_stats(dataset='UTKFace'):
 
-    images_mean = torch.Tensor(pd.read_csv(d_params['d_img_mean_path']).values)[0][1]
-    images_std = torch.Tensor(pd.read_csv(d_params['d_img_std_path']).values)[0][1]
-    
-    labels_mean = torch.Tensor(pd.read_csv(d_params['d_lbl_mean_path']).values)[0][1]
-    labels_std = torch.Tensor(pd.read_csv(d_params['d_lbl_std_path']).values)[0][1]
+    if dataset == 'UTKFace':
+        images_mean = torch.Tensor(pd.read_csv(d_params['d_img_mean_path']).values)[0][1]
+        images_std = torch.Tensor(pd.read_csv(d_params['d_img_std_path']).values)[0][1]
+        
+        labels_mean = torch.Tensor(pd.read_csv(d_params['d_lbl_mean_path']).values)[0][1]
+        labels_std = torch.Tensor(pd.read_csv(d_params['d_lbl_std_path']).values)[0][1]
 
-    return ( images_mean, images_std, labels_mean, labels_std ) 
+        return ( images_mean, images_std, labels_mean, labels_std ) 
+    elif dataset=='WineQuality': 
+
+        features_mean = np.genfromtxt(d_params['wine_features_mean_path'], delimiter=',') 
+        features_std = np.genfromtxt(d_params['wine_features_std_path'], delimiter=',') 
+        labels_mean = np.genfromtxt(d_params['wine_lbl_mean_path'],delimiter=',')
+        labels_std = np.genfromtxt(d_params['wine_lbl_std_path'], delimiter=',')
+
+        features_mean = torch.tensor(features_mean,dtype=torch.float32)
+        features_std = torch.tensor(features_std,dtype=torch.float32)
+
+        labels_mean = torch.tensor(labels_mean,dtype=torch.float32)
+        labels_std = torch.tensor(labels_std,dtype=torch.float32)
+
+        return ( features_mean, features_std, labels_mean, labels_std ) 
+    else:
+        raise ValueError('Dataset is not recognized.')
+
+        
 
 
 
@@ -103,7 +122,7 @@ def normalize_labels(labels, labels_mean, labels_std):
     return labels_norm
 
 
-def normalize_images(images, images_mean, images_std):
+def normalize_features(features, features_mean, features_std, dataset='UTKFace'):
     
     """"
     Description:
@@ -120,24 +139,25 @@ def normalize_images(images, images_mean, images_std):
         :images_std: images standard deviation.
     """
 
-    channels = images.shape[0]
-    width = images.shape[1]
-    length = images.shape[2]
+    if dataset == 'UTKFace':
+        channels = features.shape[0]
+        width = features.shape[1]
+        length = features.shape[2]
+        
+        features = features.squeeze().view(1,-1) # rolling out the whole training dataset to be a one vector.
+        
+        features_norm = (features - features_mean) / features_std
+        
+        # reshape the image
+        features_norm = features_norm.view(channels,length,width)
+        return features_norm
+    elif dataset=="WineQuality":
+        features_norm = (features - features_mean) / features_std
+        return features_norm
+    else:
+        raise ValueError("Dataset is not recognized.")
+
     
-    images = images.squeeze().view(1,-1) # rolling out the whole training dataset to be a one vector.
-    # print("##################################")
-    # print(images.shape)
-    # print(images_mean.shape)
-    # print(images_mean.shape)
-    # print(images_std.shape)
-    
-    images_norm = (images - images_mean) / images_std
-    
-    # reshape the image
-    images_norm = images_norm.view(channels,length,width)
-    
-    
-    return images_norm
 
 def normalize_images_batch(images, images_mean, images_std):
     
