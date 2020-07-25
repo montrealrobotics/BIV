@@ -11,7 +11,8 @@ from torchvision import transforms
 
 import wandb
 
-from dataloader import UTKface
+from utkf_dataloader import UTKface
+from wine_dataloader import WineQuality
 from model import AgeModel, WineModel
 from losses import IVLoss
 from train import Trainer
@@ -56,10 +57,10 @@ if __name__ == "__main__":
     
     noise = noise_settings[0]
     noise_type = noise_settings[1]
-    estimate_noise_params = noise_settings[2]
+    is_estim_noise_params = noise_settings[2]
     maximum_hetero = noise_settings[3]
     hetero_scale = noise_settings[4]
-    coin_fairness = noise_settings[5]
+    distributions_ratio_p = noise_settings[5]
     noise_threshold = noise_settings[6]
     threshold_value = noise_settings[7]
   
@@ -75,10 +76,10 @@ if __name__ == "__main__":
 
     assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + messages.get('bool')
     assert noise_type in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
-    assert isinstance( str_to_bool(estimate_noise_params), bool), "Argument: estimate_noise_params: " + messages.get('bool')
+    assert isinstance( str_to_bool(is_estim_noise_params), bool), "Argument: estimate_noise_params: " + messages.get('bool')
     assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + messages.get('bool')
     assert float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ messages.get('value')
-    assert float(coin_fairness)>=0 and float(coin_fairness)<=1 , "Argument: coin_fairness: "+ messages.get('value')
+    assert float(distributions_ratio_p)>=0 and float(distributions_ratio_p)<=1 , "Argument: distributions_ratio_p: "+ messages.get('value')
     assert isinstance( str_to_bool(noise_threshold), bool), "Argument: noise_threshold: " + messages.get('bool')
     assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
 
@@ -88,16 +89,16 @@ if __name__ == "__main__":
 
     # Convert commandline arguments to appropriate datatype.
 
-    seed = int(exp_settings[1])
-    normalize = str_to_bool(exp_settings[2])
-    average_mean_factor = float(exp_settings[5])
-    is_noise = str_to_bool(noise_settings[0])
-    estimate_noise_params = str_to_bool(noise_settings[2])
-    maximum_hetero = str_to_bool(noise_settings[3])
-    hetero_scale = float(noise_settings[4])
-    coin_fairness = float(noise_settings[5])
-    noise_threshold = str_to_bool(noise_settings[6])
-    threshold_value = float(noise_settings[7])
+    seed = int(seed)
+    normalize = str_to_bool(normalize)
+    average_mean_factor = float(average_mean_factor)
+    is_noise = str_to_bool(noise)
+    is_estim_noise_params = str_to_bool(is_estim_noise_params)
+    maximum_hetero = str_to_bool(maximum_hetero)
+    hetero_scale = float(hetero_scale)
+    distributions_ratio_p = float(distributions_ratio_p)
+    noise_threshold = str_to_bool(noise_threshold)
+    threshold_value = float(threshold_value)
 
     noise_params = list(map(lambda x: float(x), noise_params))
     estim_noise_params =  list(map(lambda x: float(x), estim_noise_params))
@@ -116,15 +117,15 @@ if __name__ == "__main__":
     # Set expirement seed
     torch.manual_seed(seed)
     # Set experiment id
-    exp_id = str(coin_fairness)
+    exp_id = str(distributions_ratio_p)
 
     # Define the dataset
-    if estimate_noise_params:
-        if average_mean_factor>=0 and len(estim_noise_params)//2==2 and coin_fairness<1:
-            estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[0],coin_fairness)
-        dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":estim_noise_params}
+    if is_estim_noise_params:
+        if average_mean_factor>=0 and len(estim_noise_params)//2==2 and distributions_ratio_p<1:
+            estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[0],distributions_ratio_p)
+        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":estim_noise_params}
     else:
-        dist_data = {"coin_fairness":coin_fairness,"is_params_est":estimate_noise_params, "data":noise_params}
+        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "data":noise_params}
 
 
     if dataset == "utkf":
