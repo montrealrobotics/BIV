@@ -55,7 +55,7 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 
 ## Command-line Arguments
 
-| Group                  | Argument                         | Description                                                  | Value                                                        | Data type |
+| Group                  | Argument                         | Description                                                  | Value                                                        | Data Type |
 | ---------------------- | :------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :-------: |
 |                        | **Tag**                          | Experiment wandb tag. [(click here for more details)](https://docs.wandb.com/app/features/tags) | Any                                                          |  string   |
 |                        | **Seed**                         | Experiment seed.                                             | Any                                                          |   float   |
