@@ -54,17 +54,37 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 
 ## [Explanation] Command-line Arguments
 
-|      |      |      |      |
-| ---- | ---- | ---- | ---- |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
+| Group                   | Argument                        | Description                                                  | Value                      | Data type | Link |
+| ----------------------- | ------------------------------- | ------------------------------------------------------------ | -------------------------- | --------- | ---- |
+|                         | **Tag**                         | A wandb tag                                                  | Any                        | string    |      |
+|                         | **Seed**                        | Experiment seed                                              | Any                        | float     |      |
+| **--exp_settings**      | **Dataset**                     | **Dataset type. The available datasets:**<br />**1-UTKFace   <br />2-Wine Quality** | **utkf**<br />**wine**     | string    |      |
+|                         | **Normalization**               | Enable dataset normalisation                                 | True or False              | Boolean   |      |
+|                         | **Loss type**                   | Type of loss function. The available loss functions:<br />1- **Mean squared error**. **(MSE)**<br />2- **Inverse variance. (IV)<br />3- Batch inverse varaince. (BIV)** | 1-mse<br />2-iv<br />3-biv | string    |      |
+|                         | **Model type**                  |                                                              |                            |           |      |
+|                         | **Noise Average mean**          |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+| **noise_settings:**     | **Noise**                       |                                                              |                            |           |      |
+|                         | **Noise type**                  |                                                              |                            |           |      |
+|                         | **Noise parameters estimation** |                                                              |                            |           |      |
+|                         | **Maximum heteroscedasticty**   |                                                              |                            |           |      |
+|                         | **heteroscedasticty scale**     |                                                              |                            |           |      |
+|                         | **Flip-coin**                   |                                                              |                            |           |      |
+|                         | **Noise threshold**             |                                                              |                            |           |      |
+|                         | **Threshold value**             |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+| **noise_params:**       |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+| **estim_noise_params:** |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
+|                         |                                 |                                                              |                            |           |      |
 
 
 
