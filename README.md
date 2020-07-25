@@ -13,7 +13,7 @@ To run the code, we wrapped up all the used libraries inside a singularity conta
 To run the code locally:
 
 ```bash
-python main.py --exp_settings="classical_1_7159,7159,utkf,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
+python main.py --exp_settings="exp_tag,7159,utkf,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
 --noise_params="0,0,0,0"  --estim_noise_params="0.52,500,0.09,0"
 ```
 
@@ -31,37 +31,42 @@ To run the code in a cluster that supporting Slurm workload manager, use this st
 
 ```bash
 #!/bin/bash
-#SBATCH -o /home/[organization]/k/[username]/logs/noise_%j.out   # Change this!
+#SBATCH -o /path/to/logs/noise_%j.out   # Change this!
 #SBATCH --cpus-per-task=4  
 #SBATCH --gres=gpu:1        
 #SBATCH --mem=32Gb    
 
 # Load cuda
-module load cuda/10.0
+module load cuda/10.0 
 # 1. You have to load singularity
 module load singularity
 # 2. Then you copy the container to the local disk
-rsync -avz /home/[organization]/k/[username]/environments/pytorch_f.simg $SLURM_TMPDIR     # Change this!
+rsync -avz /path/to/pytorch_f.simg $SLURM_TMPDIR     # Change this!
 # 3. Copy your dataset on the compute node
-rsync -avz /network/tmp1/[username]/ $SLURM_TMPDIR        # Change this!
+rsync -avz /path/to/your_dataset/ $SLURM_TMPDIR        # Change this!
 # 3.1 export wandb api key
-export WANDB_API_KEY= "put your wandb key here"       # Change this!
+export WANDB_API_KEY="put your wandb key here"       # Change this!
 # 4. Executing your code with singularity
-singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python ~/apps/IV_RL_server/main.py --exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
+singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python /path/to/main.py --exp_settings=$1 --noise_settings=$2 --noise_params=$3 --estim_noise_params=$4
 # 5. Move results back to the login node.
-rsync -avz $SLURM_TMPDIR --exclude="Datasets" --exclude="pytorch_f.simg"  /home/[organization]/k/[username]/outputs  # Change this!
-```
-
-
-
-```markdown
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /path/to/outputs  # Change this!
 ```
 
 ## [Explanation] Command-line Arguments
+
+|      |      |      |      |
+| ---- | ---- | ---- | ---- |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
+
+
 
 - **--exp_settings:** These are the arguments that controlling whole the experiment.
 
