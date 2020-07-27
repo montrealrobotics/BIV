@@ -10,8 +10,8 @@ from torchvision import transforms
 
 import wandb
 
-from utkf_dataloader import UTKface
-from wine_dataloader import WineQuality
+from Dataloaders.utkf_dataloader import UTKface
+from Dataloaders.wine_dataloader import WineQuality
 from model import AgeModel, WineModel
 from losses import IVLoss
 from train import Trainer
