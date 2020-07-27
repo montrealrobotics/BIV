@@ -13,7 +13,7 @@ To run the code, we wrapped up all the used libraries inside a singularity conta
 To run the code locally:
 
 ```bash
-python main.py --exp_settings="exp_tag,1001,utkf,True,mse,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
+python main.py --exp_settings="exp_tag,1001,utkf,True,mse,0.001,vanilla_cnn,5000" --noise_settings="True,uniform,True,False,0.5,1,False,3" \\
 --noise_params="0,0,0,0"  --estim_noise_params="0.52,500,0.09,0"
 ```
 
@@ -62,6 +62,7 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 | **--exp_settings**     | **Dataset**                      | The available datasets:<br />1-UTKFace. ([click here for more details](https://susanqq.github.io/UTKFace/)) <br />2-Wine Quality. ([click here for more details](https://archive.ics.uci.edu/ml/datasets/wine+quality)) | 1- utkf<br />2- wine                                         |  string   |
 |                        | **Normalization**                | Enable dataset normalisation                                 | True or False                                                |  boolean  |
 |                        | **Loss type**                    | The available loss functions:<br />1- Mean squared error. (MSE)<br />2- Inverse variance. (IV)<br />3- Batch inverse varaince. (BIV) | 1- mse<br />2- iv<br />3- biv                                |  string   |
+|                        | **Epsilon**                      | A parameter that prevents the BIV function from having high loss values. | [0-1)                                                        |   float   |
 |                        | **Model type**                   | The available models:<br />1- Vanilla ANN, ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))<br /> 2-Vanilla CNN. ([click here for more details](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/model.py))<br />3- Resnet-18. ([click here for more details](https://pytorch.org/hub/pytorch_vision_resnet/))<br /> | 1-vanilla_ann<br />2- vanilla_cnn<br />3- resnet             |  string   |
 |                        | **Average mean noise variance**  | Average over means of the noise variance distributions:<br />X = p x <img src="https://render.githubusercontent.com/render/math?math=\mu_1">+ (1-p) x <img src="https://render.githubusercontent.com/render/math?math=\mu_2"><br /><br />X = average mean variance.<br />p =  probability function over noise variance distributions.<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_1">= mean of the first distribution.<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_2"> = mean of the second distribution. | Any                                                          |   float   |
 |                        |                                  |                                                              |                                                              |           |
