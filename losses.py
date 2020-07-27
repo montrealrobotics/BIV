@@ -4,7 +4,7 @@ from utils import str_to_bool
 
 
 class IVLoss(Module):
-    def __init__(self, avg_batch = False):
+    def __init__(self, epsilon=0.00001, avg_batch = False):
 
 
         """
@@ -30,7 +30,7 @@ class IVLoss(Module):
 
         super(IVLoss, self).__init__()
         self.avg_batch = avg_batch
-        self.epsilon = 0.00001        # for numerical stability.
+        self.epsilon = epsilon       # for numerical stability.
     def forward(self, y_pred,y,lbl_var):
         """
         

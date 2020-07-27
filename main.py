@@ -1,6 +1,5 @@
 import os
 import argparse
-import types
 
 import matplotlib.pyplot as plt
 
@@ -52,8 +51,9 @@ if __name__ == "__main__":
     dataset = exp_settings[2]
     normalize = exp_settings[3]
     loss_type = exp_settings[4]
-    model_type = exp_settings[5]
-    average_mean_factor = exp_settings[6]
+    epsilon = exp_settings[5]
+    model_type = exp_settings[6]
+    average_mean_factor = exp_settings[7]
     
     noise = noise_settings[0]
     noise_type = noise_settings[1]
@@ -71,6 +71,7 @@ if __name__ == "__main__":
     assert dataset in ["utkf","wine"], "Argument: dataset: " + messages.get('value')
     assert isinstance( str_to_bool(normalize), bool), "Argument: normalize: " + messages.get('bool')
     assert loss_type in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
+    assert epsilon.replace('.','',1).isdigit() , "Argument: epsilon: " + messages.get('datatype')
     assert model_type in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
     assert average_mean_factor.replace('.','',1).replace('-','',1).isdigit(), "Argument: average_mean_factor: "+ messages.get('value')
 
@@ -91,6 +92,7 @@ if __name__ == "__main__":
 
     seed = int(seed)
     normalize = str_to_bool(normalize)
+    epsilon = float(epsilon)
     average_mean_factor = float(average_mean_factor)
     is_noise = str_to_bool(noise)
     is_estim_noise_params = str_to_bool(is_estim_noise_params)
@@ -179,9 +181,9 @@ if __name__ == "__main__":
 
     # Loss function
     if loss_type == "iv":
-        loss = IVLoss(avg_batch=False)
+        loss = IVLoss(epsilon=epsilon avg_batch=False)
     elif loss_type == "biv":
-        loss = IVLoss(avg_batch=True)
+        loss = IVLoss(epsilon=epsilon avg_batch=True)
     else:
         loss = torch.nn.MSELoss()
 
