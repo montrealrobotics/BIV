@@ -181,9 +181,9 @@ if __name__ == "__main__":
 
     # Loss function
     if loss_type == "iv":
-        loss = IVLoss(epsilon=epsilon avg_batch=False)
+        loss = IVLoss(epsilon=epsilon, avg_batch=False)
     elif loss_type == "biv":
-        loss = IVLoss(epsilon=epsilon avg_batch=True)
+        loss = IVLoss(epsilon=epsilon, avg_batch=True)
     else:
         loss = torch.nn.MSELoss()
 
