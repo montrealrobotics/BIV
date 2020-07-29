@@ -14,8 +14,6 @@ from params import d_params
 
 import wandb
 
-from ray import tune
-
 
 
 class Trainer:
@@ -32,7 +30,7 @@ class Trainer:
             :cuda (bool) [private]: Controls if the model will be run on GPU or not.
     """
 
-    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs, tuner=False):
+    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs):
 
         self.expermient_id = experiment_id
         self.cuda = torch.cuda.is_available()  # Check Cuda avaliability
@@ -142,8 +140,7 @@ class Trainer:
                     mloss = self.loss(tr_out, tr_labels, noises_vars)
                 else:
                     mloss = self.mse_loss(tr_out,tr_labels)
-                
-                print(mloss)
+               
                 tr_losses.append(mloss.item())
                 wandb_tr_losses.append(mloss.item())
                 
