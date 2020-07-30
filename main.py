@@ -110,7 +110,7 @@ if __name__ == "__main__":
     # Get Wandb tags
     tag = [tag,]
     # Initiate wandb client.
-    wandb.init(project="IV",tags=tag , entity="khamiesw")
+    wandb.init(project="iv_deep_learning",tags=tag , entity="montreal_robotics")
     # Get the api key from the environment variables.
     api_key = os.environ.get('WANDB_API_KEY')
     # login to my wandb account.

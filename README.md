@@ -53,6 +53,12 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 # $SLURM_TMPDIR = The compute node directory.
 ```
 
+then run the script with ```sbatch```:
+
+```bash
+sbatch --gres=gpu:rtx8000:1 scripts/IV_RL_sh/main.sh "AdjEpsilon_0.00001_7159,7159,utkf,True,biv,0.00001,resnet,1000" "True,uniform,True,False,0.5,1,False,3" "0,0,0,0" "0.5,500,0.083,0
+```
+
 ## Command-line Arguments
 
 | Group                  | Argument                         | Description                                                  | Value                                                        | Data Type |
