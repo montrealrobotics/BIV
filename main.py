@@ -41,28 +41,30 @@ if __name__ == "__main__":
 
     exp_settings = args.exp_settings.split(",")
     noise_settings = args.noise_settings.split(",")
-    noise_params = args.noise_params.split(",")
-    estim_noise_params = args.estim_noise_params.split(",")
 
     # Extract commandline parameters
 
+    
     tag = exp_settings[0]
     seed = exp_settings[1]
     dataset = exp_settings[2]
     normalize = exp_settings[3]
     loss_type = exp_settings[4]
-    epsilon = exp_settings[5]
+    try:
+        epsilon = exp_settings[5]   # a dirty way to handle epsilon value if it is missing. # will be handled if similar cases appeared.
+    except:
+        pass
+    
     model_type = exp_settings[6]
     average_mean_factor = exp_settings[7]
     
     noise = noise_settings[0]
     noise_type = noise_settings[1]
     is_estim_noise_params = noise_settings[2]
-    maximum_hetero = noise_settings[3]
-    hetero_scale = noise_settings[4]
-    distributions_ratio_p = noise_settings[5]
-    noise_threshold = noise_settings[6]
-    threshold_value = noise_settings[7]
+    hetero_scale = noise_settings[3]
+    distributions_ratio_p = noise_settings[4]
+    threshold_value = noise_settings[5]
+    
   
     # Assert the commandline arguments values.
     messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
@@ -78,16 +80,12 @@ if __name__ == "__main__":
     assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + messages.get('bool')
     assert noise_type in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
     assert isinstance( str_to_bool(is_estim_noise_params), bool), "Argument: estimate_noise_params: " + messages.get('bool')
-    assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + messages.get('bool')
-    assert float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ messages.get('value')
+    assert float(hetero_scale)==-1 or float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ messages.get('value')
     assert float(distributions_ratio_p)>=0 and float(distributions_ratio_p)<=1 , "Argument: distributions_ratio_p: "+ messages.get('value')
-    assert isinstance( str_to_bool(noise_threshold), bool), "Argument: noise_threshold: " + messages.get('bool')
     assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
 
-    for item in noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: noise_params: " + messages.get('datatype')
-    for item in estim_noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: estim_noise_params: " + messages.get('datatype')
 
-
+    
     # Convert commandline arguments to appropriate datatype.
 
     seed = int(seed)
@@ -96,16 +94,26 @@ if __name__ == "__main__":
     average_mean_factor = float(average_mean_factor)
     is_noise = str_to_bool(noise)
     is_estim_noise_params = str_to_bool(is_estim_noise_params)
-    maximum_hetero = str_to_bool(maximum_hetero)
     hetero_scale = float(hetero_scale)
+    maximum_hetero = True if hetero_scale>=0 else False 
     distributions_ratio_p = float(distributions_ratio_p)
-    noise_threshold = str_to_bool(noise_threshold)
     threshold_value = float(threshold_value)
-
-    noise_params = list(map(lambda x: float(x), noise_params))
-    estim_noise_params =  list(map(lambda x: float(x), estim_noise_params))
+    is_noise_threshold = True if threshold_value>=0 else False
 
 
+# Handle distributions parameters
+
+    if is_estim_noise_params:
+        noise_params = args.noise_params.split(",")
+        for item in noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: noise_params: " + messages.get('datatype')
+        noise_params = list(map(lambda x: float(x), noise_params))
+    else:
+        estim_noise_params = args.estim_noise_params.split(",")
+        for item in estim_noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: estim_noise_params: " + messages.get('datatype')
+        estim_noise_params =  list(map(lambda x: float(x), estim_noise_params))
+
+
+    
 
     # Get Wandb tags
     tag = [tag,]
@@ -141,7 +149,7 @@ if __name__ == "__main__":
         trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
         train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=is_noise, noise_type=noise_type, distribution_data = \
-                                            dist_data, normalize=normalize, noise_threshold = noise_threshold, threshold_value = threshold_value) 
+                                            dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value) 
         test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize)
 
 
@@ -154,7 +162,7 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
 
         train_data = WineQuality(d_path, train= True, model= model_type, noise=is_noise, noise_type=noise_type, distribution_data = \
-                                        dist_data, normalize=normalize, noise_threshold = noise_threshold, threshold_value = threshold_value) 
+                                        dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value) 
         test_data = WineQuality(d_path, train= False, model= model_type, normalize=normalize)
 
         
