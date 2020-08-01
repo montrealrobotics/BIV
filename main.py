@@ -16,10 +16,12 @@ from model import AgeModel, WineModel
 from losses import IVLoss
 from train import Trainer
 
-# expirement settings
+# Import default expirement settings
+
 from params import d_params
 from params import n_params
 
+# Import helper tools
 from utils import str_to_bool, average_noise_mean
 
 
@@ -28,42 +30,37 @@ from utils import str_to_bool, average_noise_mean
 if __name__ == "__main__":
 
     # Parse arguments from the commandline
-    
     parser =  argparse.ArgumentParser(description=" A parser for baseline uniform noisy experiment")
-    parser.add_argument("--exp_settings", type=str, default="0")
+    parser.add_argument("--experiment_settings", type=str, default="0")
+    parser.add_argument("--epsilon", type=str, default="0.5")
+    parser.add_argument("--noise", type=str, default="False") 
+    parser.add_argument("--noise_variance_average", type=str, default="2000")  
     parser.add_argument("--noise_settings", type=str, default="0")
-    parser.add_argument("--noise_params", type=str, default="0")
-    parser.add_argument("--estim_noise_params", type=str, default="0")    
+    parser.add_argument("--noise_parameters", type=str, default="0")
+    parser.add_argument("--estimate_noise_parameters", type=str, default="0")    
 
+    # Extract commandline parameters   
     args = parser.parse_args()
-
-    # Define global varriables.
-
-    exp_settings = args.exp_settings.split(",")
+    exp_settings = args.experiment_settings.split(",")
     noise_settings = args.noise_settings.split(",")
 
-    # Extract commandline parameters
-
-    
+     
     tag = exp_settings[0]
     seed = exp_settings[1]
     dataset = exp_settings[2]
     normalize = exp_settings[3]
-    loss_type = exp_settings[4]
-    try:
-        epsilon = exp_settings[5]   # a dirty way to handle epsilon value if it is missing. # will be handled if similar cases appeared.
-    except:
-        pass
+    loss_type = exp_settings[4] 
+    model_type = exp_settings[5]
     
-    model_type = exp_settings[6]
-    average_mean_factor = exp_settings[7]
-    
-    noise = noise_settings[0]
-    noise_type = noise_settings[1]
-    is_estim_noise_params = noise_settings[2]
-    hetero_scale = noise_settings[3]
-    distributions_ratio_p = noise_settings[4]
-    threshold_value = noise_settings[5]
+    epsilon = args.epsilon
+    noise = args.noise
+    average_mean_factor = args.noise_variance_average
+
+    noise_type = noise_settings[0]
+    is_estim_noise_params = noise_settings[1]
+    hetero_scale = noise_settings[2]
+    distributions_ratio_p = noise_settings[3]
+    threshold_value = noise_settings[4]
     
   
     # Assert the commandline arguments values.
@@ -84,10 +81,8 @@ if __name__ == "__main__":
     assert float(distributions_ratio_p)>=0 and float(distributions_ratio_p)<=1 , "Argument: distributions_ratio_p: "+ messages.get('value')
     assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
 
-
     
     # Convert commandline arguments to appropriate datatype.
-
     seed = int(seed)
     normalize = str_to_bool(normalize)
     epsilon = float(epsilon)
@@ -101,19 +96,17 @@ if __name__ == "__main__":
     is_noise_threshold = True if threshold_value>=0 else False
 
 
-# Handle distributions parameters
-
+    # Handle distributions parameters
     if is_estim_noise_params:
-        noise_params = args.noise_params.split(",")
-        for item in noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: noise_params: " + messages.get('datatype')
-        noise_params = list(map(lambda x: float(x), noise_params))
-    else:
-        estim_noise_params = args.estim_noise_params.split(",")
+        estim_noise_params = args.estimate_noise_parameters.split(",")
         for item in estim_noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: estim_noise_params: " + messages.get('datatype')
-        estim_noise_params =  list(map(lambda x: float(x), estim_noise_params))
+        d_data =  list(map(lambda x: float(x), estim_noise_params))
 
+    else:
+        noise_params = args.noise_parameters.split(",")
+        for item in noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: noise_params: " + messages.get('datatype')
+        d_data = list(map(lambda x: float(x), noise_params))
 
-    
 
     # Get Wandb tags
     tag = [tag,]
@@ -131,11 +124,11 @@ if __name__ == "__main__":
 
     # Define the dataset
     if is_estim_noise_params:
-        if average_mean_factor>=0 and len(estim_noise_params)//2==2 and distributions_ratio_p<1:
-            estim_noise_params[1] = average_noise_mean(average_mean_factor,estim_noise_params[0],distributions_ratio_p)
-        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":estim_noise_params}
+        if average_mean_factor>=0 and len(d_data)//2==2 and distributions_ratio_p<1:
+            d_data[1] = average_noise_mean(average_mean_factor,d_data[0],distributions_ratio_p)
+        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":d_data}
     else:
-        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "data":noise_params}
+        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "data":d_data}
 
 
     if dataset == "utkf":
@@ -196,7 +189,6 @@ if __name__ == "__main__":
         loss = torch.nn.MSELoss()
 
 
- 
     # Trainer
     trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
         model=model, loss= loss, optimizer= optimz, epochs = epochs)
