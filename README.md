@@ -66,7 +66,7 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True,biv,resnet
 
 ## Examples
 
-- To run a classic CNN while normalising the data, where the loss function is MSE:
+- To run a vanilla CNN while normalising the data, where the loss function is MSE:
 
   ```bash
   python main.py --experiment_settings="exp_tag,7159,utkf,True,mse,vanilla_cnn"
