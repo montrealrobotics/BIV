@@ -59,7 +59,7 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 then run the script with ```sbatch```:
 
 ```bash
-sbatch --gres=gpu:rtx8000:1 scripts/IV_RL_sh/main.sh "exp_tag,7159,utkf,True,biv,resnet" "0.5" "True" "2000" "uniform,True,False,0.5,1,False,3" "0,0,0,0" "0.5,500,0.083,0"
+sbatch --gres=gpu:rtx8000:1 scripts/IV_RL_sh/main.sh "exp_tag,7159,utkf,True,biv,resnet" "0.5" "True" "2000" "uniform,False,-1,1,-1" "0,1" 
 ```
 
 
