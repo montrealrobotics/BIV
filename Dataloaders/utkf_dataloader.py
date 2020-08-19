@@ -192,10 +192,7 @@ class UTKface(Dataset):
             raise ValueError("Variance is a negative value: {}".format(v))
         
         elif v < mu**2:
-            # print(v)
-            
-            # print(mu)
-            raise ValueError(" Variance should be greater than or equal to mu^2.".format(v))
+            raise ValueError(" Variance should be greater than or equal to {}.".format(mu**2))
         else:
             theta = v/mu    # estimate the scale.
             k = (mu**2)/v   # estimate the shape.

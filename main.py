@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     # Define the dataset
     if is_estim_noise_params:
-        if average_mean_factor>=0 and len(d_data)//2==2 and distributions_ratio_p<1:
+        if average_mean_factor>=0 and len(d_data)//2==2 and distributions_ratio_p<1 and noise_type == "uniform": # this is just for the uniform case.. 
             d_data[1] = average_noise_mean(average_mean_factor,d_data[0],distributions_ratio_p)
         dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":d_data}
     else:
@@ -132,7 +132,6 @@ if __name__ == "__main__":
 
 
     if dataset == "utkf":
-
         d_path = d_params.get('d_path')
         tr_size = d_params.get('tr_batch_size')
         tst_size = d_params.get('test_batch_size')
