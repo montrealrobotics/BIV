@@ -109,6 +109,12 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True,biv,resnet
 
 ## Command-line Arguments
 
+### 1] Flow Chart
+
+![](/home/waleed/Downloads/Untitled Diagram(10).png)
+
+### 2] Table:
+
 | Group                         | Argument                         | Description                                                  | Value                                                        | Data Type |
 | ----------------------------- | :------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :-------: |
 |                               | **Tag**                          | Experiment wandb tag. [(click here for more details)](https://docs.wandb.com/app/features/tags) | Any                                                          |  string   |
