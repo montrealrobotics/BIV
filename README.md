@@ -111,7 +111,7 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True,biv,resnet
 
 ### 1] Flow Chart
 
-![](/home/waleed/Downloads/Untitled Diagram(10).png)
+![](media/args.png)
 
 ### 2] Table:
 
