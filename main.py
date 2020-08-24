@@ -38,17 +38,8 @@ if __name__ == "__main__":
     parser.add_argument("--average_variance", type=str, default="2000") 
     parser.add_argument("--params_settings", type=str, default="0")
     parser.add_argument("--parameters", type=str, default="0")
-
-
     parser.add_argument("--epsilon", type=str, default="0.5")
-   
-     
     parser.add_argument("--distributions_ratio", type=str, default="0")
-
-
-    # parser.add_argument("--noise_parameters", type=str, default="0")
-    # parser.add_argument("--estimate_noise_parameters", type=str, default="0")    
-
 
     # Extract commandline parameters   
     args = parser.parse_args()
@@ -59,9 +50,6 @@ if __name__ == "__main__":
     parameters = args.parameters.split(",")
 
 
-
-
-     
     tag = experiment_settings[0]
     seed = experiment_settings[1]
     dataset = experiment_settings[2]
@@ -80,16 +68,9 @@ if __name__ == "__main__":
     hetero_scale = params_settings[1]
     distributions_ratio = args.distributions_ratio
     average_variance = args.average_variance
-    
-    
-    
-
     is_estim_noise_params = True if params_type == "manvar" or params_type == "alphabeta" else False
     
-    
-    
-    
-   
+
 
     arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "loss_type": loss_type, "model_type": model_type, "epsilon": epsilon,
                  "noise": noise, "average_variance": average_variance, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
