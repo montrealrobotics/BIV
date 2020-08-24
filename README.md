@@ -13,16 +13,13 @@ To run the code, we wrapped up all the used libraries inside a singularity conta
 To run the code locally:
 
 ```bash
-python main.py --experiment_settings="exp_tag,7159,utkf,True,biv,resnet" --epsilon="0.5" --noise="True" 
---noise_variance_average="2000"--noise_settings="uniform,False,-1,1,-1" --noise_parameters="0,1" 
-
+python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="mse,resnet" --noise="False" --noise_settings="gamma,-1"  --average_variance="-1"  --params_settings="manvar,-1"  --parameters="10,5,200,200" --epsilon="0.5" --distributions_ratio="0.3"
 ```
 
 To run the code locally inside singularity container:
 
 ```bash
-singularity exec --nv -H $HOME:/home/ -B ./your_dataset_directory:/datasets/ -B ./your_outputs_directory:/final_outps/  ./your_environments_directory/pytorch_f.simg python /path/to/main.py  --experiment_settings="exp_tag,7159,utkf,True,biv,resnet" 
---epsilon="0.5" --noise="True" --noise_variance_average="2000" --noise_settings="uniform,False,-1,1,-1"  --noise_parameters="0,5,1,10"
+singularity exec --nv -H $HOME:/home/ -B ./your_dataset_directory:/datasets/ -B ./your_outputs_directory:/final_outps/  ./your_environments_directory/pytorch_f.simg python /path/to/main.py  --experiment_settings="exp_tag,7159,utkf,True" --model_settings="mse,resnet" --noise="False" --noise_settings="gamma,-1"  --average_variance="-1"  --params_settings="manvar,-1"  --parameters="10,5,200,200" --epsilon="0.5" --distributions_ratio="0.3"
 ```
 
 
@@ -47,8 +44,7 @@ rsync -avz /path/to/your_dataset/ $SLURM_TMPDIR        # Change this!
 # 3.1 export wandb api key
 export WANDB_API_KEY="put your wandb key here"       # Change this!
 # 4. Executing your code with singularity
-singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python /path/to/main.py --experiment_settings=$1 --epsilon=$2 --noise=$3 --noise_variance_average=$4 --noise_settings=$5 --noise_parameters=$6 
---estimate_noise_parameters=$7
+singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python /path/to/main.py --experiment_settings=$1 --model_settings=$2 --noise=$3 --noise_settings=$4  --average_variance=$5  --params_settings=$5  --parameters=$6 --epsilon=$7 --distributions_ratio=$8
 # 5. Move results back to the login node.
 rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /path/to/outputs  # Change this!
 
@@ -59,7 +55,7 @@ rsync -avz $SLURM_TMPDIR --exclude="your_dataset" --exclude="pytorch_f.simg"  /p
 then run the script with ```sbatch```:
 
 ```bash
-sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True,biv,resnet" "0.5" "True" "2000" "uniform,False,-1,1,-1" "0,1" 
+sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True" "mse,resnet" "False" "gamma,-1" "-1" "manvar,-1" "10,5"
 ```
 
 
@@ -69,42 +65,37 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True,biv,resnet
 - To run a vanilla CNN while normalising the data, where the loss function is MSE:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,mse,vanilla_cnn"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="mse,vanilla_cnn"
   ```
 
 - To run resnet-18 with BIV loss (epsilon=0.5), where the noise variance is coming from a single uniform distribution:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,biv,resnet" --epsilon="0.5" --noise="True" 
-  --noise_settings="uniform,False,-1,1,-1"  --noise_parameters="0,1"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="biv,resnet" --noise="True" --noise_settings="uniform,-1"  --average_variance="-1"  --params_settings="boundaries,-1"  --parameters="0,1" --epsilon="0.5" --distributions_ratio="1"
   ```
 
 - To run resnet-18 with BIV loss (epsilon=0.5), where the noise variance is coming from a bi-model (uniform) distribution:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,biv,resnet" --epsilon="0.5" --noise="True" 
-  --noise_variance_average="2000" --noise_settings="uniform,False,-1,1,-1" --noise_parameters="0,5,1,20"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="biv,resnet" --noise="True" --noise_settings="uniform,-1"  --average_variance="2000"  --params_settings="boundaries,-1"  --parameters="0,1,20,10" --epsilon="0.5" --distributions_ratio="0.5"
   ```
-
+  
 - To run resnet-18 with MSE loss, where the noise variance is coming from a bi-model (uniform) distribution by specifying the mean and variance of this model:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,mse,resnet" --noise="True"
-  --noise_variance_average="2000" --noise_settings="uniform,True,-1,1,-1"  --estimate_noise_parameters="0.5,500,0.083,0"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="mse,resnet" --noise="True" --noise_settings="uniform,-1"  --average_variance="2000"  --params_settings="meanvar,-1"  --parameters="0,1,20,10" --distributions_ratio="0.5"
   ```
-
+  
 - To run resnet-18 with BIV loss (epsilon=0.5), where the noise variance is coming from a bi-model (uniform) distribution by specifying the mean and variance of this model:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,biv,resnet" --epsilon="0.5" --noise="True"
-  --noise_variance_average="2000" --noise_settings="uniform,True,-1,1,-1"  --estimate_noise_parameters="0.5,500,0.083,0"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="biv,resnet" --noise="True" --noise_settings="uniform,-1"  --average_variance="2000"  --params_settings="meanvar,-1"  --parameters="0,1,20,10" --epsilon="0.5" --distributions_ratio="0.5"
   ```
-
+  
 -  To run resnet-18 with BIV loss (epsilon=0.5), where the noise variance is coming from a bi-model (uniform) distribution and with noise threshold=1:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,biv,resnet" --epsilon="0.5" --noise="True"
-  --noise_variance_average="2000" --noise_settings="uniform,True,-1,1,1"  --estimate_noise_parameters="0.5,500,0.083,0"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True" --model_settings="biv,resnet" --noise="True" --noise_settings="uniform,1"  --average_variance="2000"  --params_settings="meanvar,-1" --parameters="0,1,20,10" --epsilon="0.5" --distributions_ratio="0.5"
   ```
 
 ## Command-line Arguments
@@ -130,12 +121,12 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh "exp_tag,7159,utkf,True,biv,resnet
 |                                                    |                                   |                                                              |                                                              |           |
 |                                                    |                                   |                                                              |                                                              |           |
 | **noise_settings**                                 | **Noise type**                    | The available noise variance distributions:<br />1- Uniform distribution.<br />2- Gamma distribution. | 1- uniform<br />2- gamma                                     |  string   |
-|                                                    | **Threshold value**               | Noise threshold cutoff value.                                | Any                                                          |   float   |
+|                                                    | **Threshold value**               | Noise threshold cutoff value.                                | [0,+<img src="https://render.githubusercontent.com/render/math?math=\infty">]<br />< 0, disable |   float   |
 |                                                    |                                   |                                                              |                                                              |           |
 | **average_variance**<br />                 **(X)** | **Average noise variance**        | Average over means of the noise variance distributions (two):<br />X = p x <img src="https://render.githubusercontent.com/render/math?math=\mu_1">+ (1-p) x <img src="https://render.githubusercontent.com/render/math?math=\mu_2"><br /><br />X = average mean variance.<br />p =  probability function over noise variance distributions.<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_1">= mean of the first distribution.<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_2"> = mean of the second distribution. | Any                                                          |   float   |
 |                                                    |                                   |                                                              |                                                              |           |
 |                                                    |                                   |                                                              |                                                              |           |
-| **params_settings**                                | **params_type**                   | The current baseline supports the following settings for the noise distributions:<br />1- Uniform boundaries: Where the boundaries of the uniform are provided.<br />2- Gamma's parameters: Where alpha and beta are provided.<br />3- Mean and Variance: Where the mean <img src="https://render.githubusercontent.com/render/math?math=(\mu)"> and variance (v) of the selected distribution should be provided to estimate the its  parameters indirectly. | 1- boundaries<br />2-alphabeta<br />3-manvar                 |  string   |
+| **params_settings**                                | **params_type**                   | The current baseline supports the following settings for the noise distributions:<br />1- Uniform boundaries: Where the boundaries of the uniform are provided.<br />2- Gamma's parameters: Where alpha and beta are provided.<br />3- Mean and Variance: Where the mean <img src="https://render.githubusercontent.com/render/math?math=(\mu)"> and variance (v) of the selected distribution should be provided to estimate the its  parameters indirectly. | 1- boundaries<br />2-alphabeta<br />3-meanvar                |  string   |
 |                                                    | **Heteroscedasticty scale**       | Scale the maximum heteroscedasticty value with an scalar.    | [0-1]<br />< 0 , disable                                     |   float   |
 |                                                    |                                   |                                                              |                                                              |           |
 | **parameters**                                     | **Parameters**                    | Parameters of the noise variance distributions:<br />1- Uniform (a,b)<br />2- Gamma (<img src="https://render.githubusercontent.com/render/math?math=\alpha"> and <img src="https://render.githubusercontent.com/render/math?math=\beta">)<br />**Or:**<br /><img src="https://render.githubusercontent.com/render/math?math=\mu"> and v of the noise variance distributions.<br /><br />Note: The number of distributions is not limited, you can pass whatever number you want.<br /> | 1- Uniform: <br />(<img src="https://render.githubusercontent.com/render/math?math=a_1">, <img src="https://render.githubusercontent.com/render/math?math=a_2">, ..., <img src="https://render.githubusercontent.com/render/math?math=b_1">,<img src="https://render.githubusercontent.com/render/math?math=b_2">, ...)<br />2- Gamma:<br /> (<img src="https://render.githubusercontent.com/render/math?math=\alpha_1">, <img src="https://render.githubusercontent.com/render/math?math=\alpha_2">,..., <img src="https://render.githubusercontent.com/render/math?math=\beta_1">, <img src="https://render.githubusercontent.com/render/math?math=\beta_2">, ...)<br /><br />**Or:**<br /><img src="https://render.githubusercontent.com/render/math?math=\mu_1">,<img src="https://render.githubusercontent.com/render/math?math=\mu_2">, ..., <img src="https://render.githubusercontent.com/render/math?math=v_1">, <img src="https://render.githubusercontent.com/render/math?math=v_2">, ... |   list    |

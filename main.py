@@ -68,7 +68,7 @@ if __name__ == "__main__":
     hetero_scale = params_settings[1]
     distributions_ratio = args.distributions_ratio
     average_variance = args.average_variance
-    is_estim_noise_params = True if params_type == "manvar" or params_type == "alphabeta" else False
+    is_estim_noise_params = True if params_type == "meanvar" or params_type == "alphabeta" else False
     
 
 

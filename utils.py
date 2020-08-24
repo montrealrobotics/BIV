@@ -342,7 +342,7 @@ def assert_arguments(arguments):
     assert arguments.get('noise_type') in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
     assert isinstance( arguments.get('is_estim_noise_params'), bool), "Argument: estimate_noise_params: " + messages.get('bool')
 
-    assert arguments.get('params_type') in ["manvar","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
+    assert arguments.get('params_type') in ["meanvar","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
 
     assert float(arguments.get('hetero_scale'))==-1 or float(arguments.get('hetero_scale'))>=0 and float(arguments.get('hetero_scale'))<=1 , "Argument: hetero_scale: "+ messages.get('value')
     assert float(arguments.get('distributions_ratio'))>=0 and float(arguments.get('distributions_ratio'))<=1 , "Argument: distributions_ratio: "+ messages.get('value')
