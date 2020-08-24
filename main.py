@@ -22,7 +22,7 @@ from params import d_params
 from params import n_params
 
 # Import helper tools
-from utils import str_to_bool, average_noise_mean
+from utils import print_experiment_information, assert_arguments, str_to_bool, average_noise_mean
 
 
 # Main 
@@ -32,85 +32,94 @@ if __name__ == "__main__":
     # Parse arguments from the commandline
     parser =  argparse.ArgumentParser(description=" A parser for baseline uniform noisy experiment")
     parser.add_argument("--experiment_settings", type=str, default="0")
-    parser.add_argument("--epsilon", type=str, default="0.5")
+    parser.add_argument("--model_settings", type=str,default="0")
     parser.add_argument("--noise", type=str, default="False") 
-    parser.add_argument("--noise_variance_average", type=str, default="2000")  
     parser.add_argument("--noise_settings", type=str, default="0")
-    parser.add_argument("--noise_parameters", type=str, default="0")
-    parser.add_argument("--estimate_noise_parameters", type=str, default="0")    
+    parser.add_argument("--average_variance", type=str, default="2000") 
+    parser.add_argument("--params_settings", type=str, default="0")
+    parser.add_argument("--parameters", type=str, default="0")
+
+
+    parser.add_argument("--epsilon", type=str, default="0.5")
+   
+     
+    parser.add_argument("--distributions_ratio", type=str, default="0")
+
+
+    # parser.add_argument("--noise_parameters", type=str, default="0")
+    # parser.add_argument("--estimate_noise_parameters", type=str, default="0")    
+
 
     # Extract commandline parameters   
     args = parser.parse_args()
-    exp_settings = args.experiment_settings.split(",")
+    experiment_settings = args.experiment_settings.split(",")
+    model_settings = args.model_settings.split(",")
     noise_settings = args.noise_settings.split(",")
+    params_settings = args.params_settings.split(",")
+    parameters = args.parameters.split(",")
+
+
+
 
      
-    tag = exp_settings[0]
-    seed = exp_settings[1]
-    dataset = exp_settings[2]
-    normalize = exp_settings[3]
-    loss_type = exp_settings[4] 
-    model_type = exp_settings[5]
+    tag = experiment_settings[0]
+    seed = experiment_settings[1]
+    dataset = experiment_settings[2]
+    normalize = experiment_settings[3]
+
     
+    loss_type = model_settings[0]
+    model_type = model_settings[1] 
     epsilon = args.epsilon
-    noise = args.noise
-    average_mean_factor = args.noise_variance_average
-
-    noise_type = noise_settings[0]
-    is_estim_noise_params = noise_settings[1]
-    hetero_scale = noise_settings[2]
-    distributions_ratio_p = noise_settings[3]
-    threshold_value = noise_settings[4]
     
-  
-    # Assert the commandline arguments values.
-    messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
+    noise = args.noise
+    noise_type = noise_settings[0]
+    threshold_value = noise_settings[1]
 
-    assert isinstance(float(seed), float), "Argument: seed: " + messages.get('datatype')
-    assert dataset in ["utkf","wine"], "Argument: dataset: " + messages.get('value')
-    assert isinstance( str_to_bool(normalize), bool), "Argument: normalize: " + messages.get('bool')
-    assert loss_type in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
-    assert epsilon.replace('.','',1).isdigit() , "Argument: epsilon: " + messages.get('datatype')
-    assert model_type in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
-    assert average_mean_factor.replace('.','',1).replace('-','',1).isdigit(), "Argument: average_mean_factor: "+ messages.get('value')
+    params_type = params_settings[0]
+    hetero_scale = params_settings[1]
+    distributions_ratio = args.distributions_ratio
+    average_variance = args.average_variance
+    
+    
+    
 
-    assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + messages.get('bool')
-    assert noise_type in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
-    assert isinstance( str_to_bool(is_estim_noise_params), bool), "Argument: estimate_noise_params: " + messages.get('bool')
-    assert float(hetero_scale)==-1 or float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ messages.get('value')
-    assert float(distributions_ratio_p)>=0 and float(distributions_ratio_p)<=1 , "Argument: distributions_ratio_p: "+ messages.get('value')
-    assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
+    is_estim_noise_params = True if params_type == "manvar" or params_type == "alphabeta" else False
+    
+    
+    
+    
+   
 
+    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "loss_type": loss_type, "model_type": model_type, "epsilon": epsilon,
+                 "noise": noise, "average_variance": average_variance, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
+                 'parameters':parameters,"hetero_scale": hetero_scale, "distributions_ratio": distributions_ratio, "threshold_value": threshold_value}
+    
+    # Print experiments information
+    print_experiment_information(arguments)
+
+     # Assert CommandLine arguments's values
+    assert_arguments(arguments)
     
     # Convert commandline arguments to appropriate datatype.
     seed = int(seed)
     normalize = str_to_bool(normalize)
     epsilon = float(epsilon)
-    average_mean_factor = float(average_mean_factor)
+
+    average_variance = float(average_variance)
     is_noise = str_to_bool(noise)
-    is_estim_noise_params = str_to_bool(is_estim_noise_params)
     hetero_scale = float(hetero_scale)
     maximum_hetero = True if hetero_scale>=0 else False 
-    distributions_ratio_p = float(distributions_ratio_p)
+    distributions_ratio = float(distributions_ratio)
     threshold_value = float(threshold_value)
     is_noise_threshold = True if threshold_value>=0 else False
-
-
-    # Handle distributions parameters
-    if is_estim_noise_params:
-        estim_noise_params = args.estimate_noise_parameters.split(",")
-        for item in estim_noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: estim_noise_params: " + messages.get('datatype')
-        d_data =  list(map(lambda x: float(x), estim_noise_params))
-
-    else:
-        noise_params = args.noise_parameters.split(",")
-        for item in noise_params: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: noise_params: " + messages.get('datatype')
-        d_data = list(map(lambda x: float(x), noise_params))
-
+    
+    parameters = list(map(lambda x: float(x), parameters))
+  
 
     # Get Wandb tags
     tag = [tag,]
-    # Initiate wandb client.
+   # Initiate wandb client.
     wandb.init(project="iv_deep_learning",tags=tag , entity="montreal_robotics")
     # Get the api key from the environment variables.
     api_key = os.environ.get('WANDB_API_KEY')
@@ -120,18 +129,20 @@ if __name__ == "__main__":
     # Set expirement seed
     torch.manual_seed(seed)
     # Set experiment id
-    exp_id = str(distributions_ratio_p)
+    exp_id = str(distributions_ratio)
 
     # Define the dataset
     if is_estim_noise_params:
-        if average_mean_factor>=0 and len(d_data)//2==2 and distributions_ratio_p<1 and noise_type == "uniform": # this is just for the uniform case.. 
-            d_data[1] = average_noise_mean(average_mean_factor,d_data[0],distributions_ratio_p)
-        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":d_data}
+        if average_variance>=0 and len(parameters)//2==2 and distributions_ratio<1:
+            parameters[1] = average_noise_mean(noise_type,average_variance,parameters[0],parameters[3],distributions_ratio)
+        dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters}
+
     else:
-        dist_data = {"coin_fairness":distributions_ratio_p,"is_params_est":is_estim_noise_params, "data":d_data}
+            dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "data":parameters}
 
 
     if dataset == "utkf":
+
         d_path = d_params.get('d_path')
         tr_size = d_params.get('tr_batch_size')
         tst_size = d_params.get('test_batch_size')
@@ -164,14 +175,14 @@ if __name__ == "__main__":
 
     if model_type =="vanilla_ann" and dataset=='wine':
         model = WineModel()
-        print("#################### Model is:{} ####################".format(model_type))
+        print("#"*80,"Model is:{}".format(model_type), "#"*80)
     elif model_type == "resnet" and dataset == 'utkf':
         model = torchvision.models.resnet18(pretrained=False)
         model.fc = torch.nn.Linear(512,1)   # converting resnet to a regression layer
-        print("#################### Model is:{} ####################".format(model_type))
+        print("#"*80,"Model is:{}".format(model_type), "#"*80)
     elif model_type == "vanilla_cnn" and dataset == 'utkf':
         model = AgeModel()
-        print("#################### Model is:{} ####################".format(model_type))
+        print("#"*80," Model is:{}".format(model_type, "#"*80))
     else:
         raise ValueError(" Model is not recognized or the dataset and the model are not compatible with each other.")
 

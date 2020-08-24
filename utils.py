@@ -9,7 +9,7 @@ import torch
 
 import wandb
 
-from params import d_params
+from params import d_params, n_params
 
 def get_unif_Vmax(mu, scale_value=1):
      
@@ -312,6 +312,56 @@ def incremental_average_full(x):
     return x_old
 
 
-def average_noise_mean(avg_m,mu1,p):
+def average_noise_mean(noise_type,avg_m,mu1,v2,p):
+    # if noise_type == "gamma":
+    #     print(v2, v2**2)
+    #     condition = np.sqrt(v2) *(1-p) + p*mu1
+    #     print("QQQ", condition)
+    #     if avg_m > condition:
+    #         raise ValueError(" Noise variance average should be less or equal to {}".format(condition))
+
     mu2 = (avg_m-p*mu1)/(1-p)
     return mu2
+
+
+
+def assert_arguments(arguments):
+
+    messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
+
+
+    assert isinstance(float(arguments.get('seed')), float), "Argument: seed: " + messages.get('datatype')
+    assert arguments.get('dataset') in ["utkf","wine"], "Argument: dataset: " + messages.get('value')
+    assert isinstance( str_to_bool(arguments.get('normalize')), bool), "Argument: normalize: " + messages.get('bool')
+    assert arguments.get('loss_type') in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
+    assert arguments.get('epsilon').replace('.','',1).isdigit() , "Argument: epsilon: " + messages.get('datatype')
+    assert arguments.get('model_type') in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
+    assert arguments.get('average_variance').replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ messages.get('value')
+
+    assert isinstance( str_to_bool(arguments.get('noise')), bool), "Argument: noise: " + messages.get('bool')
+    assert arguments.get('noise_type') in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
+    assert isinstance( arguments.get('is_estim_noise_params'), bool), "Argument: estimate_noise_params: " + messages.get('bool')
+
+    assert arguments.get('params_type') in ["manvar","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
+
+    assert float(arguments.get('hetero_scale'))==-1 or float(arguments.get('hetero_scale'))>=0 and float(arguments.get('hetero_scale'))<=1 , "Argument: hetero_scale: "+ messages.get('value')
+    assert float(arguments.get('distributions_ratio'))>=0 and float(arguments.get('distributions_ratio'))<=1 , "Argument: distributions_ratio: "+ messages.get('value')
+    assert arguments.get('threshold_value').replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
+
+    # Handle distributions parameters
+
+    for item in arguments.get('parameters'): assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + messages.get('datatype')
+
+    return 0
+
+
+
+def print_experiment_information(args):
+
+    print("#"*80,"Dataset Settings:","#"*80)
+    print(d_params)
+    print("#"*80,"Network Settings:","#"*80)
+    print(n_params)
+    print("#"*80,"CommandLine Arguments:","#"*80)
+    print(args)
+    print("*"*180)
