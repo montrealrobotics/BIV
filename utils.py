@@ -339,7 +339,7 @@ def assert_arguments(arguments):
     assert arguments.get('average_variance').replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ messages.get('value')
 
     assert isinstance( str_to_bool(arguments.get('noise')), bool), "Argument: noise: " + messages.get('bool')
-    assert arguments.get('noise_type') in ["uniform","gamma"], "Argument: noise_type: " + messages.get('value')
+    assert arguments.get('noise_type') in ["uniform","binary_uniform","gamma"], "Argument: noise_type: " + messages.get('value')
     assert isinstance( arguments.get('is_estim_noise_params'), bool), "Argument: estimate_noise_params: " + messages.get('bool')
 
     assert arguments.get('params_type') in ["meanvar","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')

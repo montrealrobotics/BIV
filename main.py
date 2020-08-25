@@ -55,19 +55,19 @@ if __name__ == "__main__":
     dataset = experiment_settings[2]
     normalize = experiment_settings[3]
 
+    model_type = model_settings[0]
+    loss_type = model_settings[1] 
+    epsilon = model_settings[2] 
     
-    loss_type = model_settings[0]
-    model_type = model_settings[1] 
-    epsilon = args.epsilon
-    
-    noise = args.noise
-    noise_type = noise_settings[0]
-    threshold_value = noise_settings[1]
+    noise = noise_settings[0] 
+    noise_type = noise_settings[1]
+    threshold_value = noise_settings[2]
 
     params_type = params_settings[0]
     hetero_scale = params_settings[1]
-    distributions_ratio = args.distributions_ratio
-    average_variance = args.average_variance
+    distributions_ratio = params_settings[2] 
+    average_variance = params_settings[3] 
+
     is_estim_noise_params = True if params_type == "meanvar" or params_type == "alphabeta" else False
     
 
