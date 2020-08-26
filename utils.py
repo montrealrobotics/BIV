@@ -270,7 +270,6 @@ def flip_coin(p =0.5):
 
 
 def generate_luck_boundaries(num_dists, p=0.5):
-
     if num_dists ==0:
         raise ValueError(" number of distributions are zero: {}".format(num_dists))
     elif num_dists ==1:
@@ -334,23 +333,20 @@ def assert_arguments(arguments):
     assert arguments.get('dataset') in ["utkf","wine"], "Argument: dataset: " + messages.get('value')
     assert isinstance( str_to_bool(arguments.get('normalize')), bool), "Argument: normalize: " + messages.get('bool')
     assert arguments.get('loss_type') in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
-    assert arguments.get('epsilon').replace('.','',1).isdigit() , "Argument: epsilon: " + messages.get('datatype')
     assert arguments.get('model_type') in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
-    assert arguments.get('average_variance').replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ messages.get('value')
+    # assert arguments.get('average_variance').replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ messages.get('value')
 
     assert isinstance( str_to_bool(arguments.get('noise')), bool), "Argument: noise: " + messages.get('bool')
-    assert arguments.get('noise_type') in ["uniform","binary_uniform","gamma"], "Argument: noise_type: " + messages.get('value')
+    assert arguments.get('noise_type') in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + messages.get('value')
     assert isinstance( arguments.get('is_estim_noise_params'), bool), "Argument: estimate_noise_params: " + messages.get('bool')
 
-    assert arguments.get('params_type') in ["meanvar","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
+    assert arguments.get('params_type') in ["meanvar","meanvar_avg","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
 
-    assert float(arguments.get('hetero_scale'))==-1 or float(arguments.get('hetero_scale'))>=0 and float(arguments.get('hetero_scale'))<=1 , "Argument: hetero_scale: "+ messages.get('value')
-    assert float(arguments.get('distributions_ratio'))>=0 and float(arguments.get('distributions_ratio'))<=1 , "Argument: distributions_ratio: "+ messages.get('value')
-    assert arguments.get('threshold_value').replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " + messages.get('datatype')
-
+    # assert float(arguments.get('distributions_ratio'))>=0 and float(arguments.get('distributions_ratio'))<=1 , "Argument: distributions_ratio: "+ messages.get('value')
+    
     # Handle distributions parameters
 
-    for item in arguments.get('parameters'): assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + messages.get('datatype')
+    # for item in arguments.get('parameters'): assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + messages.get('datatype')
 
     return 0
 

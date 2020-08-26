@@ -71,15 +71,11 @@ class WineQuality(Dataset):
         # Generate noise for the training samples.
         if self.train:
             if self.noise:
-                if self.noise_type == 'uniform':
-                    self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise. 
-                    # print("noises been added", self.lbl_noises)
-                    print("maximum noise", max(self.lbl_noises))
-                    # print("noise variances:", self.noise_variances)
-                    print("maximum noise variance:", max(self.noise_variances))
-                     
-                else:
-                    raise NotImplementedError("Gamma noise is not supported at the current moment.")
+                self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise. 
+                # print("noises been added", self.lbl_noises)
+                print("maximum noise", max(self.lbl_noises))
+                # print("noise variances:", self.noise_variances)
+                print("maximum noise variance:", max(self.noise_variances))
 
                 if self.noise_threshold:
                         print('Training data filtering started...')
@@ -212,6 +208,9 @@ class WineQuality(Dataset):
             raise ValueError("Variance is zaro, alpha and beta can not be estimated because of divideding by zero: {}".format(v))
         elif v <0:
             raise ValueError("Variance is a negative value: {}".format(v))
+        
+        elif v < mu**2:
+            raise ValueError(" Variance should be greater than or equal to {}.".format(mu**2))
         else:
             theta = v/mu    # estimate the scale.
             k = (mu**2)/v   # estimate the shape.
@@ -220,7 +219,6 @@ class WineQuality(Dataset):
             beta = 1/theta  # estimate rate or beta
 
             return (alpha,beta)
-
 
     def get_distribution(self, dist_type, data, is_params_estimated, vmax=False, vmax_scale=1):
         """ Description:
@@ -239,10 +237,12 @@ class WineQuality(Dataset):
         noise_distributions = {}
 
         if is_params_estimated:
-            if dist_type =="uniform":
+            print("Parameters are estimated")
+            if dist_type =="uniform" or dist_type =="binary_uniform" :
+                print("This is a "+ dist_type +  " distribution :)")
                 for idx, param in enumerate(data):
                     if vmax:
-                        v = get_unif_Vmax(param[0], scale_value=vmax_scale)
+                        v = get_unif_Vmax(param[0], scale_value=vmax_scale) 
                         a,b = self.get_uniform_params(param[0],v)
                     else:
                         a,b = self.get_uniform_params(param[0], param[1])
@@ -251,16 +251,22 @@ class WineQuality(Dataset):
                     noise_distributions[str(idx+1)]=var_dist
         
             elif dist_type == "gamma":
-                alpha, beta = self.get_gamma_params(mu,v)
-                var_dist = torch.distributions.gamma.Gamma(alpha,beta)
+                print("This is gamma distribution :)")
+                for idx, param in enumerate(data):
+                    alpha,beta = self.get_gamma_params(param[0], param[1])
+                    var_dist = torch.distributions.gamma.Gamma(alpha,beta)
+                    noise_distributions[str(idx+1)]=var_dist
         else:
-            if dist_type =="uniform":
+            print("Parameters are not estimated")
+            if dist_type =="uniform" or dist_type =="binary_uniform":
+                print("This is uniform distribution :)")
                 for idx, param in enumerate(data):
                     var_dist = torch.distributions.uniform.Uniform(param[0],param[1])
                     noise_distributions[str(idx+1)]=var_dist
         
             elif dist_type == "gamma":
-                for param in enumerate(data):
+                print("This is gamma distribution :)")
+                for idx, param in enumerate(data):
                     var_dist = torch.distributions.gamma.Gamma(param[0],param[1])
                     noise_distributions[str(idx+1)]=var_dist
 
@@ -309,7 +315,6 @@ class WineQuality(Dataset):
         
     
     def generate_noise(self, norm = False):
-
         """
         Description:
             Generates noises.
@@ -324,23 +329,25 @@ class WineQuality(Dataset):
             None.
         """
         dists = {}
-        if self.noise_type == "uniform":
-            p = self.dist_data.get('coin_fairness')
-            is_params_estimated = self.dist_data.get('is_params_est')
-            data = self.dist_data.get("data")
-            n = len(data)
+        p = self.dist_data.get('coin_fairness')
+        is_params_estimated = self.dist_data.get('is_params_est')
+        data = self.dist_data.get("data")
+        n = len(data)
+        data = [(data[idx], data[idx+(n//2)]) for idx in range(n//2) ]
+        
 
-            data = [(data[idx], data[idx+(n//2)]) for idx in range(n//2) ]
-
-            if is_params_estimated:
+        if is_params_estimated:
+            if self.noise_type == "uniform" or self.noise_type =="binary_uniform":
                 is_vmax = self.dist_data.get("is_vmax")
                 vmax_scale = self.dist_data.get("vmax_scale")
                 dists = self.get_distribution(self.noise_type, data, is_params_estimated, is_vmax, vmax_scale)
             else:
                 dists = self.get_distribution(self.noise_type, data, is_params_estimated)
-                
+        else:
+            dists = self.get_distribution(self.noise_type, data, is_params_estimated)
 
-            noises, noises_vars = self.gaussian_noise(dists, p)
+        noises, noises_vars = self.gaussian_noise(dists, p)
+
 
         return (noises, noises_vars)
 
@@ -384,19 +391,18 @@ class WineQuality(Dataset):
     
         if self.train:
             if self.noise:
-                if self.noise_type == 'uniform':
-                    self.label_noise = self.lbl_noises[idx]
-                    self.noise_variance = self.noise_variances[idx]
-                    self.label = self.label + self.label_noise
-                    # Apply normalization to the noisy training data.
-                    if self.normalize:
-                        self.feature = normalize_features(self.feature, self.features_mean, self.features_std,dataset='WineQuality')
-                        self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
-                        # weight the noise value and its varince by the std of the labels of the dataset.
-                        self.label_noise = self.label_noise/self.labels_std
-                        self.noise_variance = self.noise_variance/(self.labels_std**2)
+                self.label_noise = self.lbl_noises[idx]
+                self.noise_variance = self.noise_variances[idx]
+                self.label = self.label + self.label_noise
+                # Apply normalization to the noisy training data.
+                if self.normalize:
+                    self.feature = normalize_features(self.feature, self.features_mean, self.features_std,dataset='WineQuality')
+                    self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+                    # weight the noise value and its varince by the std of the labels of the dataset.
+                    self.label_noise = self.label_noise/self.labels_std
+                    self.noise_variance = self.noise_variance/(self.labels_std**2)
 
-                    return (self.feature, self.label, self.label_noise, self.noise_variance)
+                return (self.feature, self.label, self.label_noise, self.noise_variance)
             else:
             # Apply normalization to the training data.
                 if self.normalize:

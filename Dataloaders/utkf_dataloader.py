@@ -65,8 +65,6 @@ class UTKface(Dataset):
                 print("maximum noise", max(self.lbl_noises))
                 # print("noise variances:", self.noise_variances)
                 print("maximum noise variance:", max(self.noise_variances))
-                # else:
-                #     raise NotImplementedError("Gamma noise is not supported at the current moment.")
 
                 if self.noise_threshold:
                         print('Training data filtering started...')
@@ -221,11 +219,11 @@ class UTKface(Dataset):
 
         if is_params_estimated:
             print("Parameters are estimated")
-            if dist_type =="uniform":
-                print("This is uniform distribution :)")
+            if dist_type =="uniform" or dist_type =="binary_uniform" :
+                print("This is a "+ dist_type +  " distribution :)")
                 for idx, param in enumerate(data):
                     if vmax:
-                        v = get_unif_Vmax(param[0], scale_value=vmax_scale)
+                        v = get_unif_Vmax(param[0], scale_value=vmax_scale) 
                         a,b = self.get_uniform_params(param[0],v)
                     else:
                         a,b = self.get_uniform_params(param[0], param[1])
@@ -241,7 +239,7 @@ class UTKface(Dataset):
                     noise_distributions[str(idx+1)]=var_dist
         else:
             print("Parameters are not estimated")
-            if dist_type =="uniform":
+            if dist_type =="uniform" or dist_type =="binary_uniform":
                 print("This is uniform distribution :)")
                 for idx, param in enumerate(data):
                     var_dist = torch.distributions.uniform.Uniform(param[0],param[1])
@@ -312,9 +310,10 @@ class UTKface(Dataset):
         data = self.dist_data.get("data")
         n = len(data)
         data = [(data[idx], data[idx+(n//2)]) for idx in range(n//2) ]
+        
 
         if is_params_estimated:
-            if self.noise_type == "uniform":
+            if self.noise_type == "uniform" or self.noise_type =="binary_uniform":
                 is_vmax = self.dist_data.get("is_vmax")
                 vmax_scale = self.dist_data.get("vmax_scale")
                 dists = self.get_distribution(self.noise_type, data, is_params_estimated, is_vmax, vmax_scale)
@@ -375,19 +374,18 @@ class UTKface(Dataset):
 
         if self.train:
             if self.noise:
-                if self.noise_type == 'uniform':
-                    self.label_noise = self.lbl_noises[idx]
-                    self.noise_variance = self.noise_variances[idx]
-                    self.label = self.label + self.label_noise
-                    # Apply normalization to the noisy training data.
-                    if self.normalize:
-                        self.image = normalize_features(self.image, self.images_mean, self.images_std)
-                        self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
-                        # weight the noise value and its varince by the std of the labels of the dataset.
-                        self.label_noise = self.label_noise/self.labels_std
-                        self.noise_variance = self.noise_variance/(self.labels_std**2)
+                self.label_noise = self.lbl_noises[idx]
+                self.noise_variance = self.noise_variances[idx]
+                self.label = self.label + self.label_noise
+                # Apply normalization to the noisy training data.
+                if self.normalize:
+                    self.image = normalize_features(self.image, self.images_mean, self.images_std)
+                    self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+                    # weight the noise value and its varince by the std of the labels of the dataset.
+                    self.label_noise = self.label_noise/self.labels_std
+                    self.noise_variance = self.noise_variance/(self.labels_std**2)
 
-                    return (self.image, self.label, self.label_noise, self.noise_variance)
+                return (self.image, self.label, self.label_noise, self.noise_variance)
             else:
             # Apply normalization to the training data.
                 if self.normalize:
