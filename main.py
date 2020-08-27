@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
 
     # Optimizer
-    print("PPPPPPPPPPPPPPPPPPP", learning_rate)
+    
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Loss function
