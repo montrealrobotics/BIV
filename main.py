@@ -107,7 +107,7 @@ if __name__ == "__main__":
             
     is_estim_noise_params = False if params_type=="boundaries" else True 
 
-    if noise and noise_type !="gamma":
+    if noise and params_type=="meanvar" or params_type=="meanvar_avg":
         maximum_hetero = parameters[0]
         assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + warning_messages.get('bool')
         maximum_hetero = str_to_bool(maximum_hetero)
