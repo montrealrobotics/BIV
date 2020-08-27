@@ -105,7 +105,7 @@ if __name__ == "__main__":
             assert average_variance.replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ warning_messages.get('value')
             average_variance = float(average_variance)
             
-    is_estim_noise_params = False if params_type=="boundaries" else True 
+    is_estim_noise_params = False if params_type=="boundaries" or params_type=="alphabeta" else True 
 
     if noise and params_type=="meanvar" or params_type=="meanvar_avg":
         maximum_hetero = parameters[0]
