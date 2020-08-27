@@ -107,7 +107,7 @@ if __name__ == "__main__":
             
     is_estim_noise_params = False if params_type=="boundaries" else True 
 
-    if noise:
+    if noise and noise_type !="gamma":
         maximum_hetero = parameters[0]
         assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + warning_messages.get('bool')
         maximum_hetero = str_to_bool(maximum_hetero)
@@ -117,8 +117,8 @@ if __name__ == "__main__":
             hetero_scale = float(hetero_scale)
         parameters = parameters[1:]
     
-        for item in parameters: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + "datatype is not supported."
-        parameters = list(map(lambda x: float(x), parameters))
+    for item in parameters: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + "datatype is not supported."
+    parameters = list(map(lambda x: float(x), parameters))
 
     
    # Print experiments information
@@ -127,7 +127,6 @@ if __name__ == "__main__":
                  'parameters':parameters}
     
     print_experiment_information(arguments)
-
 
 ###########################################################################################################################################################
     # Get Wandb tags
@@ -203,7 +202,6 @@ if __name__ == "__main__":
 
 
     # Optimizer
-    
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Loss function
