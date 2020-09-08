@@ -13,7 +13,7 @@ import wandb
 from Dataloaders.utkf_dataloader import UTKface
 from Dataloaders.wine_dataloader import WineQuality
 from model import AgeModel, WineModel
-from losses import IVLoss
+from losses import IVLoss, CutoffMSE
 from train import Trainer
 
 # Import default expirement settings
@@ -31,10 +31,10 @@ if __name__ == "__main__":
 
     # Global Variables
     distributions_ratio = 1
+    is_noise_dataset_filter = False
     threshold_value = -1
     maximum_hetero = False
     hetero_scale = 1
-    is_noise_threshold = False
     warning_messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
 
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     model_type = model_settings[0]
     assert model_type in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + warning_messages.get('value')
     loss_type = model_settings[1]
-    assert loss_type in ["mse", "iv", "biv"], "Argument: loss_type: " + warning_messages.get('value') 
+    assert loss_type in ["mse", "cutoffMSE", "iv", "biv"], "Argument: loss_type: " + warning_messages.get('value') 
 
     if len(model_settings) > 2:
         epsilon = model_settings[2]
@@ -93,7 +93,8 @@ if __name__ == "__main__":
         threshold_value = noise_settings[2]
         assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " +  warning_messages.get('datatype')
         threshold_value = float(threshold_value)
-        is_noise_threshold = True 
+        if loss_type != "cutoffMSE":
+            is_noise_dataset_filter = True 
 
 
     if noise:
@@ -180,8 +181,10 @@ if __name__ == "__main__":
         trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
         train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
-                                            dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value, size=train_size) 
+                     dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value, size=train_size) 
+        
         test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize, size=test_size)
+
 
 
     elif dataset == "wine":
@@ -193,7 +196,7 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
 
         train_data = WineQuality(d_path, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
-                                        dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value) 
+                                        dist_data, normalize=normalize, noise_threshold = is_noise_dataset_filter, threshold_value = threshold_value) 
         test_data = WineQuality(d_path, train= False, model= model_type, normalize=normalize)
 
         
@@ -223,6 +226,8 @@ if __name__ == "__main__":
         loss = IVLoss(epsilon=epsilon, avg_batch=False)
     elif loss_type == "biv":
         loss = IVLoss(epsilon=epsilon, avg_batch=True)
+    elif loss_type == "cutoffMSE":
+        loss = CutoffMSE(cutoffValue=threshold_value)
     else:
         loss = torch.nn.MSELoss()
 

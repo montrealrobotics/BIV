@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch.nn import MSELoss
 
-from utils import  get_dataset_stats, normalize_features, normalize_labels
+from utils import  get_dataset_stats, normalize_features, normalize_labels, filter_batch
 from params import d_params
 
 import wandb
@@ -44,6 +44,8 @@ class Trainer:
         self.optimizer = optimizer
         self.epochs = epochs
         self.last_epoch = self.epochs-1
+        # self.noise_filter = noise_filter
+        # self.noise_threshold = noise_threshold
         self.server_path = d_params.get('server_path')
 
         if self.cuda:
@@ -130,61 +132,63 @@ class Trainer:
                 else:
                     tr_batch = train_sample[0]
                     tr_labels = torch.unsqueeze(train_sample[1], 1)
-                    if alogrithm == "iv" or alogrithm == "biv":
+                    if alogrithm != "mse":
                         noises_vars = train_sample[3].type(torch.float32)
+                        
+                
+                
                 # feeding the data into the model.
                 tr_out = self.model(tr_batch)
 
                 # Choose the loss function.
-                if alogrithm =="iv" or alogrithm == "biv":
+                if alogrithm != "mse":
                     mloss = self.loss(tr_out, tr_labels, noises_vars)
                 else:
                     mloss = self.mse_loss(tr_out,tr_labels)
                
-                tr_losses.append(mloss.item())
-                wandb_tr_losses.append(mloss.item())
+                if mloss !="cutoffMSE:NO_LOSS":
+                    tr_losses.append(mloss.item())
+                    wandb_tr_losses.append(mloss.item())
+                    # Optimize the model.
+                    mloss.backward()
+                    self.optimizer.step()
                 
+                    with torch.no_grad():
+                        tst_b_losses= []
+                        for test_sample_idx, test_sample in enumerate(self.test_data):
+                            if self.cuda:
+                                tst_batch = test_sample[0].cuda(0)
+                                tst_labels = torch.unsqueeze(test_sample[1], 1).cuda(0)
+                            else:
+                                tst_batch = test_sample[0]
+                                tst_labels = torch.unsqueeze(test_sample[1], 1)
 
-                # Optimize the model.
-                mloss.backward()
-                self.optimizer.step()
+                            # feed the data into the model.
 
-                with torch.no_grad():
-                    tst_b_losses= []
-                    for test_sample_idx, test_sample in enumerate(self.test_data):
-                        if self.cuda:
-                            tst_batch = test_sample[0].cuda(0)
-                            tst_labels = torch.unsqueeze(test_sample[1], 1).cuda(0)
-                        else:
-                            tst_batch = test_sample[0]
-                            tst_labels = torch.unsqueeze(test_sample[1], 1)
+                            tst_out = self.model(tst_batch)
+                            # estimate the loss.
+                            tloss = self.mse_loss(tst_out, tst_labels)
+                            # append the loss.
+                            tst_b_losses.append(tloss.item())
+                        
+                            # log the train and test outputs on the last epoch and the last batch.
+                            if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1 :
+                                # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
+                                tr_out_lst_epoch.append(
+                                    tr_out.view(1, -1).squeeze(0).tolist())
+                                tr_lbl_lst_epoch.append(
+                                tr_labels.view(1, -1).squeeze(0).tolist())
 
-                        # feed the data into the model.
+                                # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
+                                tst_out_lst_epoch.append(
+                                    tst_out.view(1, -1).squeeze(0).tolist())
+                                tst_lbl_lst_epoch.append(
+                                tst_labels.view(1, -1).squeeze(0).tolist())
 
-                        tst_out = self.model(tst_batch)
-                        # estimate the loss.
-                        tloss = self.mse_loss(tst_out, tst_labels)
-                        # append the loss.
-                        tst_b_losses.append(tloss.item())
-                    
-                        # log the train and test outputs on the last epoch and the last batch.
-                        if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1 :
-                            # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                            tr_out_lst_epoch.append(
-                                tr_out.view(1, -1).squeeze(0).tolist())
-                            tr_lbl_lst_epoch.append(
-                            tr_labels.view(1, -1).squeeze(0).tolist())
-
-                            # 1) Convert predictions of the train labels in the last epoch to a dataframe. (y_)
-                            tst_out_lst_epoch.append(
-                                tst_out.view(1, -1).squeeze(0).tolist())
-                            tst_lbl_lst_epoch.append(
-                            tst_labels.view(1, -1).squeeze(0).tolist())
-
-                    # Estimating the mean of the losses over the test batches.
-                    mean_tst_b_losses = np.mean(tst_b_losses)
-                    tst_losses.append(mean_tst_b_losses)    
-                    wandb_tst_losses.append(np.mean(tst_b_losses))                       
+                        # Estimating the mean of the losses over the test batches.
+                        mean_tst_b_losses = np.mean(tst_b_losses)
+                        tst_losses.append(mean_tst_b_losses)    
+                        wandb_tst_losses.append(np.mean(tst_b_losses))                       
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:
                     self.save_last_epoch(tr_out_lst_epoch, self.server_path+"train_outs.csv")

@@ -361,3 +361,44 @@ def print_experiment_information(args):
     print("#"*80,"CommandLine Arguments:","#"*80)
     print(args)
     print("*"*180)
+
+
+def filter_batch(predictions, labels, noise_var, threshold = 0.4):
+    noise_var_mask = noise_var < threshold
+    noise_var = noise_var[noise_var_mask]
+    labels_n = labels[noise_var_mask]
+    predictions_n = predictions[noise_var_mask]
+
+    num_filtered_samples = len(labels_n)
+    num_total_samples = len(labels)
+    print("Number of filtered samples per batch: {}".format(num_filtered_samples))
+    print("Ratio of filtered samples per batch: {}".format((num_filtered_samples/num_total_samples)*100))
+
+    return predictions_n, labels_n , noise_var 
+
+
+def filter_batch_v2(batch, labels, noise_var, threshold = 0.4):
+    batch_arr = []
+    label_arr = []
+    variance_arr = []
+    count = 0
+
+    for i in range(len(noise_var)):
+        if noise_var[i]< threshold:
+            batch_arr.append(batch[i])
+            label_arr.append(labels[i])
+            variance_arr.append(noise_var[i])
+            count+=1
+    
+    batch = torch.stack(batch_arr)
+    labels = torch.tensor(label_arr)
+    variances = torch.tensor(variance_arr)
+
+    # Handle the dimension for 
+    labels = torch.unsqueeze(labels, 1)
+    variances = torch.unsqueeze(variances, 1)
+
+    print("Number of filtered samples per batch: {}".format(count))
+    print("Ratio of filtered samples per batch: {}".format((count/len(noise_var))*100))
+    return batch, labels , variances 
+

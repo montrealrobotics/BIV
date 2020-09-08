@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Module
-from utils import str_to_bool
+from utils import str_to_bool, filter_batch
 
 
 class IVLoss(Module):
@@ -41,3 +41,24 @@ class IVLoss(Module):
             return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
         # else:
         #     return l
+
+
+
+class CutoffMSE(Module):
+    def __init__(self, cutoffValue=20):
+        super(CutoffMSE, self).__init__()
+        self.cutoffValue = cutoffValue
+    def forward(self, y_pred,y,lbl_var):
+        # Filter the batch samples based on the noise variance
+        y_pred, y, lbl_var = filter_batch(y_pred,y,lbl_var,threshold=self.cutoffValue)
+        batch_size = y.shape[0]
+
+        if batch_size == 0:
+            return "cutoffMSE:NO_LOSS"
+        else:
+            l = torch.matmul(torch.sub(y_pred,y).t(), torch.sub(y_pred,y))
+
+            l = l/batch_size
+
+            return l
+    
