@@ -119,6 +119,8 @@ class Trainer:
             tst_lbl_lst_epoch = []
         
             for train_sample_idx, train_sample in enumerate(self.train_data):
+                print("Number of batches: {}".format(len(self.train_data)))
+                print("Batch number: {}".format(train_sample_idx))
                 self.optimizer.zero_grad()
                 # Moving data to cuda
                 if self.cuda:

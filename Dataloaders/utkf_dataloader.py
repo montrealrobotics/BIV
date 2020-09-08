@@ -54,6 +54,7 @@ class UTKface(Dataset):
 
         # Load the dataset
         self.images_path, self.labels = self.load_data()
+        print("Dataloader train: ­{}: size of images_path : {}".format(self.train, len(self.images_path)))
         # Load the normalization constant variables.
         self.images_mean, self.images_std, self.labels_mean, self.labels_std = get_dataset_stats()
         # Generate noise for the training samples.
