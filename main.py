@@ -65,6 +65,9 @@ if __name__ == "__main__":
     normalize = experiment_settings[3]
     assert isinstance( str_to_bool(normalize), bool), "Argument: normalize: " + warning_messages.get('bool')
     normalize = str_to_bool(normalize)
+    train_size = experiment_settings[4]
+    assert isinstance(int(train_size), int), "Argument: train_size: " + warning_messages.get('datatype')
+    train_size = int(train_size)
 
 
 ########################################################################################################################################################################
@@ -169,12 +172,16 @@ if __name__ == "__main__":
         tst_size = d_params.get('test_batch_size')
         learning_rate = n_params.get('lr')
         epochs = n_params.get('epochs')
+        test_size = d_params.get('test_size')
+        dataset_size = d_params.get('dataset_size')
+
+        assert test_size+train_size<=dataset_size, "The sizes of the train dataset ({}) and the test dataset ({}) are together higher than the full dataset ({}), making it impossible for them to be mutually exclusive.".format(train_size, test_size, dataset_size)
 
         trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
         train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
-                                            dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value) 
-        test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize)
+                                            dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value, size=train_size) 
+        test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize, size=test_size)
 
 
     elif dataset == "wine":
