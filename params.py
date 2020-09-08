@@ -8,9 +8,9 @@ d_params = {
 
      ####################################### UTKFace #######################################
     
-    'seed': 42,
-    'd_path':"/datasets/Datasets/AgePrediction/UTKFace/*",
-    'train_size': 16000,                            # Dataset size = 23708.
+    'd_path':"UTKFace/*",
+    'test_size': 4000,
+    'dataset_size': 20000,
     'tr_batch_size': 256,
     'test_batch_size': 256,
     'd_img_mean_path':'/datasets/Datasets/AgePrediction/images_mean.csv' ,

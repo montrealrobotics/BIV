@@ -10,7 +10,6 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 
-from params import d_params
 from utils import get_unif_Vmax, normalize_features, normalize_labels, get_dataset_stats, str_to_bool
 from utils import generate_luck_boundaries, choose_luck_boundary, incremental_average
 from utils import flip_coin
@@ -20,7 +19,7 @@ from utils import flip_coin
 class UTKface(Dataset):
 
     def __init__(self, path, train = True, model="vanilla_cnn" ,transform = None, noise = False , noise_type = None, \
-                distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None):
+                distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None, size = None):
 
         """
         Description:
@@ -30,8 +29,8 @@ class UTKface(Dataset):
 
 
         Args:
-            :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not.
-            :train_size (int): Controls the number of samples in the training set.
+            :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not, and if the data is taken from the beginning or the end of the dataset.
+            :size (int): Controls the number of samples in the set.
             :images_path (string): Dataset directory path.
             :transform (Object): A torchvision transofrmer for processing the images.
             :noise_type (string): Controls the type of noise that will be added to the data
@@ -47,7 +46,7 @@ class UTKface(Dataset):
         self.noise = noise
         self.noise_type = noise_type
         self.dist_data = distribution_data
-        self.train_size= d_params.get('train_size')
+        self.size= size
         self.noise_threshold = noise_threshold
         self.threshold_value = threshold_value
         
@@ -120,9 +119,9 @@ class UTKface(Dataset):
         labels = []
 
         if self.train:
-            img_paths = self.data_paths[:self.train_size]
+            img_paths = self.data_paths[:self.size]
         else:
-            img_paths = self.data_paths[self.train_size:]
+            img_paths = self.data_paths[-self.size:]
 
         for path in img_paths:
             label = float(path.split("/")[-1].split("_")[0])
@@ -273,14 +272,14 @@ class UTKface(Dataset):
         boundaries = generate_luck_boundaries(num_distributions,p)
         noises_vars = []
         tracker = defaultdict(lambda : 0)
-        for idx in range(self.train_size):
+        for idx in range(self.size):
             dist_id = choose_luck_boundary(boundaries)
             var_distribution = var_dists.get(dist_id)
             noises_vars.append(var_distribution.sample((1,)))
             tracker[dist_id]+=1
            
 
-        noise_dists_ratio = list(map(lambda x: (x[0],x[1]/self.train_size*100), tracker.items())) 
+        noise_dists_ratio = list(map(lambda x: (x[0],x[1]/self.size*100), tracker.items())) 
         print("noise distributions ratio:", noise_dists_ratio)
 
         noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars] 
