@@ -30,7 +30,7 @@ class Trainer:
             :cuda (bool) [private]: Controls if the model will be run on GPU or not.
     """
 
-    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs, noise_filter):
+    def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs, noise_filter, noise_threshold):
 
         self.expermient_id = experiment_id
         self.cuda = torch.cuda.is_available()  # Check Cuda avaliability
@@ -45,6 +45,7 @@ class Trainer:
         self.epochs = epochs
         self.last_epoch = self.epochs-1
         self.noise_filter = noise_filter
+        self.noise_threshold = noise_threshold
         self.server_path = d_params.get('server_path')
 
         if self.cuda:
@@ -134,7 +135,7 @@ class Trainer:
                     if alogrithm == "iv" or alogrithm == "biv":
                         noises_vars = train_sample[3].type(torch.float32)
                         if self.noise_filter == "batch_filter":
-                            tr_batch, tr_labels, noises_vars =  filter_batch(tr_batch,tr_labels, noises_vars)
+                            tr_batch, tr_labels, noises_vars =  filter_batch(tr_batch,tr_labels, noises_vars,threshold=self.noise_threshold)
       
                         
                 

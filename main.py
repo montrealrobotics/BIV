@@ -226,7 +226,7 @@ if __name__ == "__main__":
 
     # Trainer
     trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
-        model=model, loss= loss, optimizer= optimz, epochs = epochs, noise_filter= noise_filter)
+        model=model, loss= loss, optimizer= optimz, epochs = epochs, noise_filter= noise_filter, noise_threshold = threshold_value)
 
 
     # Call wandb to log model performance.
