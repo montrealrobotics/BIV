@@ -30,11 +30,12 @@ from utils import print_experiment_information, str_to_bool, average_noise_mean
 if __name__ == "__main__":
 
     # Global Variables
+    noise_filter = "none"
     distributions_ratio = 1
+    is_noise_threshold = False
     threshold_value = -1
     maximum_hetero = False
     hetero_scale = 1
-    is_noise_threshold = False
     warning_messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
 
 
@@ -87,10 +88,13 @@ if __name__ == "__main__":
         assert noise_type in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + warning_messages.get('value')
 
     if noise and len(noise_settings) >2:
-        threshold_value = noise_settings[2]
+        noise_filter = noise_settings[2]
+        threshold_value = noise_settings[3]
+        assert noise_filter in ["dataset_filter","batch_filter"], "Argument: model_type: " + warning_messages.get('value')
         assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " +  warning_messages.get('datatype')
         threshold_value = float(threshold_value)
-        is_noise_threshold = True 
+        if noise_filter == "dataset_filter":
+            is_noise_threshold = True 
 
 
     if noise:
@@ -130,7 +134,7 @@ if __name__ == "__main__":
     
    # Print experiments information
     arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "loss_type": loss_type, "model_type": model_type, 
-                 "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
+                 "noise": noise, "noise_type": noise_type, "noise_filter":noise_filter, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
                  'parameters':parameters}
     
     print_experiment_information(arguments)
@@ -222,7 +226,7 @@ if __name__ == "__main__":
 
     # Trainer
     trainer = Trainer(experiment_id=exp_id, train_loader= train_loader, test_loader= test_loader, \
-        model=model, loss= loss, optimizer= optimz, epochs = epochs)
+        model=model, loss= loss, optimizer= optimz, epochs = epochs, noise_filter= noise_filter)
 
 
     # Call wandb to log model performance.

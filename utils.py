@@ -324,34 +324,6 @@ def average_noise_mean(noise_type,avg_m,mu1,v2,p):
 
 
 
-def assert_arguments(arguments):
-
-    messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
-
-
-    assert isinstance(float(arguments.get('seed')), float), "Argument: seed: " + messages.get('datatype')
-    assert arguments.get('dataset') in ["utkf","wine"], "Argument: dataset: " + messages.get('value')
-    assert isinstance( str_to_bool(arguments.get('normalize')), bool), "Argument: normalize: " + messages.get('bool')
-    assert arguments.get('loss_type') in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
-    assert arguments.get('model_type') in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
-    # assert arguments.get('average_variance').replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ messages.get('value')
-
-    assert isinstance( str_to_bool(arguments.get('noise')), bool), "Argument: noise: " + messages.get('bool')
-    assert arguments.get('noise_type') in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + messages.get('value')
-    assert isinstance( arguments.get('is_estim_noise_params'), bool), "Argument: estimate_noise_params: " + messages.get('bool')
-
-    assert arguments.get('params_type') in ["meanvar","meanvar_avg","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
-
-    # assert float(arguments.get('distributions_ratio'))>=0 and float(arguments.get('distributions_ratio'))<=1 , "Argument: distributions_ratio: "+ messages.get('value')
-    
-    # Handle distributions parameters
-
-    # for item in arguments.get('parameters'): assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + messages.get('datatype')
-
-    return 0
-
-
-
 def print_experiment_information(args):
 
     print("#"*80,"Dataset Settings:","#"*80)
@@ -361,3 +333,29 @@ def print_experiment_information(args):
     print("#"*80,"CommandLine Arguments:","#"*80)
     print(args)
     print("*"*180)
+
+
+def filter_batch(batch, labels, noise_var, threshold = 0.4):
+    batch_arr = []
+    label_arr = []
+    variance_arr = []
+    count = 0
+
+    for i in range(len(noise_var)):
+        if noise_var[i]< threshold:
+            batch_arr.append(batch[i])
+            label_arr.append(labels[i])
+            variance_arr.append(noise_var[i])
+            count+=1
+    
+    batch = torch.stack(batch_arr)
+    labels = torch.tensor(label_arr)
+    variances = torch.tensor(variance_arr)
+
+    # Handle the dimension for 
+    labels = torch.unsqueeze(labels, 1)
+    variances = torch.unsqueeze(variances, 1)
+
+    print("Number of filtered samples per batch: {}".format(count))
+    print("Ratio of filtered samples per batch: {}".format((count/len(noise_var))*100))
+    return batch, labels , variances 
