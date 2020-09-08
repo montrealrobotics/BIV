@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     
    # Print experiments information
-    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "loss_type": loss_type, "model_type": model_type, 
+    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
                  "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
                  'parameters':parameters}
     
