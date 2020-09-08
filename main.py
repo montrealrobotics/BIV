@@ -82,8 +82,9 @@ if __name__ == "__main__":
     noise = noise_settings[0] 
     assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + warning_messages.get('bool')
     noise = str_to_bool(noise)
-    noise_type = noise_settings[1]
-    assert noise_type in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + warning_messages.get('value')
+    if noise:
+        noise_type = noise_settings[1]
+        assert noise_type in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + warning_messages.get('value')
 
     if noise and len(noise_settings) >2:
         threshold_value = noise_settings[2]
@@ -92,33 +93,39 @@ if __name__ == "__main__":
         is_noise_threshold = True 
 
 
-    params_type = params_settings[0]
-    assert params_type in ["meanvar","meanvar_avg","boundaries","alphabeta"], "Argument: params_type: " + warning_messages.get('value')
+    if noise:
+        params_type = params_settings[0]
+        assert params_type in ["meanvar","meanvar_avg","boundaries","alphabeta"], "Argument: params_type: " + warning_messages.get('value')
 
-    if noise and noise_type == "binary_uniform":
-        distributions_ratio = params_settings[1] 
-        assert float(distributions_ratio)>=0 and float(distributions_ratio)<=1 , "Argument: distributions_ratio: "+ warning_messages.get('value')
-        distributions_ratio = float(distributions_ratio)
+        if noise_type == "binary_uniform":
+            distributions_ratio = params_settings[1] 
+            assert float(distributions_ratio)>=0 and float(distributions_ratio)<=1 , "Argument: distributions_ratio: "+ warning_messages.get('value')
+            distributions_ratio = float(distributions_ratio)
 
-        if params_type == "meanvar_avg":
-            average_variance = params_settings[2] 
-            assert average_variance.replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ warning_messages.get('value')
-            average_variance = float(average_variance)
+            if params_type == "meanvar_avg":
+                average_variance = params_settings[2] 
+                assert average_variance.replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ warning_messages.get('value')
+                average_variance = float(average_variance)
             
-    is_estim_noise_params = False if params_type=="boundaries" or params_type=="alphabeta" else True 
+        is_estim_noise_params = False if params_type=="boundaries" or params_type=="alphabeta" else True 
 
-    if noise and params_type=="meanvar" or params_type=="meanvar_avg":
-        maximum_hetero = parameters[0]
-        assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + warning_messages.get('bool')
-        maximum_hetero = str_to_bool(maximum_hetero)
-        if maximum_hetero:
-            hetero_scale = parameters[3]
-            assert float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ "argument value is not recognized."
-            hetero_scale = float(hetero_scale)
-        parameters = parameters[1:]
-    
-    for item in parameters: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + "datatype is not supported."
-    parameters = list(map(lambda x: float(x), parameters))
+        if noise and params_type=="meanvar" or params_type=="meanvar_avg":
+            maximum_hetero = parameters[0]
+            assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + warning_messages.get('bool')
+            maximum_hetero = str_to_bool(maximum_hetero)
+            if maximum_hetero:
+                hetero_scale = parameters[3]
+                assert float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ "argument value is not recognized."
+                hetero_scale = float(hetero_scale)
+            parameters = parameters[1:]
+        
+        for item in parameters: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + "datatype is not supported."
+        parameters = list(map(lambda x: float(x), parameters))
+    else:
+        noise_type = None
+        is_estim_noise_params = False
+        params_type = None
+        parameters = None
 
     
    # Print experiments information
