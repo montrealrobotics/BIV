@@ -402,3 +402,15 @@ def filter_batch_v2(batch, labels, noise_var, threshold = 0.4):
     print("Ratio of filtered samples per batch: {}".format((count/len(noise_var))*100))
     return batch, labels , variances 
 
+
+
+def assert_args_mixture(args):
+        # arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
+        #          "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
+        #          'parameters':parameters}
+
+    if args.get('loss_type') == "biv" and args.get('noise') ==False:
+        raise RuntimeError("BIV needs noise variance to work properly. Please enable 'noise'= True and specifiy the noise.")
+
+    
+    return 0

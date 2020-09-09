@@ -1,6 +1,17 @@
 
 # Data
 
+default_values = {
+
+    "epsilon": 0.1,
+    "threshold_value":1,
+    "distributions_ratio": 1,
+    "maximum_hetero": False,
+    "hetero_scale" :1,
+    "warning_messages": {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized.",\
+        "CustomMess_dataset":"The sizes of the train dataset ({}) and the test dataset ({}) are together higher than the full dataset ({}), making it impossible for them to be mutually exclusive."}
+}
+
 
 d_params = {
 
@@ -8,7 +19,7 @@ d_params = {
 
      ####################################### UTKFace #######################################
     
-    'd_path':"UTKFace/*",
+    'd_path':"/datasets/Datasets/AgePrediction/UTKFace/*",
     'test_size': 4000,
     'dataset_size': 20000,
     'tr_batch_size': 256,

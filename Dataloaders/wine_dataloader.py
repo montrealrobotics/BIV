@@ -20,7 +20,7 @@ from utils import flip_coin
 class WineQuality(Dataset):
 
     def __init__(self, path, train = True, model="vanilla_cnn" , noise = False , noise_type = None, \
-                distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None):
+                distribution_data = None, normalize = False):
 
         """
         Description:
@@ -59,9 +59,7 @@ class WineQuality(Dataset):
         self.noise_type = noise_type
         self.dist_data = distribution_data
         self.train_size= d_params.get('wine_train_size')
-        self.noise_threshold = noise_threshold
-        self.threshold_value = threshold_value
-        
+
         # This is not the proper implementation, but doing that for research purproses.
 
         # Load the dataset
@@ -82,35 +80,6 @@ class WineQuality(Dataset):
                         self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
                         print('Training data filtering finished...')
     
-    
-    def filter_high_noise(self):
-        filt_features = []
-        filt_labels = []
-        filt_lbl_noises = []
-        filt_noise_variances = []
-        filtered_data_counter = 0
-
-
-
-        for idx in range(len(self.noise_variances)):
-            if self.noise_variances[idx] < self.threshold_value:
-
-                filt_features.append(self.features[idx])
-                filt_labels.append(self.labels[idx])
-                filt_lbl_noises.append(self.lbl_noises[idx])
-                filt_noise_variances.append(self.noise_variances[idx])
-
-                # Increase the counter value of the filtered data.
-                filtered_data_counter = filtered_data_counter+1
-            else:
-                pass
-
-        # set the length of the data to be the value of the filtered_data_counter.
-        self.data_length = filtered_data_counter
-        print('Number of filtered samples: {}'.format(filtered_data_counter))
-
-        return (filt_features, filt_labels, filt_lbl_noises, filt_noise_variances)
-
     
     def load_data(self):
 

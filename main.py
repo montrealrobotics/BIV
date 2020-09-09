@@ -20,23 +20,23 @@ from train import Trainer
 
 from params import d_params
 from params import n_params
+from params import default_values
 
 # Import helper tools
-from utils import print_experiment_information, str_to_bool, average_noise_mean
+from utils import assert_args_mixture, print_experiment_information, str_to_bool, average_noise_mean
 
 
 # Main 
 
 if __name__ == "__main__":
 
-    # Global Variables
-    distributions_ratio = 1
-    is_noise_dataset_filter = False
-    threshold_value = -1
-    maximum_hetero = False
-    hetero_scale = 1
-    warning_messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
-
+    # Import default values
+    distributions_ratio = default_values.get("distributions_ratio")
+    maximum_hetero = default_values.get("maximum_hetero")
+    hetero_scale = default_values.get("hetero_scale")
+    epsilon = default_values.get("epsilon")
+    threshold_value = default_values.get("threshold_value")
+    warning_messages = default_values.get("warning_messages")
 
 
     # Parse arguments from the commandline
@@ -78,9 +78,16 @@ if __name__ == "__main__":
     assert loss_type in ["mse", "cutoffMSE", "iv", "biv"], "Argument: loss_type: " + warning_messages.get('value') 
 
     if len(model_settings) > 2:
-        epsilon = model_settings[2]
-        assert epsilon.replace('.','',1).isdigit() , "Argument: epsilon: " + warning_messages.get('datatype')
-        epsilon = float(epsilon)    
+        if loss_type == "biv":
+            epsilon = model_settings[2]
+            assert epsilon.replace('.','',1).isdigit() , "Argument: epsilon: " + warning_messages.get('datatype')
+            epsilon = float(epsilon)   
+        elif loss_type == "cutoffMSE":
+            threshold_value = model_settings[2]
+            assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " +  warning_messages.get('datatype')
+            threshold_value = float(threshold_value)
+        else:
+            pass
 
     noise = noise_settings[0] 
     assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + warning_messages.get('bool')
@@ -89,13 +96,7 @@ if __name__ == "__main__":
         noise_type = noise_settings[1]
         assert noise_type in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + warning_messages.get('value')
 
-    if noise and len(noise_settings) >2:
-        threshold_value = noise_settings[2]
-        assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " +  warning_messages.get('datatype')
-        threshold_value = float(threshold_value)
-        if loss_type != "cutoffMSE":
-            is_noise_dataset_filter = True 
-
+  
 
     if noise:
         params_type = params_settings[0]
@@ -134,11 +135,12 @@ if __name__ == "__main__":
     
    # Print experiments information
     arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
-                 "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
+                 "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, "epsilon": epsilon, "threshold value": threshold_value, 'params_type':params_type,
                  'parameters':parameters}
     
+    
     print_experiment_information(arguments)
-
+    assert_args_mixture(arguments)
 ###########################################################################################################################################################
     # Get Wandb tags
     tag = [tag,]
@@ -175,13 +177,13 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
         test_size = d_params.get('test_size')
         dataset_size = d_params.get('dataset_size')
-
-        assert test_size+train_size<=dataset_size, "The sizes of the train dataset ({}) and the test dataset ({}) are together higher than the full dataset ({}), making it impossible for them to be mutually exclusive.".format(train_size, test_size, dataset_size)
+        
+        assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
 
         trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
         train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
-                     dist_data, normalize=normalize, noise_threshold = is_noise_threshold, threshold_value = threshold_value, size=train_size) 
+                     dist_data, normalize=normalize, size=train_size) 
         
         test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize, size=test_size)
 

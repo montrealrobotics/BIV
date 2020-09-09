@@ -19,7 +19,7 @@ from utils import flip_coin
 class UTKface(Dataset):
 
     def __init__(self, path, train = True, model="vanilla_cnn" ,transform = None, noise = False , noise_type = None, \
-                distribution_data = None, normalize = False, noise_threshold = False, threshold_value = None, size = None):
+                distribution_data = None, normalize = False, size = None):
 
         """
         Description:
@@ -46,9 +46,7 @@ class UTKface(Dataset):
         self.noise = noise
         self.noise_type = noise_type
         self.dist_data = distribution_data
-        self.size= size
-        self.noise_threshold = noise_threshold
-        self.threshold_value = threshold_value
+        self.data_slice_size= size
         
         # This is not the proper implementation, but doing that for research purproses.
 
@@ -64,41 +62,7 @@ class UTKface(Dataset):
                 print("maximum noise", max(self.lbl_noises))
                 # print("noise variances:", self.noise_variances)
                 print("maximum noise variance:", max(self.noise_variances))
-
-                if self.noise_threshold:
-                        print('Training data filtering started...')
-                        self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
-                        print('Training data filtering finished...')
     
-    
-    def filter_high_noise(self):
-        filt_images_path = []
-        filt_labels = []
-        filt_lbl_noises = []
-        filt_noise_variances = []
-        filtered_data_counter = 0
-
-
-
-        for idx in range(len(self.noise_variances)):
-            if self.noise_variances[idx] < self.threshold_value:
-
-                filt_images_path.append(self.images_path[idx])
-                filt_labels.append(self.labels[idx])
-                filt_lbl_noises.append(self.lbl_noises[idx])
-                filt_noise_variances.append(self.noise_variances[idx])
-
-                # Increase the counter value of the filtered data.
-                filtered_data_counter = filtered_data_counter+1
-            else:
-                pass
-
-        # set the length of the data to be the value of the filtered_data_counter.
-        self.data_length = filtered_data_counter
-        print('Number of filtered samples: {}'.format(filtered_data_counter))
-
-        return (filt_images_path, filt_labels, filt_lbl_noises, filt_noise_variances)
-
     
     def load_data(self):
 
@@ -119,9 +83,9 @@ class UTKface(Dataset):
         labels = []
 
         if self.train:
-            img_paths = self.data_paths[:self.size]
+            img_paths = self.data_paths[:self.data_slice_size]
         else:
-            img_paths = self.data_paths[-self.size:]
+            img_paths = self.data_paths[-self.data_slice_size:]
 
         for path in img_paths:
             label = float(path.split("/")[-1].split("_")[0])
@@ -272,14 +236,14 @@ class UTKface(Dataset):
         boundaries = generate_luck_boundaries(num_distributions,p)
         noises_vars = []
         tracker = defaultdict(lambda : 0)
-        for idx in range(self.size):
+        for idx in range(self.data_slice_size):
             dist_id = choose_luck_boundary(boundaries)
             var_distribution = var_dists.get(dist_id)
             noises_vars.append(var_distribution.sample((1,)))
             tracker[dist_id]+=1
            
 
-        noise_dists_ratio = list(map(lambda x: (x[0],x[1]/self.size*100), tracker.items())) 
+        noise_dists_ratio = list(map(lambda x: (x[0],x[1]/self.data_slice_size*100), tracker.items())) 
         print("noise distributions ratio:", noise_dists_ratio)
 
         noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars] 
@@ -321,6 +285,7 @@ class UTKface(Dataset):
         else:
             dists = self.get_distribution(self.noise_type, data, is_params_estimated)
 
+     
         noises, noises_vars = self.gaussian_noise(dists, p)
 
 
