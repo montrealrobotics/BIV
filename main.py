@@ -23,7 +23,7 @@ from params import n_params
 from params import default_values
 
 # Import helper tools
-from utils import assert_args_mixture, print_experiment_information, str_to_bool, average_noise_mean
+from utils import assert_args_mixture, print_experiment_information, str_to_bool, average_noise_mean, get_dataset_stats
 
 
 # Main 
@@ -86,6 +86,11 @@ if __name__ == "__main__":
             threshold_value = model_settings[2]
             assert threshold_value.replace('.','',1).replace('-','',1).isdigit(), "Argument: threshold_value: " +  warning_messages.get('datatype')
             threshold_value = float(threshold_value)
+            
+            # Get labels's variance for normalizing the threshold value.
+            if normalize:
+                _,_,_, labels_std = get_dataset_stats()
+                threshold_value = threshold_value/(labels_std**2)
         else:
             pass
 
@@ -177,9 +182,9 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
         test_size = d_params.get('test_size')
         dataset_size = d_params.get('dataset_size')
-        
+        print(test_size,train_size)
         assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
-
+        
         trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
         train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
