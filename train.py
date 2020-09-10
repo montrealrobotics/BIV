@@ -48,6 +48,8 @@ class Trainer:
         # self.noise_threshold = noise_threshold
         self.server_path = d_params.get('server_path')
 
+
+
         if self.cuda:
             print("Running using Cuda support")
             self.model = self.model.cuda(0)
@@ -126,7 +128,7 @@ class Trainer:
                 if self.cuda:
                     tr_batch = train_sample[0].cuda(0)
                     tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
-                    if alogrithm == "iv" or alogrithm == "biv" or alogrithm == "cutoffMSE":
+                    if alogrithm != "mse":
                         noises_vars = train_sample[3].type(torch.float32).cuda(0)
                      
                 else:

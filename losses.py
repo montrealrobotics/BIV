@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Module
-from utils import str_to_bool, filter_batch
+from utils import str_to_bool, filter_batch, get_dataset_stats
 
 
 class IVLoss(Module):
@@ -45,9 +45,12 @@ class IVLoss(Module):
 
 
 class CutoffMSE(Module):
-    def __init__(self, cutoffValue=20):
+    def __init__(self, cutoffValue=1):
         super(CutoffMSE, self).__init__()
-        self.cutoffValue = cutoffValue
+        # Get labels's std for normalizing the cutoffvalue.
+        _,_,_, self.labels_std = get_dataset_stats()
+        self.cutoffValue = cutoffValue/self.labels_std
+
     def forward(self, y_pred,y,lbl_var):
         # Filter the batch samples based on the noise variance
         y_pred, y, lbl_var = filter_batch(y_pred,y,lbl_var,threshold=self.cutoffValue)
