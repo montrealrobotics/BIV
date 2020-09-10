@@ -49,7 +49,7 @@ class CutoffMSE(Module):
         super(CutoffMSE, self).__init__()
         # Get labels's std for normalizing the cutoffvalue.
         _,_,_, self.labels_std = get_dataset_stats()
-        self.cutoffValue = cutoffValue/self.labels_std
+        self.cutoffValue = cutoffValue/(self.labels_std**2)
 
     def forward(self, y_pred,y,lbl_var):
         # Filter the batch samples based on the noise variance
