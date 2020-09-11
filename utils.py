@@ -311,7 +311,7 @@ def incremental_average_full(x):
     return x_old
 
 
-def average_noise_mean(noise_type,avg_m,mu1,v2,p):
+def average_noise_mean(noise_type,avg_m,mu1,p):
     # if noise_type == "gamma":
     #     print(v2, v2**2)
     #     condition = np.sqrt(v2) *(1-p) + p*mu1

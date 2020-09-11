@@ -164,7 +164,7 @@ if __name__ == "__main__":
     # Define the dataset
 
     if noise and noise_type =="binary_uniform" and params_type=="meanvar_avg":
-        parameters[1] = average_noise_mean(noise_type,average_variance,parameters[0],parameters[3],distributions_ratio)
+        parameters[1] = average_noise_mean(noise_type,average_variance,parameters[0],distributions_ratio)
         dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters}
 
     elif noise and noise_type == "binary_uniform":
