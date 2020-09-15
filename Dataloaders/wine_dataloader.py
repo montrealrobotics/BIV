@@ -20,7 +20,7 @@ from utils import flip_coin
 class WineQuality(Dataset):
 
     def __init__(self, path, train = True, model="vanilla_cnn" , noise = False , noise_type = None, \
-                distribution_data = None, normalize = False):
+                distribution_data = None, normalize = False, size = None):
 
         """
         Description:
@@ -45,7 +45,7 @@ class WineQuality(Dataset):
 
         Args:
             :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not.
-            :train_size (int): Controls the number of samples in the training set.
+            :size (int): Controls the number of samples in the training set.
             :images_path (string): Dataset directory path.
             :noise_type (string): Controls the type of noise that will be added to the data
             :dist_data (tuple): A tuple of the mean and the variance of the noise distribution.
@@ -58,7 +58,8 @@ class WineQuality(Dataset):
         self.noise = noise
         self.noise_type = noise_type
         self.dist_data = distribution_data
-        self.train_size= d_params.get('wine_train_size')
+        self.data_slice_size = size
+        print("data_slice_size: {}".format(size))
 
         # This is not the proper implementation, but doing that for research purproses.
 
@@ -74,11 +75,6 @@ class WineQuality(Dataset):
                 print("maximum noise", max(self.lbl_noises))
                 # print("noise variances:", self.noise_variances)
                 print("maximum noise variance:", max(self.noise_variances))
-
-                if self.noise_threshold:
-                        print('Training data filtering started...')
-                        self.images_path, self.labels, self.lbl_noises, self.noise_variances = self.filter_high_noise()
-                        print('Training data filtering finished...')
     
     
     def load_data(self):
@@ -100,15 +96,12 @@ class WineQuality(Dataset):
         labels = []
         data = pd.read_csv(self.data_path)
     
-        self.dataset_size  = len(data)
-
-        
         if self.train:
-            data = data[:self.train_size]
+            data = data[:self.data_slice_size]
             y = data['quality']
             x = data.drop(columns=['quality'])
         else:
-            data = data[self.train_size:]
+            data = data[-self.data_slice_size:]
             y = data['quality']
             x = data.drop(columns=['quality'])
         
@@ -117,6 +110,7 @@ class WineQuality(Dataset):
         y = torch.tensor(y.to_numpy(),dtype=torch.float32) 
         # set the length of the data to be the loaded data.
         self.data_length = len(y)
+        print("train: {}, self.data_length: {}".format(self.train, self.data_length))
 
         return (x,y)
 
@@ -261,14 +255,14 @@ class WineQuality(Dataset):
         boundaries = generate_luck_boundaries(num_distributions,p)
         noises_vars = []
         tracker = defaultdict(lambda : 0)
-        for idx in range(self.train_size):
+        for idx in range(self.data_slice_size):
             dist_id = choose_luck_boundary(boundaries)
             var_distribution = var_dists.get(dist_id)
             noises_vars.append(var_distribution.sample((1,)))
             tracker[dist_id]+=1
            
 
-        noise_dists_ratio = list(map(lambda x: (x[0],x[1]/self.train_size*100), tracker.items())) 
+        noise_dists_ratio = list(map(lambda x: (x[0],x[1]/self.data_slice_size*100), tracker.items())) 
         print("noise distributions ratio:", noise_dists_ratio)
 
         noises = [torch.distributions.normal.Normal(0, torch.sqrt(var)).sample((1,)).item() for var in noises_vars] 

@@ -201,10 +201,14 @@ if __name__ == "__main__":
         tst_size = d_params.get('wine_test_batch_size')
         learning_rate = n_params.get('wine_lr')
         epochs = n_params.get('epochs')
+        test_size = d_params.get('wine_test_size')
+        dataset_size = d_params.get('wine_dataset_size')
+        print(test_size,train_size)
+        assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
 
         train_data = WineQuality(d_path, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
-                                        dist_data, normalize=normalize, noise_threshold = is_noise_dataset_filter, threshold_value = threshold_value) 
-        test_data = WineQuality(d_path, train= False, model= model_type, normalize=normalize)
+                                        dist_data, normalize=normalize, size=train_size) 
+        test_data = WineQuality(d_path, train= False, model= model_type, normalize=normalize, size=test_size)
 
         
     # Load the data
