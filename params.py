@@ -31,7 +31,8 @@ d_params = {
     'd_lbl_std_path': '/datasets/Datasets/AgePrediction/labels_std.csv', 
     ####################################### Wine Quality #########################################
     'wine_path':"/datasets/Datasets/WineQuality/wine.csv",
-    'wine_train_size': 4000,                            # Dataset size = 6491 
+    'wine_test_size': 2491,
+    'wine_dataset_size': 6491,
     'wine_tr_batch_size': 256,
     'wine_test_batch_size': 256,
     'wine_features_mean_path':'/datasets/Datasets/WineQuality/features_mean.csv',
