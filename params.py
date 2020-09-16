@@ -41,6 +41,17 @@ d_params = {
     'wine_lbl_mean_path': '/datasets/Datasets/WineQuality/labels_mean.csv', 
     'wine_lbl_std_path': '/datasets/Datasets/WineQuality/labels_std.csv', 
 
+    ####################################### Bike Sharing #########################################
+    'bike_path':"BikeSharing",
+    'bike_test_size': 3379,
+    'bike_dataset_size': 17379,
+    'bike_tr_batch_size': 256,
+    'bike_test_batch_size': 256,
+    'bike_features_mean_path':'BikeSharing/features_mean.csv',
+    'bike_features_std_path': 'BikeSharing/features_std.csv',
+    
+    'bike_lbl_mean_path': 'BikeSharing/labels_mean.csv', 
+    'bike_lbl_std_path': 'BikeSharing/labels_std.csv', 
 }
 
 # Model
@@ -48,6 +59,7 @@ d_params = {
 n_params = {
 
     'lr': 0.001,
-    'wine_lr': 0.001,
-    'epochs': 20
+    'wine_lr': 0.01,
+    'bike_lr': 0.01,
+    'epochs': 100
 }

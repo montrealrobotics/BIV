@@ -201,3 +201,32 @@ class WineModel(nn.Module):
         out = self.layer4(out)
         out = self.layer5(out)
         return out
+
+
+class BikeModel(nn.Module):
+    def __init__(self):
+        super(BikeModel, self).__init__()
+
+        self.layer1 = nn.Sequential(nn.Linear(in_features = 19 , out_features = 100 ),
+                    nn.BatchNorm1d(100),
+                    nn.ReLU())
+        self.layer2 = nn.Sequential(nn.Linear(in_features = 100 , out_features = 50 ),
+                    nn.BatchNorm1d(50),
+                    nn.ReLU())
+        self.layer3 = nn.Sequential(nn.Linear(in_features = 50 , out_features = 20 ),
+                    nn.BatchNorm1d(20),
+                    nn.ReLU())
+        self.layer4 = nn.Sequential(nn.Linear(in_features = 20 , out_features = 10 ),
+                    nn.BatchNorm1d(10),
+                    nn.ReLU())
+        self.layer5 = nn.Linear(in_features=10, out_features=1)
+         
+    
+
+    def forward(self,x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = self.layer5(out)
+        return out

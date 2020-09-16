@@ -94,6 +94,20 @@ def get_dataset_stats(dataset='UTKFace'):
         labels_std = torch.tensor(labels_std,dtype=torch.float32)
 
         return ( features_mean, features_std, labels_mean, labels_std ) 
+    elif dataset=='BikeSharing': 
+
+        features_mean = np.genfromtxt(d_params['bike_features_mean_path'], delimiter=',') 
+        features_std = np.genfromtxt(d_params['bike_features_std_path'], delimiter=',') 
+        labels_mean = np.genfromtxt(d_params['bike_lbl_mean_path'],delimiter=',')
+        labels_std = np.genfromtxt(d_params['bike_lbl_std_path'], delimiter=',')
+
+        features_mean = torch.tensor(features_mean,dtype=torch.float32)
+        features_std = torch.tensor(features_std,dtype=torch.float32)
+
+        labels_mean = torch.tensor(labels_mean,dtype=torch.float32)
+        labels_std = torch.tensor(labels_std,dtype=torch.float32)
+
+        return ( features_mean, features_std, labels_mean, labels_std ) 
     else:
         raise ValueError('Dataset is not recognized.')
 
@@ -151,7 +165,7 @@ def normalize_features(features, features_mean, features_std, dataset='UTKFace')
         # reshape the image
         features_norm = features_norm.view(channels,length,width)
         return features_norm
-    elif dataset=="WineQuality":
+    elif dataset=="WineQuality" or dataset=="BikeSharing":
         features_norm = (features - features_mean) / features_std
         return features_norm
     else:
