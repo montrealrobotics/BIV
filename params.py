@@ -60,6 +60,6 @@ n_params = {
 
     'lr': 0.001,
     'wine_lr': 0.01,
-    'bike_lr': 0.01,
+    'bike_lr': 0.001,
     'epochs': 100
 }

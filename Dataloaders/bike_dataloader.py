@@ -103,8 +103,8 @@ class BikeSharing(Dataset):
 
 
         # Convert the data to numpy array
-        x = torch.tensor(np.array(x),dtype=torch.float32) 
-        y = torch.tensor(np.array(y),dtype=torch.float32) 
+        x = torch.tensor(np.array(x),dtype=torch.float32)
+        y = torch.tensor(np.array(y),dtype=torch.float32).squeeze(1)
         # set the length of the data to be the loaded data.
         self.data_length = len(y)
         print("train: {}, self.data_length: {}".format(self.train, self.data_length))
@@ -368,6 +368,7 @@ class BikeSharing(Dataset):
                 if self.normalize:
                     self.feature = normalize_features(self.feature, self.features_mean, self.features_std,dataset='WineQuality')
                     self.label = normalize_labels(self.label, self.labels_mean, self.labels_std)
+
                  
                 return (self.feature, self.label)
         else:

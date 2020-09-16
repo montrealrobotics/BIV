@@ -208,16 +208,16 @@ class BikeModel(nn.Module):
         super(BikeModel, self).__init__()
 
         self.layer1 = nn.Sequential(nn.Linear(in_features = 19 , out_features = 100 ),
-                    nn.BatchNorm1d(100),
+                    #nn.BatchNorm1d(100),
                     nn.ReLU())
         self.layer2 = nn.Sequential(nn.Linear(in_features = 100 , out_features = 50 ),
-                    nn.BatchNorm1d(50),
+                    #nn.BatchNorm1d(50),
                     nn.ReLU())
         self.layer3 = nn.Sequential(nn.Linear(in_features = 50 , out_features = 20 ),
-                    nn.BatchNorm1d(20),
+                    #nn.BatchNorm1d(20),
                     nn.ReLU())
         self.layer4 = nn.Sequential(nn.Linear(in_features = 20 , out_features = 10 ),
-                    nn.BatchNorm1d(10),
+                    #nn.BatchNorm1d(10),
                     nn.ReLU())
         self.layer5 = nn.Linear(in_features=10, out_features=1)
          
