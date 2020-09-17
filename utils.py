@@ -72,7 +72,7 @@ def compute_dataset_stats(xtrain, ytrain):
 
 def get_dataset_stats(dataset='UTKFace'):
 
-    if dataset == 'UTKFace':
+    if dataset == 'UTKFace' or dataset == 'utkf':
         images_mean = torch.Tensor(pd.read_csv(d_params['d_img_mean_path']).values)[0][1]
         images_std = torch.Tensor(pd.read_csv(d_params['d_img_std_path']).values)[0][1]
         
@@ -80,12 +80,26 @@ def get_dataset_stats(dataset='UTKFace'):
         labels_std = torch.Tensor(pd.read_csv(d_params['d_lbl_std_path']).values)[0][1]
 
         return ( images_mean, images_std, labels_mean, labels_std ) 
-    elif dataset=='WineQuality': 
+    elif dataset=='WineQuality' or dataset == 'wine': 
 
         features_mean = np.genfromtxt(d_params['wine_features_mean_path'], delimiter=',') 
         features_std = np.genfromtxt(d_params['wine_features_std_path'], delimiter=',') 
         labels_mean = np.genfromtxt(d_params['wine_lbl_mean_path'],delimiter=',')
         labels_std = np.genfromtxt(d_params['wine_lbl_std_path'], delimiter=',')
+
+        features_mean = torch.tensor(features_mean,dtype=torch.float32)
+        features_std = torch.tensor(features_std,dtype=torch.float32)
+
+        labels_mean = torch.tensor(labels_mean,dtype=torch.float32)
+        labels_std = torch.tensor(labels_std,dtype=torch.float32)
+
+        return ( features_mean, features_std, labels_mean, labels_std ) 
+    elif dataset=='BikeSharing' or dataset == 'bike': 
+
+        features_mean = np.genfromtxt(d_params['bike_features_mean_path'], delimiter=',') 
+        features_std = np.genfromtxt(d_params['bike_features_std_path'], delimiter=',') 
+        labels_mean = np.genfromtxt(d_params['bike_lbl_mean_path'],delimiter=',')
+        labels_std = np.genfromtxt(d_params['bike_lbl_std_path'], delimiter=',')
 
         features_mean = torch.tensor(features_mean,dtype=torch.float32)
         features_std = torch.tensor(features_std,dtype=torch.float32)
@@ -151,7 +165,7 @@ def normalize_features(features, features_mean, features_std, dataset='UTKFace')
         # reshape the image
         features_norm = features_norm.view(channels,length,width)
         return features_norm
-    elif dataset=="WineQuality":
+    elif dataset=="WineQuality" or dataset=="BikeSharing":
         features_norm = (features - features_mean) / features_std
         return features_norm
     else:

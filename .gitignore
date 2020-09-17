@@ -19,3 +19,9 @@ plots.ipynb
 FollowupExperiments.ods
 
 .~lock.FollowupExperiments.ods#
+
+*.zip
+
+WineQuality/winequality.names
+
+BikeSharing/

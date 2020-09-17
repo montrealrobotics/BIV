@@ -12,7 +12,8 @@ import wandb
 
 from Dataloaders.utkf_dataloader import UTKface
 from Dataloaders.wine_dataloader import WineQuality
-from model import AgeModel, WineModel
+from Dataloaders.bike_dataloader import BikeSharing
+from model import AgeModel, WineModel, BikeModel
 from losses import IVLoss, CutoffMSE
 from train import Trainer
 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
     assert isinstance(float(seed), float), "Argument: seed: " + warning_messages.get('datatype')
     seed = float(seed)
     dataset = experiment_settings[2]
-    assert dataset in ["utkf","wine"], "Argument: dataset: " + warning_messages.get('value')
+    assert dataset in ["utkf","wine","bike"], "Argument: dataset: " + warning_messages.get('value')
     normalize = experiment_settings[3]
     assert isinstance( str_to_bool(normalize), bool), "Argument: normalize: " + warning_messages.get('bool')
     normalize = str_to_bool(normalize)
@@ -89,7 +90,7 @@ if __name__ == "__main__":
             
             # Get labels's variance for normalizing the threshold value.
             if normalize:
-                _,_,_, labels_std = get_dataset_stats()
+                _,_,_, labels_std = get_dataset_stats(dataset)
                 threshold_value = threshold_value/(labels_std**2)
         else:
             pass
@@ -210,13 +211,32 @@ if __name__ == "__main__":
                                         dist_data, normalize=normalize, size=train_size) 
         test_data = WineQuality(d_path, train= False, model= model_type, normalize=normalize, size=test_size)
 
-        
+       
+    elif dataset == "bike":
+
+        d_path = d_params.get('bike_path')
+        tr_size = d_params.get('bike_tr_batch_size')
+        tst_size = d_params.get('bike_test_batch_size')
+        learning_rate = n_params.get('bike_lr')
+        epochs = n_params.get('epochs')
+        test_size = d_params.get('bike_test_size')
+        dataset_size = d_params.get('bike_dataset_size')
+        print(test_size,train_size)
+        assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
+
+        train_data = BikeSharing(d_path, seed=seed, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
+                                        dist_data, normalize=normalize, size=train_size) 
+        test_data = BikeSharing(d_path, seed=seed, train= False, model= model_type, normalize=normalize, size=test_size)
+
     # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
 
     if model_type =="vanilla_ann" and dataset=='wine':
         model = WineModel()
+        print("#"*80,"Model is:{}".format(model_type), "#"*80)
+    elif model_type =="vanilla_ann" and dataset=='bike':
+        model = BikeModel()
         print("#"*80,"Model is:{}".format(model_type), "#"*80)
     elif model_type == "resnet" and dataset == 'utkf':
         model = torchvision.models.resnet18(pretrained=False)
