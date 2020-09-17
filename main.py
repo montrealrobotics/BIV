@@ -90,7 +90,7 @@ if __name__ == "__main__":
             
             # Get labels's variance for normalizing the threshold value.
             if normalize:
-                _,_,_, labels_std = get_dataset_stats()
+                _,_,_, labels_std = get_dataset_stats(dataset)
                 threshold_value = threshold_value/(labels_std**2)
         else:
             pass

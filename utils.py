@@ -72,7 +72,7 @@ def compute_dataset_stats(xtrain, ytrain):
 
 def get_dataset_stats(dataset='UTKFace'):
 
-    if dataset == 'UTKFace':
+    if dataset == 'UTKFace' or dataset == 'utkf':
         images_mean = torch.Tensor(pd.read_csv(d_params['d_img_mean_path']).values)[0][1]
         images_std = torch.Tensor(pd.read_csv(d_params['d_img_std_path']).values)[0][1]
         
@@ -80,7 +80,7 @@ def get_dataset_stats(dataset='UTKFace'):
         labels_std = torch.Tensor(pd.read_csv(d_params['d_lbl_std_path']).values)[0][1]
 
         return ( images_mean, images_std, labels_mean, labels_std ) 
-    elif dataset=='WineQuality': 
+    elif dataset=='WineQuality' or dataset == 'wine': 
 
         features_mean = np.genfromtxt(d_params['wine_features_mean_path'], delimiter=',') 
         features_std = np.genfromtxt(d_params['wine_features_std_path'], delimiter=',') 
@@ -94,7 +94,7 @@ def get_dataset_stats(dataset='UTKFace'):
         labels_std = torch.tensor(labels_std,dtype=torch.float32)
 
         return ( features_mean, features_std, labels_mean, labels_std ) 
-    elif dataset=='BikeSharing': 
+    elif dataset=='BikeSharing' or dataset == 'bike': 
 
         features_mean = np.genfromtxt(d_params['bike_features_mean_path'], delimiter=',') 
         features_std = np.genfromtxt(d_params['bike_features_std_path'], delimiter=',') 
