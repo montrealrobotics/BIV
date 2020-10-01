@@ -125,7 +125,10 @@ if __name__ == "__main__":
             assert isinstance( str_to_bool(maximum_hetero), bool), "Argument: maximum_hetero: " + warning_messages.get('bool')
             maximum_hetero = str_to_bool(maximum_hetero)
             if maximum_hetero:
-                hetero_scale = parameters[3]
+                if noise_type == "binary_uniform":
+                    hetero_scale = parameters[3]
+                elif noise_type == "uniform":
+                    hetero_scale = parameters[2]
                 assert float(hetero_scale)>=0 and float(hetero_scale)<=1 , "Argument: hetero_scale: "+ "argument value is not recognized."
                 hetero_scale = float(hetero_scale)
             parameters = parameters[1:]
