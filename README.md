@@ -1,4 +1,4 @@
-# Inverse Variance Weighting for Heteroscedastic Noisy Labels in Deep Learning
+# Deep Heteroscedastic Regression Using Privileged Information And Mini batch Statistics
 
 ## Introduction
 

@@ -1,6 +1,7 @@
 import shutil 
 import os
 import itertools
+import uuid
 from datetime import datetime
 
 import pandas as pd
@@ -47,6 +48,10 @@ class Trainer:
         # self.noise_filter = noise_filter
         # self.noise_threshold = noise_threshold
         self.server_path = d_params.get('server_path')
+        self.uniqueID = str(uuid.uuid4().fields[-1])[:6]
+
+        self.save_path = os.path.join(self.server_path, experiment_id+"_"+self.uniqueID)
+        os.mkdir(self.save_path)
 
 
 
@@ -71,11 +76,11 @@ class Trainer:
     def zip_results(self, files):
         directory_name = str(self.expermient_id)    
         try:
-            folder = os.mkdir(self.server_path+directory_name)
+            folder = os.mkdir(os.path.join(self.save_path,directory_name))
             for file_name in files:
-                shutil.copyfile(self.server_path+file_name, self.server_path+directory_name+"/"+file_name)
-            shutil.make_archive(self.server_path+directory_name,'zip', self.server_path+directory_name)
-            wandb.save(self.server_path+directory_name+".zip")
+                shutil.copyfile(os.path.join(self.save_path,file_name), os.path.join(self.save_path,directory_name,file_name))
+            shutil.make_archive(os.path.join(self.save_path,directory_name),'zip', os.path.join(self.save_path,directory_name))
+            wandb.save(os.path.join(self.save_path,directory_name+".zip"))
         except OSError:
             print("zip operation has faild")
 
@@ -193,10 +198,10 @@ class Trainer:
                         wandb_tst_losses.append(np.mean(tst_b_losses))                       
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:
-                    self.save_last_epoch(tr_out_lst_epoch, self.server_path+"train_outs.csv")
-                    self.save_last_epoch(tr_lbl_lst_epoch, self.server_path+"train_labels.csv")
-                    self.save_last_epoch(tst_out_lst_epoch,self.server_path+"test_outs.csv")
-                    self.save_last_epoch(tst_lbl_lst_epoch,self.server_path+"test_labels.csv")
+                    self.save_last_epoch(tr_out_lst_epoch, os.path.join(self.save_path,"train_outs.csv"))
+                    self.save_last_epoch(tr_lbl_lst_epoch, os.path.join(self.save_path,"train_labels.csv"))
+                    self.save_last_epoch(tst_out_lst_epoch,os.path.join(self.save_path,"test_outs.csv"))
+                    self.save_last_epoch(tst_lbl_lst_epoch,os.path.join(self.save_path,"test_labels.csv"))
                 
                 print("******************** Batch {} has finished ********************".format(train_sample_idx))
             print('#################### Epoch:{} has finished ####################'.format(epoch))
@@ -204,10 +209,8 @@ class Trainer:
             for i in range(len(wandb_tr_losses)):
                 wandb.log({"train loss": wandb_tr_losses[i], "test loss": wandb_tst_losses[i]})
         
-        self.save_last_epoch([tr_losses],self.server_path+"train_losses.csv")
-        self.save_last_epoch([tst_losses],self.server_path+"test_losses.csv")
+        self.save_last_epoch([tr_losses],os.path.join(self.save_path,"train_losses.csv"))
+        self.save_last_epoch([tst_losses],os.path.join(self.save_path,"test_losses.csv"))
         # Zip all the files and upload them to wandb.
         self.zip_results(["train_losses.csv", "test_losses.csv", \
             "train_outs.csv", "train_labels.csv", "test_outs.csv", "test_labels.csv"])
-                
-            
