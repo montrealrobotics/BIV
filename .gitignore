@@ -9,7 +9,7 @@ wandb/*
 ICML_paper/__MACOSX/
 
 ICML_paper/icml_udl2020_style/
-
+.vscode
 UTKFace/
 
 ICML_paper/
