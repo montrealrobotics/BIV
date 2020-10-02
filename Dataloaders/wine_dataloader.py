@@ -10,51 +10,53 @@ import torch
 import torchvision
 from torch.utils.data import Dataset
 
-from params import d_params
+from settings import d_params
 from utils import get_unif_Vmax, normalize_features, normalize_labels, get_dataset_stats, str_to_bool
-from utils import generate_luck_boundaries, choose_luck_boundary, incremental_average
-from utils import flip_coin
+from utils import generate_intervals, choose_distribution
 
 
 
 class WineQuality(Dataset):
 
-    def __init__(self, path, train = True, model="vanilla_cnn" , noise = False , noise_type = None, \
+    def __init__(self, path, train = True , noise = False , noise_type = None, \
                 distribution_data = None, normalize = False, size = None):
 
         """
         Description:
-            Wine Quality dataset is a dataset that related to red and white vinho verde wine samples, from the north of Portugal.
+            Wine Quality dataset [#]_ is a dataset that related to red and white vinho verde wine samples, from the north of Portugal.
             The goal is to model wine quality based on physicochemical tests.
             
         Attribute Information:
             Input variables (based on physicochemical tests):
-            1 - fixed acidity
-            2 - volatile acidity
-            3 - citric acid
-            4 - residual sugar
-            5 - chlorides
-            6 - free sulfur dioxide
-            7 - total sulfur dioxide
-            8 - density
-            9 - pH
-            10 - sulphates
-            11 - alcohol
-            12 - quality (score between 0 and 10) [Output variable (based on sensory data]
+
+                                                        :1: fixed acidity
+                                                        :2: volatile acidity
+                                                        :3: citric acid
+                                                        :4: residual sugar
+                                                        :5: chlorides
+                                                        :6: free sulfur dioxide
+                                                        :7: total sulfur dioxide
+                                                        :8: density
+                                                        :9: pH
+                                                        :10: sulphates
+                                                        :11: alcohol
+                                                        :12: quality (score between 0 and 10) [Output variable (based on sensory data]
 
 
         Args:
-            :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not.
-            :size (int): Controls the number of samples in the training set.
-            :images_path (string): Dataset directory path.
-            :noise_type (string): Controls the type of noise that will be added to the data
-            :dist_data (tuple): A tuple of the mean and the variance of the noise distribution.
+            :path (string): A path to the UTKF dataset directory.
+            :train (bool): A boolean that controls the selection of training data (True), or testing data (False).
+            :noise (bool): A boolean that controls if the noise should be added to the data or not.
+            :noise_type (string): A variable that controls the type of the noise.
+            :distribution data (list): A list of information that is needed for noise generation.
+            :normalize (bool): A boolean that controls if the data will be normalized (True) or not (False). 
+            :size (int): Size of dataset (training or testing).
+
         
         """
         self.train = train
         self.data_path = path
         self.normalize = normalize
-        self.model = model
         self.noise = noise
         self.noise_type = noise_type
         self.dist_data = distribution_data
@@ -82,10 +84,10 @@ class WineQuality(Dataset):
         """
         Description:
 
-            Loads the dataset and preprocess it.
+            Loads the dataset.
 
         Return:
-            features paths and labels.
+            features, labels.
         Return type:
             Tuple
         
@@ -119,7 +121,7 @@ class WineQuality(Dataset):
     
     def get_uniform_params(self, mu,v):
         """ Description:
-            Generates the bounds of the uniform distribution by solving the formula ::
+            Generates the bounds of the uniform distribution using the mean and the variance, by solving the formula ::
 
                 a = mu - sqrt(3*v)
                 b = mu + sqrt(3*v)
@@ -131,8 +133,8 @@ class WineQuality(Dataset):
             Tuple.
         
         Args:
-            :mu (float): mean.
-            :v  (float): variance.
+            :mu (float): The mean of the uniform distribution.
+            :v  (float): The variance of the uniform distribution.
         """
         if v<0:
             raise ValueError(" Varinace is a negative number: {}".format(v))
@@ -156,15 +158,15 @@ class WineQuality(Dataset):
                 theta = v/mu
 
         Return:
-            Alpha and Beta of gamma distribution.
+            Alpha, Beta .
 
 
         Return type:
             Tuple.
 
         Args:
-            :mu (float): mean.
-            :v  (float): variance.
+            :mu (float): The mean of gamma distribution.
+            :v  (float): The variance of gamma distribution.
         """
         
         if v == 0:
@@ -185,18 +187,22 @@ class WineQuality(Dataset):
 
     def get_distribution(self, dist_type, data, is_params_estimated, vmax=False, vmax_scale=1):
         """ Description:
-            Create a distribution function from specified family by dist_type argument (uniform or gamma).
+            Create a probability distribution (uniform or gamma).
 
         Return:
-            A distribution function.
-
+            A probability distribution.
 
         Return type:
             Object.
 
         Args:
-            :std_dist(function): a distribution function for sampling the noises variances.
+            :dist_type: An argument that specifies the type of the distribution.
+            :data: A list that contains the information of distribution .
+            :is_params_estimated: An argument that controls if the data is used used to create probability distribution. The data could be distribution statistics (mean and variance) or distribution parameters.
+            :vmax: A boolean that controls if maximum heteroscedasticity will be used or not.
+            :vmax_scale: An argument that specifies the heteroscedasticity scale.
         """
+
         noise_distributions = {}
 
         if is_params_estimated:
@@ -239,7 +245,7 @@ class WineQuality(Dataset):
     def gaussian_noise(self,var_dists,p=0.5):
 
         """ Description:
-            Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).
+            Generates gaussian noises with a cenetred mean around 0 and heteroscedasticitical variance that sampled from a range of distributions.
 
         Return:
             Guassian noises and their heteroscedasticitical variances.
@@ -249,14 +255,16 @@ class WineQuality(Dataset):
             Tuple.
 
         Args:
-            :std_dist(object): a distribution function for sampling the noises variances.
+            :var_dist(object): Noise varaince probability distributions.
+            :p (float): The contribution ratio of low and high noise variance distributions.
         """
+
         num_distributions = len(var_dists)
-        boundaries = generate_luck_boundaries(num_distributions,p)
+        boundaries = generate_intervals(num_distributions,p)
         noises_vars = []
         tracker = defaultdict(lambda : 0)
         for idx in range(self.data_slice_size):
-            dist_id = choose_luck_boundary(boundaries)
+            dist_id = choose_distribution(boundaries)
             var_distribution = var_dists.get(dist_id)
             noises_vars.append(var_distribution.sample((1,)))
             tracker[dist_id]+=1
@@ -280,7 +288,7 @@ class WineQuality(Dataset):
     def generate_noise(self, norm = False):
         """
         Description:
-            Generates noises.
+            Unpacks information and calls gaussian_noise to generates noises.
 
         Return:
             Guassian noises and their heteroscedasticitical variances.
@@ -289,7 +297,7 @@ class WineQuality(Dataset):
             Tuple.
 
         Args:
-            None.
+            :norm: Normalization.
         """
         dists = {}
         p = self.dist_data.get('coin_fairness')
@@ -319,7 +327,7 @@ class WineQuality(Dataset):
 
         """
         Description:
-            return the length of the dataset.
+            return the length of the dataset (training or testing).
 
         Return:
             Dataset size
@@ -339,7 +347,7 @@ class WineQuality(Dataset):
             Sample batch of features, labels, noises and variances.
 
         Return:
-            batch of features, labels, noises (train setting) and variances (train setting).
+            batch of features,  labels, noises, and noises variances ( training setting) or batch of features, labels ( testing setting),
 
         Return Type:
             Tuple.

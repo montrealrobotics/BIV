@@ -16,7 +16,8 @@
 # Waleed Settings
 import os
 import sys
-sys.path.append(os.path.abspath("/home/waleed/Desktop/Code/Estimation/code/IV_RL_server/"))
+sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('../Dataloaders/'))
 
 
 autoclass_content = "both"  # Include both the class's and the init's docstrings.
@@ -28,8 +29,8 @@ html_theme =  'sphinx_rtd_theme'
 
 # -- Project information -----------------------------------------------------
 
-project = 'Inverse Variance Weighting Update'
-copyright = '2020, Waleed Khamies'
+project = 'BIVW: Deep Heteroscedastic Regression using Privileged Information'
+copyright = '2020, Vincent Mai, Waleed Khamies, Liam Paull'
 author = 'Waleed Khamies'
 
 # The short X.Y version
@@ -197,3 +198,7 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+pngmath_latex_preamble=r'\usepackage[active]{preview}' # + other custom stuff for inline math, such as non-default math fonts etc.
+pngmath_use_preview=True
+

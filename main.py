@@ -10,21 +10,22 @@ from torchvision import transforms
 
 import wandb
 
+# Import datasets
 from Dataloaders.utkf_dataloader import UTKface
 from Dataloaders.wine_dataloader import WineQuality
 from Dataloaders.bike_dataloader import BikeSharing
 from model import AgeModel, WineModel, BikeModel
-from losses import IVLoss, CutoffMSE
+from losses import BIVLoss, CutoffMSE
 from train import Trainer
 
 # Import default expirement settings
 
-from params import d_params
-from params import n_params
-from params import default_values
+from settings import d_params
+from settings import n_params
+from settings import default_values
 
 # Import helper tools
-from utils import assert_args_mixture, print_experiment_information, str_to_bool, average_noise_mean, get_dataset_stats
+from utils import assert_args_mixture, print_experiment_information, str_to_bool, get_mean_avg_variance, get_dataset_stats
 
 
 # Main 
@@ -56,6 +57,8 @@ if __name__ == "__main__":
     params_settings = args.params_settings.split(",")
     parameters = args.parameters.split(",")
 
+######################################################  Access CommandLine Arguments ############################################################
+
     # Access "experiment_settings" arguments
     tag = experiment_settings[0]
     seed = experiment_settings[1]
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     train_size = int(train_size)
 
 
-########################################################################################################################################################################
+
     # Access "model_settings" arguments
     model_type = model_settings[0]
     assert model_type in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + warning_messages.get('value')
@@ -95,6 +98,8 @@ if __name__ == "__main__":
         else:
             pass
 
+    # Access noise settings
+
     noise = noise_settings[0] 
     assert isinstance( str_to_bool(noise), bool), "Argument: noise: " + warning_messages.get('bool')
     noise = str_to_bool(noise)
@@ -103,6 +108,7 @@ if __name__ == "__main__":
         assert noise_type in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + warning_messages.get('value')
 
   
+  # Access parameters settings
 
     if noise:
         params_type = params_settings[0]
@@ -133,6 +139,7 @@ if __name__ == "__main__":
                 hetero_scale = float(hetero_scale)
             parameters = parameters[1:]
         
+        # Get distributions parameters
         for item in parameters: assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + "datatype is not supported."
         parameters = list(map(lambda x: float(x), parameters))
     else:
@@ -147,10 +154,13 @@ if __name__ == "__main__":
                  "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, "epsilon": epsilon, "threshold value": threshold_value, 'params_type':params_type,
                  'parameters':parameters}
     
-    
+    # Print Experiment Information
     print_experiment_information(arguments)
+    # Apply complex assertions.
     assert_args_mixture(arguments)
-###########################################################################################################################################################
+
+
+############################################################### Run the experiment ##############################################################
     # Get Wandb tags
     tag = [tag,]
    # Initiate wandb client.
@@ -165,10 +175,13 @@ if __name__ == "__main__":
     # Set experiment id
     exp_id = params_type
 
-    # Define the dataset
+    
+    # Prepare distribution data to be passed to the dataloader.
 
+    
     if noise and noise_type =="binary_uniform" and params_type=="meanvar_avg":
-        parameters[1] = average_noise_mean(noise_type,average_variance,parameters[0],distributions_ratio)
+        # Overwrite mu2 if the average noise variance (X) is passed in the commandline arguments.
+        parameters[1] = get_mean_avg_variance(noise_type,average_variance,parameters[0],distributions_ratio)
         dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters}
 
     elif noise and noise_type == "binary_uniform":
@@ -176,7 +189,7 @@ if __name__ == "__main__":
     else:
         dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale,"data":parameters}
 
-
+    # Define the dataset
     if dataset == "utkf":
 
         d_path = d_params.get('d_path')
@@ -186,16 +199,14 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
         test_size = d_params.get('test_size')
         dataset_size = d_params.get('dataset_size')
-        print(test_size,train_size)
         assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
         
         trans= torchvision.transforms.Compose([transforms.ToTensor()])
 
-        train_data = UTKface(d_path, transform= trans, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
+        train_data = UTKface(d_path, transform= trans, train= True, noise=noise, noise_type=noise_type, distribution_data = \
                      dist_data, normalize=normalize, size=train_size) 
         
-        test_data = UTKface(d_path, transform= trans, train= False, model= model_type, normalize=normalize, size=test_size)
-
+        test_data = UTKface(d_path, transform= trans, train= False,  normalize=normalize, size=test_size)
 
 
     elif dataset == "wine":
@@ -207,12 +218,11 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
         test_size = d_params.get('wine_test_size')
         dataset_size = d_params.get('wine_dataset_size')
-        print(test_size,train_size)
         assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
 
-        train_data = WineQuality(d_path, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
+        train_data = WineQuality(d_path, train= True,  noise=noise, noise_type=noise_type, distribution_data = \
                                         dist_data, normalize=normalize, size=train_size) 
-        test_data = WineQuality(d_path, train= False, model= model_type, normalize=normalize, size=test_size)
+        test_data = WineQuality(d_path, train= False,  normalize=normalize, size=test_size)
 
        
     elif dataset == "bike":
@@ -224,17 +234,17 @@ if __name__ == "__main__":
         epochs = n_params.get('epochs')
         test_size = d_params.get('bike_test_size')
         dataset_size = d_params.get('bike_dataset_size')
-        print(test_size,train_size)
         assert test_size+train_size<=dataset_size, warning_messages.get("CustomMess_dataset").format(train_size, test_size, dataset_size)
 
-        train_data = BikeSharing(d_path, seed=seed, train= True, model= model_type, noise=noise, noise_type=noise_type, distribution_data = \
+        train_data = BikeSharing(d_path, seed=seed, train= True,  noise=noise, noise_type=noise_type, distribution_data = \
                                         dist_data, normalize=normalize, size=train_size) 
-        test_data = BikeSharing(d_path, seed=seed, train= False, model= model_type, normalize=normalize, size=test_size)
+        test_data = BikeSharing(d_path, seed=seed, train= False,  normalize=normalize, size=test_size)
 
     # Load the data
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
 
+    # Select the model
     if model_type =="vanilla_ann" and dataset=='wine':
         model = WineModel()
         print("#"*80,"Model is:{}".format(model_type), "#"*80)
@@ -255,11 +265,9 @@ if __name__ == "__main__":
     # Optimizer
     optimz = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Loss function
-    if loss_type == "iv":
-        loss = IVLoss(epsilon=epsilon, avg_batch=False)
-    elif loss_type == "biv":
-        loss = IVLoss(epsilon=epsilon, avg_batch=True)
+    # Select the loss function
+    if loss_type == "biv":
+        loss = BIVLoss(epsilon=epsilon)
     elif loss_type == "cutoffMSE":
         loss = CutoffMSE(cutoffValue=threshold_value)
     else:
@@ -274,6 +282,6 @@ if __name__ == "__main__":
     # Call wandb to log model performance.
     wandb.watch(model)
     # train the model
-    trainer.train(alogrithm=loss_type)
+    trainer.train(loss_type=loss_type)
 
 

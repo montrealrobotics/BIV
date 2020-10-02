@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Dataloaders: Bike Sharing &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2020',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dataloaders: Wine Quality" href="wine_dataloader.html" />
+    <link rel="prev" title="Dataloaders: UTKFace" href="utkf_dataloader.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BIVW: Deep Heteroscedastic Regression using Privileged Information
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arguments.html">Commandline Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utkf_dataloader.html">Dataloaders: UTKFace</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dataloaders: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wine_dataloader.html">Dataloaders: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_wine.html">Models: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_bike.html">Models: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_cnn_utkf.html">Models: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cutoff_loss.html">Losses: Cutoff MSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biv_loss.html">Losses: Batch Inverse Variance (BIV)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Trainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">Settings</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BIVW: Deep Heteroscedastic Regression using Privileged Information</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Dataloaders: Bike Sharing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/pages/bike_dataloader.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dataloaders-bike-sharing">
+<h1>Dataloaders: Bike Sharing<a class="headerlink" href="#dataloaders-bike-sharing" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="bike_dataloader.BikeSharing">
+<em class="property">class </em><code class="descclassname">bike_dataloader.</code><code class="descname">BikeSharing</code><span class="sig-paren">(</span><em>path</em>, <em>seed=42</em>, <em>train=True</em>, <em>noise=False</em>, <em>noise_type=None</em>, <em>distribution_data=None</em>, <em>normalize=False</em>, <em>size=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd><p class="first">Bike Sharing Dataset (Fanaee-T &amp; Gama, 2013) <a class="footnote-reference" href="#id2" id="id1">[1]</a> is a dataset that contains 17,379 samples of the hourly and daily count of rental bikes between years 2011 and 2012 in Capital bikeshare system with the corresponding weather and seasonal information.</p>
+<p>The dataset has been processed, where the date was normalized from a scale between day 1 to day 730 to a scale between 0 and 4π. Then, the network is provided with the cosine and the sine of this number, which allowed to have the same representation for the same days of the year, while having the same distance between any two consecutive days,  keeping the cyclic nature of a year.</p>
+<p class="last">A similar idea was applied to hours,normalized from 0 to 2π instead of 0 to 24, and with the cosine and sine given to the network. The day of the week, being a category, was given as a one-hot vector of dimension 7. We also removed the season and the month as it was redundant information with the date.</p>
+</dd>
+<dt>Attribute Information:</dt>
+<dd><p class="first">The number of features after the preprocessing step is 19, which as following:</p>
+<blockquote class="last">
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">f1:</th><td class="field-body">Year</td>
+</tr>
+<tr class="field-even field"><th class="field-name">f2-f4:</th><td class="field-body">Date (sine and cos)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">f4-f5:</th><td class="field-body">Hour (sine and cos)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">f6-f12:</th><td class="field-body">Days of the week (one-hot vector)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">f13:</th><td class="field-body">Holiday boolean</td>
+</tr>
+<tr class="field-even field"><th class="field-name">f14:</th><td class="field-body">Working day boolean</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">f15:</th><td class="field-body">Weather situation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">f16:</th><td class="field-body">Temperature</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">f17:</th><td class="field-body">Felt temperature</td>
+</tr>
+<tr class="field-even field"><th class="field-name">f18:</th><td class="field-body">Humidity</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">f19:</th><td class="field-body">Wind speed</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">path (string):</th><td class="field-body">A path to the UTKF dataset directory.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">train (bool):</th><td class="field-body">A boolean that controls the selection of training data (True), or testing data (False).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">noise (bool):</th><td class="field-body">A boolean that controls if the noise should be added to the data or not.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">noise_type (string):</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A variable that controls the type of the noise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">distribution data (list):</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">A list of information that is needed for noise generation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">normalize (bool):</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A boolean that controls if the data will be normalized (True) or not (False).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">size (int):</th><td class="field-body">Size of dataset (training or testing).</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<dl class="method">
+<dt id="bike_dataloader.BikeSharing.load_data">
+<code class="descname">load_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description:</p>
+<blockquote>
+<div>Loads the dataset.</div></blockquote>
+<dl class="docutils">
+<dt>Return:</dt>
+<dd>features, labels.</dd>
+<dt>Return type:</dt>
+<dd>Tuple</dd>
+<dt>Args:</dt>
+<dd>None.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="bike_dataloader.BikeSharing.get_uniform_params">
+<code class="descname">get_uniform_params</code><span class="sig-paren">(</span><em>mu</em>, <em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing.get_uniform_params" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd><p class="first">Generates the bounds of the uniform distribution using the mean and the variance, by solving the formula</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">-</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>Return:</dt>
+<dd>Uniform distribution bounds a and b.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">mu (float):</th><td class="field-body">The mean of the uniform distribution.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">v  (float):</th><td class="field-body">The variance of the uniform distribution.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="bike_dataloader.BikeSharing.get_gamma_params">
+<code class="descname">get_gamma_params</code><span class="sig-paren">(</span><em>mu</em>, <em>v</em><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing.get_gamma_params" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd><p class="first">Generates the shape or concentration (alpha) and rate (beta) using the mean and variance of gamma distribution</p>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">k</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">theta</span>
+<span class="o">**</span>
+<span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">mu</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">v</span>
+<span class="n">theta</span> <span class="o">=</span> <span class="n">v</span><span class="o">/</span><span class="n">mu</span>
+</pre></div>
+</div>
+</dd>
+<dt>Return:</dt>
+<dd>Alpha, Beta .</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">mu (float):</th><td class="field-body">The mean of gamma distribution.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">v  (float):</th><td class="field-body">The variance of gamma distribution.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="bike_dataloader.BikeSharing.get_distribution">
+<code class="descname">get_distribution</code><span class="sig-paren">(</span><em>dist_type</em>, <em>data</em>, <em>is_params_estimated</em>, <em>vmax=False</em>, <em>vmax_scale=1</em><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing.get_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Create a probability distribution (uniform or gamma).</dd>
+<dt>Return:</dt>
+<dd>A probability distribution.</dd>
+<dt>Return type:</dt>
+<dd>Object.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">dist_type:</th><td class="field-body">An argument that specifies the type of the distribution.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">data:</th><td class="field-body">A list that contains the information of distribution .</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">is_params_estimated:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">An argument that controls if the data is used used to create probability distribution. The data could be distribution statistics (mean and variance) or distribution parameters.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">vmax:</th><td class="field-body">A boolean that controls if maximum heteroscedasticity will be used or not.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">vmax_scale:</th><td class="field-body">An argument that specifies the heteroscedasticity scale.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="bike_dataloader.BikeSharing.gaussian_noise">
+<code class="descname">gaussian_noise</code><span class="sig-paren">(</span><em>var_dists</em>, <em>p=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing.gaussian_noise" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Generates gaussian noises with a cenetred mean around 0 and heteroscedasticitical variance that sampled from a range of distributions.</dd>
+<dt>Return:</dt>
+<dd>Guassian noises and their heteroscedasticitical variances.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">var_dist(object):</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Noise varaince probability distributions.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">p (float):</th><td class="field-body">The contribution ratio of low and high noise variance distributions.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="bike_dataloader.BikeSharing.generate_noise">
+<code class="descname">generate_noise</code><span class="sig-paren">(</span><em>norm=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bike_dataloader.BikeSharing.generate_noise" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Unpacks information and calls gaussian_noise to generates noises.</dd>
+<dt>Return:</dt>
+<dd>Guassian noises and their heteroscedasticitical variances.</dd>
+<dt>Return type:</dt>
+<dd>Tuple.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">norm:</th><td class="field-body">Normalization.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Hadi  Fanaee-T  and  Joao  Gama.   Event  labeling  combining  ensemble  detectors  and  backgroundknowledge.Progress in Artificial Intelligence, pp. 1–15, 2013.  ISSN 2192-6352.  doi: 10.1007/s13748-013-0040-3</td></tr>
+</tbody>
+</table>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="wine_dataloader.html" class="btn btn-neutral float-right" title="Dataloaders: Wine Quality" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="utkf_dataloader.html" class="btn btn-neutral float-left" title="Dataloaders: UTKFace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Vincent Mai, Waleed Khamies, Liam Paull
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

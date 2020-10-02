@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Introduction &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'2020',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Commandline Options" href="arguments.html" />
+    <link rel="prev" title="Batch Inverse-Variance Weighting: Deep Heteroscedastic Regression using Privileged Information" href="../index.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> BIVW: Deep Heteroscedastic Regression using Privileged Information
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#problem">Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-code">Run the Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributors">Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acknowledgement">Acknowledgement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="arguments.html">Commandline Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utkf_dataloader.html">Dataloaders: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bike_dataloader.html">Dataloaders: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wine_dataloader.html">Dataloaders: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_wine.html">Models: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_bike.html">Models: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_cnn_utkf.html">Models: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cutoff_loss.html">Losses: Cutoff MSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biv_loss.html">Losses: Batch Inverse Variance (BIV)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Trainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">Settings</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BIVW: Deep Heteroscedastic Regression using Privileged Information</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/pages/getting_started.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="problem">
+<h2>Problem<a class="headerlink" href="#problem" title="Permalink to this headline">¶</a></h2>
+<p>The performance of deep supervised learning methods is impacted when the train-ing  and  testing  datasets  are  not  sampled  from  identical  distributions.   In  het-eroscedastic regression, the label for each sample is corrupted by noise comingfrom a different distribution, which is a function of both the input and the labelgenerator. In some cases, it is possible to know the variance of the noise for eachlabel, which quantifies how much each sample of the training dataset contributesto the misalignment between the datasets. We propose an approach to include thisprivileged information in the loss function together with dataset statistics inferredfrom the mini-batch to mitigate the impact of the dataset misalignment. We adaptthe idea of Fisher-information weighted average to function approximation andpropose Batch Inverse-Variance weighting. We show the validity of this approachas it achieves a significant improvement of the performances of the network whenconfronted to high, input-independent noise</p>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>To run the code, we wrapped up all the used libraries inside a
+singularity container, you can download it
+<a class="reference external" href="https://drive.google.com/file/d/1I17AjFeC7GULokpb1_NkBdbXqX2LHT66/view?usp=sharing">here</a>.
+To manually build your environment using anaconda, we provide the yml
+file
+<a class="reference external" href="https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/env.yml">here</a>.</p>
+</div>
+<div class="section" id="run-the-code">
+<h2>Run the Code<a class="headerlink" href="#run-the-code" title="Permalink to this headline">¶</a></h2>
+<p>To run the code locally:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;vanilla_cnn,cutoffMSE&quot;</span>
+<span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,binary_uniform&quot;</span> <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;meanvar_avg,0.5,3000&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;True,0.5,1,0.3,0&quot;</span>
+</pre></div>
+</div>
+<p>To run the code locally inside singularity container:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>singularity exec --nv -H $HOME:/home/ -B ./your_dataset_directory:/datasets/ -B ./your_outputs_directory:/final_outps/ ./your_environments_directory/pytorch_f.simg python /path/to/main.py  --experiment_settings=&quot;exp_tag,7159,utkf,True,16000&quot;
+--model_settings=&quot;vanilla_cnn,cutoffMSE&quot; --noise_settings=&quot;True,binary_uniform&quot; --params_settings=&quot;meanvar_avg,0.5,3000&quot;
+--parameters=&quot;True,0.5,1,0.3,0&quot;
+</pre></div>
+</div>
+<p>To run the code in a cluster that supporting <a class="reference external" href="https://slurm.schedmd.com/">slurm workload
+manager</a>, use this starter script:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/bash
+#SBATCH -o /path/to/logs/noise_%j.out   # Change this!
+#SBATCH --cpus-per-task=4
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32Gb
+
+# Load cuda (it is not needed if have it enabled as a default.)
+module load cuda/10.0
+# 1. You have to load singularity (it is not needed if have it enabled as a default.)
+module load singularity
+# 2. Then you copy the container to the local disk
+rsync -avz /path/to/pytorch_f.simg $SLURM_TMPDIR     # Change this!
+# 3. Copy your dataset on the compute node
+rsync -avz /path/to/your_dataset/ $SLURM_TMPDIR        # Change this!
+# 3.1 export wandb api key
+export WANDB_API_KEY=&quot;put your wandb key here&quot;       # Change this!
+# 4. Executing your code with singularity
+singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python /path/to/main.py --experiment_settings=$1 --model_settings=$2 --noise_settings=$3 --params_settings=${4-&quot;None&quot;}  --parameters=${5-&quot;None&quot;}
+# 5. Move results back to the login node.
+rsync -avz $SLURM_TMPDIR --exclude=&quot;your_dataset&quot; --exclude=&quot;pytorch_f.simg&quot;  /path/to/outputs  # Change this!
+
+# Note:
+# $SLURM_TMPDIR = The compute node directory.
+</pre></div>
+</div>
+<p>then run the script with <code class="docutils literal notranslate"><span class="pre">sbatch</span></code>:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sbatch</span> <span class="o">--</span><span class="n">gres</span><span class="o">=</span><span class="n">gpu</span><span class="p">:</span><span class="n">rtx8000</span><span class="p">:</span><span class="mi">1</span> <span class="o">./</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">sh</span>  <span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="s2">&quot;vanilla_cnn,cutoffMSE&quot;</span> <span class="s2">&quot;True,binary_uniform&quot;</span> <span class="s2">&quot;meanvar_avg,0.5,3000&quot;</span> <span class="s2">&quot;True,0.5,1,0.3,0&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>To run a vanilla CNN while normalising the data, where the loss
+function is MSE:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;vanilla_cnn,mse&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>To run resnet-18 with BIV loss (epsilon=0.5), where the noise
+variance is coming from a single uniform distribution:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;resnet,biv,0.5&quot;</span>  <span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,uniform&quot;</span>    <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;boundaries&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;0,1&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>To run resnet-18 with BIV loss (epsilon=0.5), where the noise
+variance is coming from a single uniform distribution that has a
+variance equal to the maximum heteroscedasticity:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;resnet,biv,0.5&quot;</span> <span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,uniform&quot;</span>    <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;meanvar&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;True,0.5,0.083&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>To run resnet-18 with BIV loss (epsilon=0.5), where the noise
+variance is coming from a bi-model (uniform) distribution, in which
+the weight of the contribution of the both distributions is equal
+(0.5):</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;resnet,biv,0.5&quot;</span>    <span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,binary_uniform&quot;</span>  <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;boundaries,0.5&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;0,1,1,4&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>To run resnet-18 with MSE loss, where the noise variance is coming
+from a bi-model (uniform) distribution by specifying the mean and
+variance of this model:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;resnet,mse&quot;</span> <span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,binary_uniform&quot;</span>  <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;meanvar,0.5&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;False,0.5,1,0.083,0&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>To run resnet-18 with BIV loss (epsilon=0.5), where the noise
+variance is coming from a bi-model (uniform) distribution in which
+the average mean is 2000.</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;resnet,biv,0.5&quot;</span>    <span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,binary_uniform&quot;</span>  <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;meanvar_avg,0.5,2000&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;False,0.5,1,0.083,0&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>To run resnet-18 with MSE loss, where the noise variance is coming
+from a bi-model (uniform) distribution and with noise threshold=1:</li>
+</ul>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span>   <span class="n">python</span> <span class="n">main</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">experiment_settings</span><span class="o">=</span><span class="s2">&quot;exp_tag,7159,utkf,True,16000&quot;</span> <span class="o">--</span><span class="n">model_settings</span><span class="o">=</span><span class="s2">&quot;resnet,cutoffMSE,1&quot;</span>   <span class="o">--</span><span class="n">noise_settings</span><span class="o">=</span><span class="s2">&quot;True,binary_uniform&quot;</span> <span class="o">--</span><span class="n">params_settings</span><span class="o">=</span><span class="s2">&quot;meanvar_avg,0.5,2000&quot;</span> <span class="o">--</span><span class="n">parameters</span><span class="o">=</span><span class="s2">&quot;False,0.5,1,0.3,0&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><strong>Waleed Khamies</strong></li>
+<li><strong>Vincent Mai</strong></li>
+</ul>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This project is licensed under the [???] License - see the
+<a class="reference external" href="LICENSE.md">LICENSE.md</a> file for details</p>
+</div>
+<div class="section" id="acknowledgement">
+<h2>Acknowledgement<a class="headerlink" href="#acknowledgement" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://liampaull.ca/">Liam Paull</a> - Principle Investigator -
+<a class="reference external" href="https://montrealrobotics.ca/">Robotics Lab (UdeM University)</a></li>
+<li><a class="reference external" href="https://www.nserc-crsng.gc.ca/">National Sciences and Engineering Research Council of
+Canada</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="arguments.html" class="btn btn-neutral float-right" title="Commandline Options" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Batch Inverse-Variance Weighting: Deep Heteroscedastic Regression using Privileged Information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Vincent Mai, Waleed Khamies, Liam Paull
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

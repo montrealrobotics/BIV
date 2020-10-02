@@ -1,8 +1,8 @@
-# Deep Heteroscedastic Regression Using Privileged Information And Mini batch Statistics
+# Batch Inverse-Variance Weighting:  Deep Heteroscedastic Regression Using Privileged Information
 
 ## Introduction
 
-One of the fundamental  assumptions  in  super-vised deep learning is that the labels are correct. However, this assumption does not hold in many cases.  Error (noise) on the labels can severely impact the ability of the model to learn. In many cases, the noise on the labels is heteroscedastic and the variable variance is either known, or can be readily estimated from analysis on the dataset. In this work, we propose to leverage the known label variance as a tool to improve learning. Intuitively, we use an information theoretic approach and weight training samples by the inverse variance in the training loss function. We also show that weight normalization by mini-batch (rather than at the level of the entire dataset) improves stability in the learning process. 
+The performance of deep supervised learning methods is impacted when the training dataset, on which the parameters are optimized, and the testing dataset, which evaluates the performance of the model on the task, are not sampled from identical distributions. In heteroscedastic regression, the label for each training sample is corrupted by noise coming from a different distribution.  In some cases, it is possible to know an estimate of the variance of the noise for each label, which quantifies how much it contributes to the misalignment between the datasets. We propose an approach to include this privileged information in the loss function together with dataset statistics inferred from the mini-batch to mitigate the impact of the dataset misalignment. We adapt the idea of Fisher-information weighted average to function approximation and propose Batch Inverse-Variance weighting. We show the validity of this approach as it achieves a significant improvement of the performances of the network when confronted to high, input-independent noise. 
 
 ### Prerequisites
 
@@ -66,7 +66,7 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh  "exp_tag,7159,utkf,True,16000" "v
 - To run a vanilla CNN while normalising the data, where the loss function is MSE:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,16000" --model_settings="vanilla_cnn,mse"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True,16000" --model_settings="vanilla_cnn,mse,0.5" --noise_settings="False" 
   ```
 
 - To run resnet-18 with BIV loss (epsilon=0.5), where the noise variance is coming from a single uniform distribution:
@@ -106,8 +106,7 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh  "exp_tag,7159,utkf,True,16000" "v
 -  To run resnet-18 with MSE loss, where the noise variance is coming from a bi-model (uniform) distribution and with noise threshold=1:
 
   ```bash
-  python main.py --experiment_settings="exp_tag,7159,utkf,True,16000" --model_settings="resnet,cutoffMSE,1"
-  --noise_settings="True,binary_uniform" --params_settings="meanvar_avg,0.5,2000" --parameters="False,0.5,1,0.3,0"
+  python main.py --experiment_settings="exp_tag,7159,utkf,True,16000" --model_settings="resnet,cutoffMSE,1" --noise_settings="True,binary_uniform" --params_settings="meanvar_avg,0.5,2000" --parameters="False,0.5,1,0.08,0"
   ```
 
 
@@ -143,17 +142,5 @@ sbatch --gres=gpu:rtx8000:1 ./path/to/main.sh  "exp_tag,7159,utkf,True,16000" "v
 |                                                        | <br /><br /><br /><br />                             |                                                              |                                                              |            |
 | <span style="color:red">**parameters**</span>          | **Parameters**                                       | Parameters of the noise variance distributions:<br />1- Uniform <br />2- binary_uniform<br />3- Gamma<br />**Or:**<br /><img src="https://render.githubusercontent.com/render/math?math=\mu"> and v of the noise variance distributions.<br /><br />Note:<br /><br />1- When the "Params Type" is not boundaries, the first parameter in the list (var_scale) represents a condition to enabling maximum heteroscedasticity.<br />1- <img src="https://render.githubusercontent.com/render/math?math=v_2"> will be the heteroscedasticity scale if var_scale equal to True.<br />2-  In this case, 0 < <img src="https://render.githubusercontent.com/render/math?math=v_2"><= 1 | 1- (<img src="https://render.githubusercontent.com/render/math?math=a">, <img src="https://render.githubusercontent.com/render/math?math=b">)<br /><br/>2- (<img src="https://render.githubusercontent.com/render/math?math=a_1">,<img src="https://render.githubusercontent.com/render/math?math=a_2">,<img src="https://render.githubusercontent.com/render/math?math=b_1">,<img src="https://render.githubusercontent.com/render/math?math=b_2">)<br/>3-  (<img src="https://render.githubusercontent.com/render/math?math=\alpha">,<img src="https://render.githubusercontent.com/render/math?math=\beta">)<br/>**Or:**<br />1- (var_scale, <img src="https://render.githubusercontent.com/render/math?math=\mu">,<img src="https://render.githubusercontent.com/render/math?math=v">)<br />2- (var_scale, <img src="https://render.githubusercontent.com/render/math?math=\mu_1">,<img src="https://render.githubusercontent.com/render/math?math=\mu_2">,<img src="https://render.githubusercontent.com/render/math?math=v_1">,<img src="https://render.githubusercontent.com/render/math?math=v_2">)<br />or:<br /> 2- (var_scale, <img src="https://render.githubusercontent.com/render/math?math=\mu_1">,<img src="https://render.githubusercontent.com/render/math?math=\mu_{avg}">,<img src="https://render.githubusercontent.com/render/math?math=v_1">,<img src="https://render.githubusercontent.com/render/math?math=v_2">)<br />3- (<img src="https://render.githubusercontent.com/render/math?math=\mu_1">,<img src="https://render.githubusercontent.com/render/math?math=\mu_2">,<img src="https://render.githubusercontent.com/render/math?math=v_1">,<img src="https://render.githubusercontent.com/render/math?math=v_2">) |    list    |
 
-## Contributors
 
-* **Waleed Khamies**
-* **Vincent Mai**
-
-## License
-
-This project is licensed under the [???] License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgement
-
-* [Liam Paull](https://liampaull.ca/) - Principle Investigator - [Robotics Lab (UdeM University)](https://montrealrobotics.ca/)
-* [National Sciences and Engineering Research Council of Canada](https://www.nserc-crsng.gc.ca/) 
 

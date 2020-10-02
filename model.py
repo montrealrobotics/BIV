@@ -10,7 +10,7 @@ class AgeModel(nn.Module):
             The model is a CNN with 6 convolutional layers and 1 linear layer. The images has been transformed to gray before feeding them to the network,
 
 
-        Args:
+        Model:
             :Conv 1: 
                 Conv layer 
                     in_channels = 1, out_channels =10, kernel_size= 3, Stride= 1, Padding= 1
@@ -24,8 +24,6 @@ class AgeModel(nn.Module):
                 MaxPool2d
                     kernel_size=2
 
-
-                
 
             :Conv 2: 
                 Conv layer 
@@ -176,6 +174,52 @@ class AgeModel(nn.Module):
 
 class WineModel(nn.Module):
     def __init__(self):
+        """
+        Description:
+            The model is a vanilla feedforward neural network that consists of 5 layers. Each layer is followed with a batch normalization layer and a Relu function.
+        
+        Dataset:
+            Wine Quality.
+
+
+        Model:
+            Group 1:
+                Linear Layer:
+                    input features = 11, output features = 100
+                Batch normalization:
+                    input features = 100
+                Relu
+
+            Group 2:
+                Linear Layer:
+                    input features = 100, output features = 50
+                Batch normalization:
+                    input features = 50
+                Relu
+
+            Group 3:
+                Linear Layer:
+                    input features = 50, output features = 20
+                Batch normalization:
+                    input features = 20
+                Relu
+
+            Group 4:
+                Linear Layer:
+                    input features = 20, output features = 10
+                Batch normalization:
+                    input features = 10
+                Relu
+    
+                Group 5:
+                Linear Layer:
+                    input features = 20, output features = 1
+
+        
+        Args:
+            None.
+        """
+
         super(WineModel, self).__init__()
 
         self.layer1 = nn.Sequential(nn.Linear(in_features = 11 , out_features = 100 ),
@@ -205,6 +249,52 @@ class WineModel(nn.Module):
 
 class BikeModel(nn.Module):
     def __init__(self):
+
+        """
+        Description:
+            The model is a vanilla feedforward neural network that consists of 5 layers. Each layer is followed with a batch normalization layer and a Relu function.
+
+        Dataset:
+            Bike Sharing.
+
+        Model:
+            Group 1:
+                Linear Layer:
+                    input features = 19, output features = 100
+                Batch normalization:
+                    input features = 100
+                Relu
+
+            Group 2:
+                Linear Layer:
+                    input features = 100, output features = 50
+                Batch normalization:
+                    input features = 50
+                Relu
+
+            Group 3:
+                Linear Layer:
+                    input features = 50, output features = 20
+                Batch normalization:
+                    input features = 20
+                Relu
+
+            Group 4:
+                Linear Layer:
+                    input features = 20, output features = 10
+                Batch normalization:
+                    input features = 10
+                Relu
+    
+                Group 5:
+                Linear Layer:
+                    input features = 20, output features = 1
+
+        
+        Args:
+            None.
+        """
+
         super(BikeModel, self).__init__()
 
         self.layer1 = nn.Sequential(nn.Linear(in_features = 19 , out_features = 100 ),

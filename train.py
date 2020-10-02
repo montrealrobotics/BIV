@@ -1,7 +1,6 @@
 import shutil 
 import os
 import itertools
-import uuid
 from datetime import datetime
 
 import pandas as pd
@@ -11,7 +10,7 @@ import torch
 from torch.nn import MSELoss
 
 from utils import  get_dataset_stats, normalize_features, normalize_labels, filter_batch
-from params import d_params
+from settings import d_params
 
 import wandb
 
@@ -21,14 +20,21 @@ class Trainer:
 
     """
         Description:
-            A class with multiple training methods:
-                - Baseline (The model without injecting any noises)
-                - Baseline with noise.
-                - Baseline with IV loss.
-                - Baseline with batch normalized IV loss.
+            This is the main class that is responsbile for training the models. It achieves that through:
+
+                1) train: 
+                    A function that responsible for doing the training and testing operation. It uses mini-batch training setting. 
+                2) Zip results:
+                    A method that respinsible for zaipping the outputs of the model and the corresponding statistics and upload them to WandB servers.
 
         Args:
-            :cuda (bool) [private]: Controls if the model will be run on GPU or not.
+            :expermient_id: An experiment id for distinguishing the result files for each experiment.
+            :train dataloader: A dataloader for the training data.
+            :test dataloader: A dataloader for the testing data.
+            :model: The model that is need to be trained.
+            :loss: A loss function to measure the model's performance.
+            :optimizer: An optimizer to optimize model parameters in the light of the loss function.
+            :epochs: Number of training epochs.
     """
 
     def __init__(self, experiment_id, train_loader, test_loader, model, loss, optimizer, epochs):
@@ -48,10 +54,6 @@ class Trainer:
         # self.noise_filter = noise_filter
         # self.noise_threshold = noise_threshold
         self.server_path = d_params.get('server_path')
-        self.uniqueID = str(uuid.uuid4().fields[-1])[:6]
-
-        self.save_path = os.path.join(self.server_path, experiment_id+"_"+self.uniqueID)
-        os.mkdir(self.save_path)
 
 
 
@@ -74,33 +76,46 @@ class Trainer:
         self.save(lst_df, path)
 
     def zip_results(self, files):
-        directory_name = str(self.expermient_id)    
-        try:
-            folder = os.mkdir(os.path.join(self.save_path,directory_name))
-            for file_name in files:
-                shutil.copyfile(os.path.join(self.save_path,file_name), os.path.join(self.save_path,directory_name,file_name))
-            shutil.make_archive(os.path.join(self.save_path,directory_name),'zip', os.path.join(self.save_path,directory_name))
-            wandb.save(os.path.join(self.save_path,directory_name+".zip"))
-        except OSError:
-            print("zip operation has faild")
-
-    def train(self, alogrithm='default'):
         """
         Description:
-            Train the network using IV loss.
-
+            A method to zip the results and upload them to WandB server.
         Return:
-            Model
+            0 if success, otherwise -1.
         Return type:
-            nn.Module
+            int
 
         Args:
-            :train_loader: A data loader for the training set.
-            :test_loader:  A data loader for the testing set.
-            :model: A random model. (i.e CNN).
-            :loss: IV (or normalized) loss function.
-            :optimizer: An optimizer. (i.e Adam)
-            :epochs: Number of epochs
+            :files: A list of training and testing results (predictions and losses).
+            """
+
+        directory_name = str(self.expermient_id)    
+        try:
+            folder = os.mkdir(self.server_path+directory_name)
+            for file_name in files:
+                shutil.copyfile(self.server_path+file_name, self.server_path+directory_name+"/"+file_name)
+            shutil.make_archive(self.server_path+directory_name,'zip', self.server_path+directory_name)
+            wandb.save(self.server_path+directory_name+".zip")
+        except OSError:
+            print("zip operation has faild")
+            return -1
+
+        return 0
+    def train(self, loss_type='default'):
+        """
+        Description:
+            A method to train the models that are included in this baseline. it has three training settings:
+
+                1) Baseline: Train the model with the non-noisy labels using MSE loss.
+                2) Cutoff: Train the model with noisy labels that are filtered using CutoffMSE loss.
+                3) BIV: Train the model with noisy labels using BIV loss.
+
+        Return:
+            Trained model.
+        Return type:
+            nn.Module object.
+
+        Args:
+            :loss type: Type of the loss function that is used to train the model.
             """
         train_loss_df = pd.DataFrame()
         test_loss_df = pd.DataFrame()
@@ -133,13 +148,13 @@ class Trainer:
                 if self.cuda:
                     tr_batch = train_sample[0].cuda(0)
                     tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
-                    if alogrithm != "mse":
+                    if loss_type != "mse":
                         noises_vars = train_sample[3].type(torch.float32).cuda(0)
                      
                 else:
                     tr_batch = train_sample[0]
                     tr_labels = torch.unsqueeze(train_sample[1], 1)
-                    if alogrithm != "mse":
+                    if loss_type != "mse":
                         noises_vars = train_sample[3].type(torch.float32)
                         
                 
@@ -148,7 +163,7 @@ class Trainer:
                 tr_out = self.model(tr_batch)
 
                 # Choose the loss function.
-                if alogrithm != "mse":
+                if loss_type != "mse":
                     mloss = self.loss(tr_out, tr_labels, noises_vars)
                 else:
                     mloss = self.mse_loss(tr_out,tr_labels)
@@ -198,10 +213,10 @@ class Trainer:
                         wandb_tst_losses.append(np.mean(tst_b_losses))                       
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:
-                    self.save_last_epoch(tr_out_lst_epoch, os.path.join(self.save_path,"train_outs.csv"))
-                    self.save_last_epoch(tr_lbl_lst_epoch, os.path.join(self.save_path,"train_labels.csv"))
-                    self.save_last_epoch(tst_out_lst_epoch,os.path.join(self.save_path,"test_outs.csv"))
-                    self.save_last_epoch(tst_lbl_lst_epoch,os.path.join(self.save_path,"test_labels.csv"))
+                    self.save_last_epoch(tr_out_lst_epoch, self.server_path+"train_outs.csv")
+                    self.save_last_epoch(tr_lbl_lst_epoch, self.server_path+"train_labels.csv")
+                    self.save_last_epoch(tst_out_lst_epoch,self.server_path+"test_outs.csv")
+                    self.save_last_epoch(tst_lbl_lst_epoch,self.server_path+"test_labels.csv")
                 
                 print("******************** Batch {} has finished ********************".format(train_sample_idx))
             print('#################### Epoch:{} has finished ####################'.format(epoch))
@@ -209,8 +224,13 @@ class Trainer:
             for i in range(len(wandb_tr_losses)):
                 wandb.log({"train loss": wandb_tr_losses[i], "test loss": wandb_tst_losses[i]})
         
-        self.save_last_epoch([tr_losses],os.path.join(self.save_path,"train_losses.csv"))
-        self.save_last_epoch([tst_losses],os.path.join(self.save_path,"test_losses.csv"))
+        self.save_last_epoch([tr_losses],self.server_path+"train_losses.csv")
+        self.save_last_epoch([tst_losses],self.server_path+"test_losses.csv")
         # Zip all the files and upload them to wandb.
         self.zip_results(["train_losses.csv", "test_losses.csv", \
             "train_outs.csv", "train_labels.csv", "test_outs.csv", "test_labels.csv"])
+        
+
+        return self.model
+                
+            

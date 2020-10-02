@@ -3,54 +3,59 @@ from torch.nn import Module
 from utils import str_to_bool, filter_batch
 
 
-class IVLoss(Module):
-    def __init__(self, epsilon=0.00001, avg_batch = False):
+class BIVLoss(Module):
+    def __init__(self, epsilon=0.00001):
 
 
         """
         Description:
-            Inverse variance loss is defined as:
+            Batch Inverse variance loss is defined as:
             
         .. math::
-
             
-            L(\overline{y},y,\sigma) = \\frac{ \sum_{i=0}^{m} (\overline{y_i} - y_i)^2 * \sigma_i }{m} 
+            \mathcal{L}_{\mathrm{batch}}(D_i, \\theta) = \left( \sum_{k=0}^K  \dfrac{1}{\sigma_k^2 + \epsilon}  \\right)^{-1} \sum_{k=0}^K \dfrac{\mathcal{L}\left(f(x_k, \\theta),\overline{y}_k\\right)}{\sigma_k^2 + \epsilon}
+            \label{eq:IVweighted_loss}
 
-        Or with batch normalization:
-
-        .. math::
-
-            
-            L(\overline{y},y,\sigma) &= \\frac{ \sum_{i=0}^{m} (\overline{y_i} - y_i)^2 * \sigma_i }{m*w} 
-
-            w &= \\frac{1}{\sum_{i=0}^{m} \sigma_i}
-
-            
             """
 
-        super(IVLoss, self).__init__()
-        self.avg_batch = avg_batch
+        super(BIVLoss, self).__init__()
         self.epsilon = epsilon       # for numerical stability.
     def forward(self, y_pred,y,lbl_var):
         """
-        
+        Description:
+            Compute the forward pass for BIV loss function.
         """
         # m = y.shape[0]
         l = torch.matmul(torch.sub(y_pred,y).t(), torch.sub(y_pred,y)*(1/(lbl_var + self.epsilon  ) ))
-        if self.avg_batch:
-            return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
-        # else:
-        #     return l
-
+        return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
 
 
 class CutoffMSE(Module):
     def __init__(self, cutoffValue=1):
+        """
+        Description:
+
+            Cutoff MSE loss has two steps:
+            
+            1) Filtering:
+                Filter the noisy labels out by comparing their noise variances to a threshold. Remove the label if its noise variance is bigger than a threshold, otherwise, use it to compute the loss.
+            
+            2) MSE loss: 
+                Compute the mse loss using the filtered labels.
+        
+        Args:
+            :threshold: An upper bound noise variance threshold to filter out the noisy labels.
+        """
+
         super(CutoffMSE, self).__init__()
         self.cutoffValue = cutoffValue
 
     def forward(self, y_pred,y,lbl_var):
-        # Filter the batch samples based on the noise variance
+        """
+        Description:
+            Compute the forward pass.
+        """
+
         y_pred, y, lbl_var = filter_batch(y_pred,y,lbl_var,threshold=self.cutoffValue)
         batch_size = y.shape[0]
 

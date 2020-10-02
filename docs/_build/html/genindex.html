@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; Inverse Variance Weighting Update 2020 documentation</title>
+  <title>Index &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
   
 
   
@@ -45,7 +45,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -59,7 +61,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> Inverse Variance Weighting Update
+            <a href="index.html" class="icon icon-home"> BIVW: Deep Heteroscedastic Regression using Privileged Information
           
 
           
@@ -91,12 +93,19 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pages/dataloader.html">dataloader.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/losses.html">loss.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/model.html">models.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/params.html">params.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/train.html">train.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pages/utils.html">utils.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/getting_started.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/arguments.html">Commandline Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/utkf_dataloader.html">Dataloaders: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/bike_dataloader.html">Dataloaders: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/wine_dataloader.html">Dataloaders: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/model_ann_wine.html">Models: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/model_ann_bike.html">Models: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/model_cnn_utkf.html">Models: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/cutoff_loss.html">Losses: Cutoff MSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/biv_loss.html">Losses: Batch Inverse Variance (BIV)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/train.html">Trainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pages/params.html">Settings</a></li>
 </ul>
 
             
@@ -111,7 +120,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Inverse Variance Weighting Update</a>
+          <a href="index.html">BIVW: Deep Heteroscedastic Regression using Privileged Information</a>
         
       </nav>
 
@@ -164,17 +173,54 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
- | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/model.html#model.AgeModel">AgeModel (class in model)</a>
+      <li><a href="pages/model_cnn_utkf.html#model.AgeModel">AgeModel (class in model)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/utils.html#utils.assert_args_mixture">assert_args_mixture() (in module utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/model_ann_bike.html#model.BikeModel">BikeModel (class in model)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing">BikeSharing (class in bike_dataloader)</a>
+</li>
+      <li><a href="pages/biv_loss.html#losses.BIVLoss">BIVLoss (class in losses)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/utils.html#utils.choose_distribution">choose_distribution() (in module utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/cutoff_loss.html#losses.CutoffMSE">CutoffMSE (class in losses)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -182,10 +228,18 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/losses.html#losses.IVLoss.forward">forward() (losses.IVLoss method)</a>
+      <li><a href="pages/utils.html#utils.filter_batch">filter_batch() (in module utils)</a>
+</li>
+      <li><a href="pages/biv_loss.html#losses.BIVLoss.forward">forward() (losses.BIVLoss method)</a>
 
       <ul>
-        <li><a href="pages/model.html#model.AgeModel.forward">(model.AgeModel method)</a>
+        <li><a href="pages/cutoff_loss.html#losses.CutoffMSE.forward">(losses.CutoffMSE method)</a>
+</li>
+        <li><a href="pages/model_cnn_utkf.html#model.AgeModel.forward">(model.AgeModel method)</a>
+</li>
+        <li><a href="pages/model_ann_bike.html#model.BikeModel.forward">(model.BikeModel method)</a>
+</li>
+        <li><a href="pages/model_ann_wine.html#model.WineModel.forward">(model.WineModel method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -194,27 +248,95 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/dataloader.html#dataloader.UTKface.gaussian_noise">gaussian_noise() (dataloader.UTKface method)</a>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing.gaussian_noise">gaussian_noise() (bike_dataloader.BikeSharing method)</a>
+
+      <ul>
+        <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface.gaussian_noise">(utkf_dataloader.UTKface method)</a>
 </li>
-      <li><a href="pages/dataloader.html#dataloader.UTKface.generate_noise">generate_noise() (dataloader.UTKface method)</a>
+        <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality.gaussian_noise">(wine_dataloader.WineQuality method)</a>
 </li>
-      <li><a href="pages/dataloader.html#dataloader.UTKface.get_distribution">get_distribution() (dataloader.UTKface method)</a>
+      </ul></li>
+      <li><a href="pages/utils.html#utils.generate_intervals">generate_intervals() (in module utils)</a>
+</li>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing.generate_noise">generate_noise() (bike_dataloader.BikeSharing method)</a>
+
+      <ul>
+        <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface.generate_noise">(utkf_dataloader.UTKface method)</a>
+</li>
+        <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality.generate_noise">(wine_dataloader.WineQuality method)</a>
+</li>
+      </ul></li>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing.get_distribution">get_distribution() (bike_dataloader.BikeSharing method)</a>
+
+      <ul>
+        <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface.get_distribution">(utkf_dataloader.UTKface method)</a>
+</li>
+        <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality.get_distribution">(wine_dataloader.WineQuality method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing.get_gamma_params">get_gamma_params() (bike_dataloader.BikeSharing method)</a>
+
+      <ul>
+        <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface.get_gamma_params">(utkf_dataloader.UTKface method)</a>
+</li>
+        <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality.get_gamma_params">(wine_dataloader.WineQuality method)</a>
+</li>
+      </ul></li>
+      <li><a href="pages/utils.html#utils.get_mean_avg_variance">get_mean_avg_variance() (in module utils)</a>
+</li>
+      <li><a href="pages/utils.html#utils.get_unif_Vmax">get_unif_Vmax() (in module utils)</a>
+</li>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing.get_uniform_params">get_uniform_params() (bike_dataloader.BikeSharing method)</a>
+
+      <ul>
+        <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface.get_uniform_params">(utkf_dataloader.UTKface method)</a>
+</li>
+        <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality.get_uniform_params">(wine_dataloader.WineQuality method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/bike_dataloader.html#bike_dataloader.BikeSharing.load_data">load_data() (bike_dataloader.BikeSharing method)</a>
+
+      <ul>
+        <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface.load_data">(utkf_dataloader.UTKface method)</a>
+</li>
+        <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality.load_data">(wine_dataloader.WineQuality method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/utils.html#utils.normalize_features">normalize_features() (in module utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/dataloader.html#dataloader.UTKface.get_gamma_params">get_gamma_params() (dataloader.UTKface method)</a>
-</li>
-      <li><a href="pages/dataloader.html#dataloader.UTKface.get_unif_bounds">get_unif_bounds() (dataloader.UTKface method)</a>
-</li>
-      <li><a href="pages/utils.html#utils.get_unif_Vmax">get_unif_Vmax() (in module utils)</a>
+      <li><a href="pages/utils.html#utils.normalize_labels">normalize_labels() (in module utils)</a>
 </li>
   </ul></td>
 </tr></table>
 
-<h2 id="I">I</h2>
+<h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/losses.html#losses.IVLoss">IVLoss (class in losses)</a>
+      <li><a href="pages/utils.html#utils.print_experiment_information">print_experiment_information() (in module utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/utils.html#utils.str_to_bool">str_to_bool() (in module utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -224,12 +346,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pages/train.html#train.Trainer.train">train() (train.Trainer method)</a>
 </li>
-      <li><a href="pages/train.html#train.Trainer.train_iv">train_iv() (train.Trainer method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/train.html#train.Trainer.train_w_iv">train_w_iv() (train.Trainer method)</a>
-</li>
       <li><a href="pages/train.html#train.Trainer">Trainer (class in train)</a>
 </li>
   </ul></td>
@@ -238,7 +356,27 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pages/dataloader.html#dataloader.UTKface">UTKface (class in dataloader)</a>
+      <li><a href="pages/utkf_dataloader.html#utkf_dataloader.UTKface">UTKface (class in utkf_dataloader)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/model_ann_wine.html#model.WineModel">WineModel (class in model)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/wine_dataloader.html#wine_dataloader.WineQuality">WineQuality (class in wine_dataloader)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pages/train.html#train.Trainer.zip_results">zip_results() (train.Trainer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -255,7 +393,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Waleed Khamies
+        &copy; Copyright 2020, Vincent Mai, Waleed Khamies, Liam Paull
 
     </p>
   </div>

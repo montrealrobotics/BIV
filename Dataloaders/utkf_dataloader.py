@@ -11,37 +11,37 @@ import torchvision
 from torch.utils.data import Dataset
 
 from utils import get_unif_Vmax, normalize_features, normalize_labels, get_dataset_stats, str_to_bool
-from utils import generate_luck_boundaries, choose_luck_boundary, incremental_average
-from utils import flip_coin
+from utils import generate_intervals, choose_distribution
 
 
 
 class UTKface(Dataset):
 
-    def __init__(self, path, train = True, model="vanilla_cnn" ,transform = None, noise = False , noise_type = None, \
+    def __init__(self, path, train = True, transform = None, noise = False , noise_type = None, \
                 distribution_data = None, normalize = False, size = None):
 
         """
         Description:
-            UTKFace dataset is a large-scale face dataset with long age span (range from 0 to 116 years old). 
+            UTKFace dataset [#]_ is a large-scale face dataset with long age span (range from 0 to 116 years old). 
             The dataset consists of over 20,000 face images with annotations of age, gender, and ethnicity. 
             The images cover large variation in pose, facial expression, illumination, occlusion, resolution, etc. 
 
 
         Args:
-            :train (bool): Controls if the data will include the noise and its varaince with the actual inputs and labels or not, and if the data is taken from the beginning or the end of the dataset.
-            :size (int): Controls the number of samples in the set.
-            :images_path (string): Dataset directory path.
+            :path (string): A path to the UTKF dataset directory.
+            :train (bool): A boolean that controls the selection of training data (True), or testing data (False).
             :transform (Object): A torchvision transofrmer for processing the images.
-            :noise_type (string): Controls the type of noise that will be added to the data
-            :dist_data (tuple): A tuple of the mean and the variance of the noise distribution.
+            :noise (bool): A boolean that controls if the noise should be added to the data or not.
+            :noise_type (string): A variable that controls the type of the noise.
+            :distribution data (list): A list of information that is needed for noise generation.
+            :normalize (bool): A boolean that controls if the data will be normalized (True) or not (False). 
+            :size (int): Size of dataset (training or testing).
         
         """
         self.train = train
         self.data_paths = glob.glob(path)
         self.dataset_size  = len(self.data_paths)
         self.normalize = normalize
-        self.model = model
         self.transform = transform
         self.noise = noise
         self.noise_type = noise_type
@@ -69,10 +69,10 @@ class UTKface(Dataset):
         """
         Description:
 
-            Loads the dataset and preprocess it.
+            Loads the dataset.
 
         Return:
-            images paths and labels.
+            images, labels.
         Return type:
             Tuple
         
@@ -98,8 +98,9 @@ class UTKface(Dataset):
 
     
     def get_uniform_params(self, mu,v):
+
         """ Description:
-            Generates the bounds of the uniform distribution by solving the formula ::
+            Generates the bounds of the uniform distribution using the mean and the variance, by solving the formula ::
 
                 a = mu - sqrt(3*v)
                 b = mu + sqrt(3*v)
@@ -111,8 +112,8 @@ class UTKface(Dataset):
             Tuple.
         
         Args:
-            :mu (float): mean.
-            :v  (float): variance.
+            :mu (float): The mean of the uniform distribution.
+            :v  (float): The variance of the uniform distribution.
         """
         if v<0:
             raise ValueError(" Varinace is a negative number: {}".format(v))
@@ -136,15 +137,15 @@ class UTKface(Dataset):
                 theta = v/mu
 
         Return:
-            Alpha and Beta of gamma distribution.
+            Alpha, Beta .
 
 
         Return type:
             Tuple.
 
         Args:
-            :mu (float): mean.
-            :v  (float): variance.
+            :mu (float): The mean of gamma distribution.
+            :v  (float): The variance of gamma distribution.
         """
         
         if v == 0:
@@ -166,17 +167,20 @@ class UTKface(Dataset):
 
     def get_distribution(self, dist_type, data, is_params_estimated, vmax=False, vmax_scale=1):
         """ Description:
-            Create a distribution function from specified family by dist_type argument (uniform or gamma).
+            Create a probability distribution (uniform or gamma).
 
         Return:
-            A distribution function.
-
+            A probability distribution.
 
         Return type:
             Object.
 
         Args:
-            :std_dist(function): a distribution function for sampling the noises variances.
+            :dist_type: An argument that specifies the type of the distribution.
+            :data: A list that contains the information of distribution .
+            :is_params_estimated: An argument that controls if the data is used used to create probability distribution. The data could be distribution statistics (mean and variance) or distribution parameters.
+            :vmax: A boolean that controls if maximum heteroscedasticity will be used or not.
+            :vmax_scale: An argument that specifies the heteroscedasticity scale.
         """
         noise_distributions = {}
 
@@ -220,7 +224,7 @@ class UTKface(Dataset):
     def gaussian_noise(self,var_dists,p=0.5):
 
         """ Description:
-            Generates gaussian noises with mean 0 and heteroscedasticitical variance that sampled from one of a range of distributions (uniform or gamma).
+            Generates gaussian noises with a cenetred mean around 0 and heteroscedasticitical variance that sampled from a range of distributions.
 
         Return:
             Guassian noises and their heteroscedasticitical variances.
@@ -230,14 +234,15 @@ class UTKface(Dataset):
             Tuple.
 
         Args:
-            :std_dist(object): a distribution function for sampling the noises variances.
+            :var_dist(object): Noise varaince probability distributions.
+            :p (float): The contribution ratio of low and high noise variance distributions.
         """
         num_distributions = len(var_dists)
-        boundaries = generate_luck_boundaries(num_distributions,p)
+        boundaries = generate_intervals(num_distributions,p)
         noises_vars = []
         tracker = defaultdict(lambda : 0)
         for idx in range(self.data_slice_size):
-            dist_id = choose_luck_boundary(boundaries)
+            dist_id = choose_distribution(boundaries)
             var_distribution = var_dists.get(dist_id)
             noises_vars.append(var_distribution.sample((1,)))
             tracker[dist_id]+=1
@@ -256,7 +261,7 @@ class UTKface(Dataset):
     def generate_noise(self, norm = False):
         """
         Description:
-            Generates noises.
+            Unpacks information and calls gaussian_noise to generates noises.
 
         Return:
             Guassian noises and their heteroscedasticitical variances.
@@ -265,7 +270,7 @@ class UTKface(Dataset):
             Tuple.
 
         Args:
-            None.
+            :norm: Normalization.
         """
         dists = {}
         p = self.dist_data.get('coin_fairness')
@@ -296,7 +301,7 @@ class UTKface(Dataset):
 
         """
         Description:
-            return the length of the dataset.
+            return the length of the dataset (training or testing).
 
         Return:
             Dataset size
@@ -313,10 +318,10 @@ class UTKface(Dataset):
 
         """
         Description:
-            Sample batch of images, labels, noises and variances.
+            Sample batch of images, labels, noises and noises variances.
 
         Return:
-            batch of images, labels, noises (train setting) and variances (train setting).
+            batch of images, labels, noises, and noises variances ( training setting) or batch of images, labels ( testing setting),
 
         Return Type:
             Tuple.

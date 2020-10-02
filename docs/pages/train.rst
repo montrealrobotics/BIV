@@ -1,5 +1,6 @@
-train.py
-********
+=========
+Trainer
+=========
 
 
 .. autoclass:: train.Trainer

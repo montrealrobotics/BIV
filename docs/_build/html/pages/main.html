@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; Inverse Variance Weighting Update 2020 documentation</title>
+  <title>&lt;no title&gt; &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
   
 
   
@@ -44,7 +44,9 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -58,7 +60,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Inverse Variance Weighting Update
+            <a href="../index.html" class="icon icon-home"> BIVW: Deep Heteroscedastic Regression using Privileged Information
           
 
           
@@ -90,12 +92,19 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dataloader.html">dataloader.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="losses.html">loss.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">models.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="params.html">params.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="train.html">train.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">utils.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arguments.html">Commandline Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utkf_dataloader.html">Dataloaders: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bike_dataloader.html">Dataloaders: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wine_dataloader.html">Dataloaders: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_wine.html">Models: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_bike.html">Models: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_cnn_utkf.html">Models: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cutoff_loss.html">Losses: Cutoff MSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biv_loss.html">Losses: Batch Inverse Variance (BIV)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Trainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">Settings</a></li>
 </ul>
 
             
@@ -110,7 +119,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Inverse Variance Weighting Update</a>
+          <a href="../index.html">BIVW: Deep Heteroscedastic Regression using Privileged Information</a>
         
       </nav>
 
@@ -172,7 +181,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Waleed Khamies
+        &copy; Copyright 2020, Vincent Mai, Waleed Khamies, Liam Paull
 
     </p>
   </div>

@@ -4,16 +4,15 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-
 import torch
 
 import wandb
 
-from params import d_params, n_params
+from settings import d_params, n_params
 
 def get_unif_Vmax(mu, scale_value=1):
      
-    """"
+    """
     Description:
         Estimates the maximum variance needed for the uniform distribution to produce maximum heteroscedasticity.
 
@@ -37,40 +36,33 @@ def get_unif_Vmax(mu, scale_value=1):
     return vmax
 
 
-def compute_dataset_stats(xtrain, ytrain):
-
-    """"
-    Description:
-        Estimates the mean and the variance for the images and their labels.
-
-    Return:
-        :stats: A tuple of the mean and the variance of the images and their corressponding labels.
-    Return type:
-        Tuple
-    Args:
-        :xtrain: train data. (images)
-        :ytrain: train labels.
-
-    """
-    
-    xtrain_mean = xtrain.squeeze().view(1,-1).mean()
-    xtrain_std = xtrain.squeeze().view(1,-1).std()
-    
-    ytrain_mean = ytrain.mean()
-    ytrain_std = ytrain.std()
-
-    
-    pd.DataFrame((ytrain_mean.numpy(),)).to_csv("labels_mean.csv")
-    pd.DataFrame((ytrain_std.numpy(),)).to_csv("labels_std.csv")
-    
-    pd.DataFrame((xtrain_mean.numpy(),)).to_csv("images_mean.csv")
-    pd.DataFrame( (xtrain_std.numpy(),)).to_csv("images_std.csv")
-    
-    return (xtrain_mean, xtrain_std, ytrain_mean, ytrain_std)
-    
-
 
 def get_dataset_stats(dataset='UTKFace'):
+
+         
+    """
+    Description:
+        Gets dataset statistics. The statistics include:
+
+            1) Features mean.
+            2) Features std.
+            3) Labels mean.
+            4) Labels std.
+
+
+    Return:
+        :features_mean: mean of the input features.
+        :features_std: standard deviation of the input features.
+        :labels_mean: mean of the labels.
+        :labels_std: standard deviation of the labels.
+    Return type:
+        Tuple.
+    Args:
+        :dataset: Dataset name.
+    
+
+    """
+
 
     if dataset == 'UTKFace' or dataset == 'utkf':
         images_mean = torch.Tensor(pd.read_csv(d_params['d_img_mean_path']).values)[0][1]
@@ -113,23 +105,30 @@ def get_dataset_stats(dataset='UTKFace'):
 
         
 
-
-
 def normalize_labels(labels, labels_mean, labels_std):
     
-    """"
+    """
     Description:
         Normalize the training labels as follow:
+
     .. math::
-        normalized labels = (labels - labels mean) / labels standard deviation.
+        \widetilde{y} = \\frac{(y - \overline{y})} {\sigma_y}.
+    
+    where
+
+    .. math::
+        \widetilde{y} = \\text{Normalized labels, } 
+        y = \\text{labels, }
+        \overline{y} = \\text{Mean of the labels, }.
+        \sigma = \\text{Standard deviation of the labels}
     Return:
         :labels_norm: Normalized labels.
     Return type:
-        Tensor
+        1D Tensor.
     Args:
-        :labels: train labels. (images)
-        :labels_mean: labels mean.
-        :labels_std: labels standard deviation.
+        :labels: Training labels.
+        :labels_mean: Emprical mean of the training labels .
+        :labels_std: Emprical standard deviation of the training labels.
     """
 
     labels_norm = (labels - labels_mean)/labels_std
@@ -138,19 +137,29 @@ def normalize_labels(labels, labels_mean, labels_std):
 
 def normalize_features(features, features_mean, features_std, dataset='UTKFace'):
     
-    """"
+    """
     Description:
-        Normalize the training images as follow:
+        Normalize the training input features as follows:
+
     .. math::
-        normalized images = (images - images mean) / images standard deviation.
+        \widetilde{X} = \\frac{(X - \overline{X})} {\sigma_x}.
+    
+    where
+
+    .. math::
+        \widetilde{X} = \\text{Normalized features, } 
+        X = \\text{Input features, }
+        \overline{X} = \\text{Features mean, }.
+        \sigma = \\text{Features standard deviation}
     Return:
-        :images_norm: Normalized images.
+        :images_norm: Normalized Features.
     Return type:
-        Tensor
+        NxD Tensor
     Args:
-        :images: train data. (images)
-        :images_mean: images mean.
-        :images_std: images standard deviation.
+        :features: train data. (images)
+        :features_mean: Mean of the features.
+        :features_std:  Standard deviation of the features.
+        :dataset: Name of the dataset that needs to be normalized.
     """
 
     if dataset == 'UTKFace':
@@ -171,119 +180,46 @@ def normalize_features(features, features_mean, features_std, dataset='UTKFace')
     else:
         raise ValueError("Dataset is not recognized.")
 
-    
 
-def normalize_images_batch(images, images_mean, images_std):
-    
-    """"
-    Description:
-        Normalize the training images as follow:
-    .. math::
-        normalized images = (images - images mean) / images standard deviation.
-    Return:
-        :images_norm: Normalized images.
-    Return type:
-        Tensor
-    Args:
-        :images: train data. (images)
-        :images_mean: images mean.
-        :images_std: images standard deviation.
+def str_to_bool(string):
     """
-    # print(images.shape)
-    batch_size = images.shape[0]
-    channels = images.shape[1]
-    width = images.shape[2]
-    length = images.shape[3]
+    Description:
+        Convert a string to a boolean.
+    Return:
+        True or False.
+    Return type:
+        boolean
+    Args:
+        :string: A string to be converted.
     
-    images = images.squeeze().view(1,-1) # rolling out the whole training dataset to be a one vector.
-    # print("##################################")
-    # print(images.shape)
-    # print(images_mean.shape)
-    # print(images_mean.shape)
-    # print(images_std.shape)
-    
-    images_norm = (images - images_mean) / images_std
-    
-    # reshape the image
-    images_norm = images_norm.view(batch_size,channels,length,width)
-    
-    
-    return images_norm
-
-
-def group_labels(x,y,b_num):
-    
-    # Convert torch tensor to pandas's dataframe
-    x_pd = pd.DataFrame(x,columns=['x',])
-    y_pd = pd.DataFrame(y,columns=['y',])
-    # Discretize the data into groups based on bining operation.
-    labels_names =  ['b'+str(i+1) for i in range(b_num) ] 
-    y_b = pd.qcut(pd.DataFrame(y)[0],b_num, labels =labels_names)
-    # Convert from pandas's category data type to dataframe datatype.
-    y_b = pd.DataFrame(y_b.values, columns=['bin']) 
-    # Concatenate x_pd,y_pd, y_b
-
-    data = pd.concat([x_pd, y_pd, y_b],axis=1)
-    
-    # group the data based on bins
-    groups = []
-    for b in range(b_num):
-        groups.append(data[data['bin']== labels_names[b]])
-    
-    return groups
-
-
-def group_testing(x_pred, y_pred, bin_num, model, loss):
-
-    groupsBybin = group_labels(x_pred,y_pred,bin_num)
-    
-    for i in range(bin_num):
-        group = groupsBybin[i]
-        x = group['x']
-        y = group['y']
-        binq =group['bin']
-        # Reshape the images 
-        x = torch.stack(x.values.tolist()).cuda(0)
-        y = torch.unsqueeze(torch.Tensor(y.values.tolist()),1).cuda(0)
-        out = model(x)
-        gloss = loss(out,y)
-
-        wandb.log({'bin loss':gloss.item()}, step=i)
-
-    return 0
-
-
-def str_to_bool(arg):
-    if arg =='True':
+    """
+    if string =='True':
         return True
-    elif arg == 'False':
+    elif string == 'False':
         return False
     else:
-        if isinstance(arg, str) :
-            raise ValueError("Received {} as an argument. Only 'True' or 'False' are accepted.".format(arg))
+        if isinstance(string, str) :
+            raise ValueError("Received {} as an argument. Only 'True' or 'False' are accepted.".format(string))
         else:
-            raise TypeError("The argument is not a string but a {}.".format(type(arg)))
+            raise TypeError("The argument is not a string but a {}.".format(type(string)))
 
-def plot_hist(x, name):
-    plot_path = '/final_outps/'+str(name)+'.png'
-    plt.hist(x)
-    plt.savefig(plot_path)
-    wandb.save(plot_path)
+
+
+def generate_intervals(num_dists, p=0.5):
+
+    """
+    Description:
+        Generates intervals for sampling noise variance distributions. The intervals are low, which assigns low sampling probablity values, and high, that assigns high values.
+    Return:
+        intervals 
+    Return type:
+        Dictionary
+    Args:
+        :num_dists: Number of distributions that need to have sampling intervals.
+        :p: Interval balance factor.It controls the balance between low and high intervals.
     
-    return 0
+    """
 
-
-
-def flip_coin(p =0.5):
-    random_number = torch.rand(size=(1,1))
-
-    if random_number <p:
-        return "low"
-    else:
-        return "high"
-
-
-def generate_luck_boundaries(num_dists, p=0.5):
     if num_dists ==0:
         raise ValueError(" number of distributions are zero: {}".format(num_dists))
     elif num_dists ==1:
@@ -294,79 +230,77 @@ def generate_luck_boundaries(num_dists, p=0.5):
         l2 = np.linspace(p,1,(num_dists//2)+1, endpoint=True,)
         l = np.concatenate((l1,l2))
 
-    boundaries = {}
+    intervals = {}
 
     for i in range(len(l)-1):
-        boundaries[str(i+1)] = (l[i], l[i+1])
+        intervals[str(i+1)] = (l[i], l[i+1])
     
-    return boundaries
+    return intervals
 
 
-def choose_luck_boundary(boundaries):
+def choose_distribution(intervals):
+    """
+    Description:
+        Chooses a distribution based on sampling from the intervals.
+    Return:
+        key, (an id for the sampled distribution)
+    Return type:
+        int
+    Args:
+        :intervals: A dictionary of tuple values, each tuple represents an interval that is compared against when the sampling happens.
+        :p: Interval balance factor.It controls the balance between low and high intervals.
+    """
+
     random_number = torch.rand((1,1)).item()
-    for key in boundaries.keys():
-        if random_number> boundaries.get(key)[0] and random_number< boundaries.get(key)[1]:
+    for key in intervals.keys():
+        if random_number> intervals.get(key)[0] and random_number< intervals.get(key)[1]:
             return key
     
     raise RuntimeError("generated random number does not fall into any category: {}".format(random_number))
 
 
 
-def incremental_average(x,x_old, i):
-    average = x_old + (x-x_old)*1/(i+1)
-    return average
 
-def incremental_average_full(x):
-    x_old =0
-    for i, e in enumerate(x):
-        average = x_old + (e-x_old)*1/(i+1)
-        x_old = average
+def get_mean_avg_variance(noise_type,avg_variance_m,mu1,p):
+    """
+    Description:
+         Estimates the value of the mean of the second distribution, in a bi-model distribution, based on the average noise varaince mean.
+    Return:
+        mu2
+    Return type:
+        float
+    Args:
+        :noise_type: Noise type.
+        :avg_variance_m: The average of means of the noise variance distributions.
+        :mu1: First distribution's mean.
+        :p: Distributions ratio.
+
     
-    return x_old
+    """
 
-
-def average_noise_mean(noise_type,avg_m,mu1,p):
-    # if noise_type == "gamma":
-    #     print(v2, v2**2)
-    #     condition = np.sqrt(v2) *(1-p) + p*mu1
-    #     print("QQQ", condition)
-    #     if avg_m > condition:
-    #         raise ValueError(" Noise variance average should be less or equal to {}".format(condition))
-
-    mu2 = (avg_m-p*mu1)/(1-p)
+    mu2 = (avg_variance_m-p*mu1)/(1-p)
     return mu2
 
 
 
-def assert_arguments(arguments):
-
-    messages = {"bool":":argument is not boolean.", "datatype":"datatype is not supported.", "value":"argument value is not recognized."}
-
-
-    assert isinstance(float(arguments.get('seed')), float), "Argument: seed: " + messages.get('datatype')
-    assert arguments.get('dataset') in ["utkf","wine"], "Argument: dataset: " + messages.get('value')
-    assert isinstance( str_to_bool(arguments.get('normalize')), bool), "Argument: normalize: " + messages.get('bool')
-    assert arguments.get('loss_type') in ["mse", "iv", "biv"], "Argument: loss_type: " + messages.get('value')
-    assert arguments.get('model_type') in ["vanilla_ann","vanilla_cnn", "resnet"], "Argument: model_type: " + messages.get('value')
-    # assert arguments.get('average_variance').replace('.','',1).replace('-','',1).isdigit(), "Argument: average_variance: "+ messages.get('value')
-
-    assert isinstance( str_to_bool(arguments.get('noise')), bool), "Argument: noise: " + messages.get('bool')
-    assert arguments.get('noise_type') in ["binary_uniform","uniform","gamma"], "Argument: noise_type: " + messages.get('value')
-    assert isinstance( arguments.get('is_estim_noise_params'), bool), "Argument: estimate_noise_params: " + messages.get('bool')
-
-    assert arguments.get('params_type') in ["meanvar","meanvar_avg","boundaries","alphabeta"], "Argument: params_type: " + messages.get('value')
-
-    # assert float(arguments.get('distributions_ratio'))>=0 and float(arguments.get('distributions_ratio'))<=1 , "Argument: distributions_ratio: "+ messages.get('value')
-    
-    # Handle distributions parameters
-
-    # for item in arguments.get('parameters'): assert item.replace('.','',1).replace('-','',1).isdigit() , "Argument: parameters: " + messages.get('datatype')
-
-    return 0
-
-
-
 def print_experiment_information(args):
+
+    """
+    Description:
+         Print experiment information, which consists of :
+
+            1) Dataset information.
+            2) Models informations.
+            3) Commandline options information.
+    Return:
+        None
+    Return type:
+        None
+    Args:
+        :args: Commandline options.
+
+    
+    """
 
     print("#"*80,"Dataset Settings:","#"*80)
     print(d_params)
@@ -378,6 +312,22 @@ def print_experiment_information(args):
 
 
 def filter_batch(predictions, labels, noise_var, threshold = 0.4):
+    """
+    Description:
+         Filters a batch of labels based on a noise varaince threshold.
+    Return:
+        filtered predictions, filtered labels , filtered noise_variance 
+    Return type:
+        Tuple
+    Args:
+        :predictions: model's predictions.
+        :labels: Noisy labels.
+        :noise_var: noises variances 
+        :threshold: noise variance threshold.
+
+    
+    """
+
     noise_var_mask = noise_var < threshold
     noise_var = noise_var[noise_var_mask]
     labels_n = labels[noise_var_mask]
@@ -391,40 +341,22 @@ def filter_batch(predictions, labels, noise_var, threshold = 0.4):
     return predictions_n, labels_n , noise_var 
 
 
-def filter_batch_v2(batch, labels, noise_var, threshold = 0.4):
-    batch_arr = []
-    label_arr = []
-    variance_arr = []
-    count = 0
-
-    for i in range(len(noise_var)):
-        if noise_var[i]< threshold:
-            batch_arr.append(batch[i])
-            label_arr.append(labels[i])
-            variance_arr.append(noise_var[i])
-            count+=1
-    
-    batch = torch.stack(batch_arr)
-    labels = torch.tensor(label_arr)
-    variances = torch.tensor(variance_arr)
-
-    # Handle the dimension for 
-    labels = torch.unsqueeze(labels, 1)
-    variances = torch.unsqueeze(variances, 1)
-
-    print("Number of filtered samples per batch: {}".format(count))
-    print("Ratio of filtered samples per batch: {}".format((count/len(noise_var))*100))
-    return batch, labels , variances 
-
 
 
 def assert_args_mixture(args):
-        # arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
-        #          "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, 'params_type':params_type,
-        #          'parameters':parameters}
+    """
+    Description:
+         Check the validaty of the combination of two or more arguments.
+    Return:
+        None
+    Return type:
+        None
+    Args:
+        :args: Arguments that need to be checked.
+    """
 
     if args.get('loss_type') == "biv" and args.get('noise') ==False:
         raise RuntimeError("BIV needs noise variance to work properly. Please enable 'noise'= True and specifiy the noise.")
 
     
-    return 0
+    return None

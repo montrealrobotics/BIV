@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>utils.py &mdash; Inverse Variance Weighting Update 2020 documentation</title>
+  <title>Utilities &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
   
 
   
@@ -45,7 +45,10 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="train.py" href="train.html" /> 
+    <link rel="next" title="Settings" href="params.html" />
+    <link rel="prev" title="Trainer" href="train.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -59,7 +62,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> Inverse Variance Weighting Update
+            <a href="../index.html" class="icon icon-home"> BIVW: Deep Heteroscedastic Regression using Privileged Information
           
 
           
@@ -91,12 +94,19 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataloader.html">dataloader.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="losses.html">loss.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">models.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="params.html">params.py</a></li>
-<li class="toctree-l1"><a class="reference internal" href="train.html">train.py</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">utils.py</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="arguments.html">Commandline Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utkf_dataloader.html">Dataloaders: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bike_dataloader.html">Dataloaders: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wine_dataloader.html">Dataloaders: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_wine.html">Models: Wine Quality</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_ann_bike.html">Models: Bike Sharing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_cnn_utkf.html">Models: UTKFace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cutoff_loss.html">Losses: Cutoff MSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="biv_loss.html">Losses: Batch Inverse Variance (BIV)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Trainer</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">Settings</a></li>
 </ul>
 
             
@@ -111,7 +121,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">Inverse Variance Weighting Update</a>
+          <a href="../index.html">BIVW: Deep Heteroscedastic Regression using Privileged Information</a>
         
       </nav>
 
@@ -142,7 +152,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>utils.py</li>
+      <li>Utilities</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -161,16 +171,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="utils-py">
-<h1>utils.py<a class="headerlink" href="#utils-py" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="utils.get_unif_Vmax">
 <code class="descclassname">utils.</code><code class="descname">get_unif_Vmax</code><span class="sig-paren">(</span><em>mu</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_unif_Vmax" title="Permalink to this definition">¶</a></dt>
-<dd><p>”
-Description:</p>
-<blockquote>
-<div>Estimates the maximum variance needed for the uniform distribution to produce maximum heteroscedasticity.</div></blockquote>
-<dl class="docutils">
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Estimates the maximum variance needed for the uniform distribution to produce maximum heteroscedasticity.</dd>
 <dt>Return:</dt>
 <dd><table class="first last docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,6 +210,283 @@ Description:</p>
 \[V_{max} = \frac{4 \mu^2}{12}\]</div>
 </dd></dl>
 
+<dl class="function">
+<dt id="utils.normalize_labels">
+<code class="descclassname">utils.</code><code class="descname">normalize_labels</code><span class="sig-paren">(</span><em>labels</em>, <em>labels_mean</em>, <em>labels_std</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normalize_labels" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Normalize the training labels as follow:</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[\widetilde{y} = \frac{(y - \overline{y})} {\sigma_y}.\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\widetilde{y} = \text{Normalized labels, } 
+y = \text{labels, }
+\overline{y} = \text{Mean of the labels, }.
+\sigma = \text{Standard deviation of the labels}\]</div>
+<dl class="docutils">
+<dt>Return:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">labels_norm:</th><td class="field-body">Normalized labels.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt>Return type:</dt>
+<dd>1D Tensor.</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">labels:</th><td class="field-body">Training labels.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">labels_mean:</th><td class="field-body">Emprical mean of the training labels .</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">labels_std:</th><td class="field-body">Emprical standard deviation of the training labels.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.normalize_features">
+<code class="descclassname">utils.</code><code class="descname">normalize_features</code><span class="sig-paren">(</span><em>features</em>, <em>features_mean</em>, <em>features_std</em>, <em>dataset='UTKFace'</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normalize_features" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Normalize the training input features as follows:</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[\widetilde{X} = \frac{(X - \overline{X})} {\sigma_x}.\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\widetilde{X} = \text{Normalized features, } 
+X = \text{Input features, }
+\overline{X} = \text{Features mean, }.
+\sigma = \text{Features standard deviation}\]</div>
+<dl class="docutils">
+<dt>Return:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">images_norm:</th><td class="field-body">Normalized Features.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt>Return type:</dt>
+<dd>NxD Tensor</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">features:</th><td class="field-body">train data. (images)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">features_mean:</th><td class="field-body">Mean of the features.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">features_std:</th><td class="field-body">Standard deviation of the features.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">dataset:</th><td class="field-body">Name of the dataset that needs to be normalized.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.str_to_bool">
+<code class="descclassname">utils.</code><code class="descname">str_to_bool</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.str_to_bool" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Convert a string to a boolean.</dd>
+<dt>Return:</dt>
+<dd>True or False.</dd>
+<dt>Return type:</dt>
+<dd>boolean</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">string:</th><td class="field-body">A string to be converted.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.generate_intervals">
+<code class="descclassname">utils.</code><code class="descname">generate_intervals</code><span class="sig-paren">(</span><em>num_dists</em>, <em>p=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.generate_intervals" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Generates intervals for sampling noise variance distributions. The intervals are low, which assigns low sampling probablity values, and high, that assigns high values.</dd>
+<dt>Return:</dt>
+<dd>intervals</dd>
+<dt>Return type:</dt>
+<dd>Dictionary</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">num_dists:</th><td class="field-body">Number of distributions that need to have sampling intervals.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">p:</th><td class="field-body">Interval balance factor.It controls the balance between low and high intervals.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.choose_distribution">
+<code class="descclassname">utils.</code><code class="descname">choose_distribution</code><span class="sig-paren">(</span><em>intervals</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.choose_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Chooses a distribution based on sampling from the intervals.</dd>
+<dt>Return:</dt>
+<dd>key, (an id for the sampled distribution)</dd>
+<dt>Return type:</dt>
+<dd>int</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">intervals:</th><td class="field-body">A dictionary of tuple values, each tuple represents an interval that is compared against when the sampling happens.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">p:</th><td class="field-body">Interval balance factor.It controls the balance between low and high intervals.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_mean_avg_variance">
+<code class="descclassname">utils.</code><code class="descname">get_mean_avg_variance</code><span class="sig-paren">(</span><em>noise_type</em>, <em>avg_variance_m</em>, <em>mu1</em>, <em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_mean_avg_variance" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Estimates the value of the mean of the second distribution, in a bi-model distribution, based on the average noise varaince mean.</dd>
+<dt>Return:</dt>
+<dd>mu2</dd>
+<dt>Return type:</dt>
+<dd>float</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">noise_type:</th><td class="field-body">Noise type.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">avg_variance_m:</th><td class="field-body">The average of means of the noise variance distributions.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">mu1:</th><td class="field-body">First distribution’s mean.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">p:</th><td class="field-body">Distributions ratio.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.print_experiment_information">
+<code class="descclassname">utils.</code><code class="descname">print_experiment_information</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.print_experiment_information" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd><p class="first">Print experiment information, which consists of :</p>
+<blockquote class="last">
+<div><ol class="arabic simple">
+<li>Dataset information.</li>
+<li>Models informations.</li>
+<li>Commandline options information.</li>
+</ol>
+</div></blockquote>
+</dd>
+<dt>Return:</dt>
+<dd>None</dd>
+<dt>Return type:</dt>
+<dd>None</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">args:</th><td class="field-body">Commandline options.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.filter_batch">
+<code class="descclassname">utils.</code><code class="descname">filter_batch</code><span class="sig-paren">(</span><em>predictions</em>, <em>labels</em>, <em>noise_var</em>, <em>threshold = 0.4</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.filter_batch" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Filters a batch of labels based on a noise varaince threshold.</dd>
+<dt>Return:</dt>
+<dd>filtered predictions, filtered labels , filtered noise_variance</dd>
+<dt>Return type:</dt>
+<dd>Tuple</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">predictions:</th><td class="field-body">model’s predictions.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">labels:</th><td class="field-body">Noisy labels.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">noise_var:</th><td class="field-body">noises variances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">threshold:</th><td class="field-body">noise variance threshold.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.assert_args_mixture">
+<code class="descclassname">utils.</code><code class="descname">assert_args_mixture</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.assert_args_mixture" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Description:</dt>
+<dd>Check the validaty of the combination of two or more arguments.</dd>
+<dt>Return:</dt>
+<dd>None</dd>
+<dt>Return type:</dt>
+<dd>None</dd>
+<dt>Args:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">args:</th><td class="field-body">Arguments that need to be checked.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -212,8 +497,10 @@ Description:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="params.html" class="btn btn-neutral float-right" title="Settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-        <a href="train.html" class="btn btn-neutral float-left" title="train.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+        <a href="train.html" class="btn btn-neutral float-left" title="Trainer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -222,7 +509,7 @@ Description:</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2020, Waleed Khamies
+        &copy; Copyright 2020, Vincent Mai, Waleed Khamies, Liam Paull
 
     </p>
   </div>
