@@ -173,48 +173,6 @@
             
   <div class="section" id="losses-cutoff-mse">
 <h1>Losses: Cutoff MSE<a class="headerlink" href="#losses-cutoff-mse" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="losses.CutoffMSE">
-<em class="property">class </em><code class="descclassname">losses.</code><code class="descname">CutoffMSE</code><span class="sig-paren">(</span><em>cutoffValue=1</em><span class="sig-paren">)</span><a class="headerlink" href="#losses.CutoffMSE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description:</p>
-<blockquote>
-<div><p>Cutoff MSE loss has two steps:</p>
-<ol class="arabic simple">
-<li><dl class="first docutils">
-<dt>Filtering:</dt>
-<dd>Filter the noisy labels out by comparing their noise variances to a threshold. Remove the label if its noise variance is bigger than a threshold, otherwise, use it to compute the loss.</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>MSE loss: </dt>
-<dd>Compute the mse loss using the filtered labels.</dd>
-</dl>
-</li>
-</ol>
-</div></blockquote>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><table class="first last docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">An upper bound noise variance threshold to filter out the noisy labels.</td>
-</tr>
-</tbody>
-</table>
-</dd>
-</dl>
-<dl class="method">
-<dt id="losses.CutoffMSE.forward">
-<code class="descname">forward</code><span class="sig-paren">(</span><em>y_pred</em>, <em>y</em>, <em>lbl_var</em><span class="sig-paren">)</span><a class="headerlink" href="#losses.CutoffMSE.forward" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Description:</dt>
-<dd>Compute the forward pass.</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 
 

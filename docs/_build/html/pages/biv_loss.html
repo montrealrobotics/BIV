@@ -173,27 +173,6 @@
             
   <div class="section" id="losses-batch-inverse-variance-biv">
 <h1>Losses: Batch Inverse Variance (BIV)<a class="headerlink" href="#losses-batch-inverse-variance-biv" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="losses.BIVLoss">
-<em class="property">class </em><code class="descclassname">losses.</code><code class="descname">BIVLoss</code><span class="sig-paren">(</span><em>epsilon=1e-05</em><span class="sig-paren">)</span><a class="headerlink" href="#losses.BIVLoss" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Description:</dt>
-<dd>Batch Inverse variance loss is defined as:</dd>
-</dl>
-<div class="math notranslate nohighlight">
-\[\mathcal{L}_{\mathrm{batch}}(D_i, \theta) = \left( \sum_{k=0}^K  \dfrac{1}{\sigma_k^2 + \epsilon}  \right)^{-1} \sum_{k=0}^K \dfrac{\mathcal{L}\left(f(x_k, \theta),\overline{y}_k\right)}{\sigma_k^2 + \epsilon}
-\label{eq:IVweighted_loss}\]</div>
-<dl class="method">
-<dt id="losses.BIVLoss.forward">
-<code class="descname">forward</code><span class="sig-paren">(</span><em>y_pred</em>, <em>y</em>, <em>lbl_var</em><span class="sig-paren">)</span><a class="headerlink" href="#losses.BIVLoss.forward" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Description:</dt>
-<dd>Compute the forward pass for BIV loss function.</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 
 
