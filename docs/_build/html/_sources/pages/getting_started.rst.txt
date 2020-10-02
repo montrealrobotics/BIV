@@ -128,3 +128,22 @@ Examples
     bash   python main.py --experiment_settings="exp_tag,7159,utkf,True,16000" --model_settings="resnet,cutoffMSE,1"   --noise_settings="True,binary_uniform" --params_settings="meanvar_avg,0.5,2000" --parameters="False,0.5,1,0.3,0"
 
 
+Contributors
+-------------
+
+-  **Waleed Khamies**
+-  **Vincent Mai**
+
+License
+---------
+
+This project is licensed under the [???] License - see the
+`LICENSE.md <LICENSE.md>`__ file for details
+
+Acknowledgement
+----------------
+
+-  `Liam Paull <https://liampaull.ca/>`__ - Principle Investigator -
+   `Robotics Lab (UdeM University) <https://montrealrobotics.ca/>`__
+-  `National Sciences and Engineering Research Council of
+   Canada <https://www.nserc-crsng.gc.ca/>`__

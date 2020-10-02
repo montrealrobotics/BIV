@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Losses: Cutoff MSE &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
+  <title>&lt;no title&gt; &mdash; BIVW: Deep Heteroscedastic Regression using Privileged Information 2020 documentation</title>
   
 
   
@@ -45,8 +45,6 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Losses: Batch Inverse Variance (BIV)" href="biv_loss.html" />
-    <link rel="prev" title="Models: UTKFace" href="model_cnn_utkf.html" />
     <link href="../_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -93,7 +91,7 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="arguments.html">Commandline Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utkf_dataloader.html">Dataloaders: UTKFace</a></li>
@@ -102,7 +100,7 @@
 <li class="toctree-l1"><a class="reference internal" href="model_ann_wine.html">Models: Wine Quality</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_ann_bike.html">Models: Bike Sharing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_cnn_utkf.html">Models: UTKFace</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Losses: Cutoff MSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cutoff_loss.html">Losses: Cutoff MSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="biv_loss.html">Losses: Batch Inverse Variance (BIV)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="train.html">Trainer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a></li>
@@ -152,13 +150,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Losses: Cutoff MSE</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/pages/cutoff_loss.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/pages/dataloader.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -171,66 +169,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="losses-cutoff-mse">
-<h1>Losses: Cutoff MSE<a class="headerlink" href="#losses-cutoff-mse" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="losses.CutoffMSE">
-<em class="property">class </em><code class="descclassname">losses.</code><code class="descname">CutoffMSE</code><span class="sig-paren">(</span><em>cutoffValue=1</em><span class="sig-paren">)</span><a class="headerlink" href="#losses.CutoffMSE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description:</p>
-<blockquote>
-<div><p>Cutoff MSE loss has two steps:</p>
-<ol class="arabic simple">
-<li><dl class="first docutils">
-<dt>Filtering:</dt>
-<dd>Filter the noisy labels out by comparing their noise variances to a threshold. Remove the label if its noise variance is bigger than a threshold, otherwise, use it to compute the loss.</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>MSE loss: </dt>
-<dd>Compute the mse loss using the filtered labels.</dd>
-</dl>
-</li>
-</ol>
-</div></blockquote>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><table class="first last docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">threshold:</th><td class="field-body">An upper bound noise variance threshold to filter out the noisy labels.</td>
-</tr>
-</tbody>
-</table>
-</dd>
-</dl>
-<dl class="method">
-<dt id="losses.CutoffMSE.forward">
-<code class="descname">forward</code><span class="sig-paren">(</span><em>y_pred</em>, <em>y</em>, <em>lbl_var</em><span class="sig-paren">)</span><a class="headerlink" href="#losses.CutoffMSE.forward" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Description:</dt>
-<dd>Compute the forward pass.</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-
+  
 
            </div>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="biv_loss.html" class="btn btn-neutral float-right" title="Losses: Batch Inverse Variance (BIV)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="model_cnn_utkf.html" class="btn btn-neutral float-left" title="Models: UTKFace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
