@@ -99,7 +99,7 @@ class Trainer:
         except OSError:
             print("zip operation has faild")
 
-    def train(self, alogrithm='default'):
+    def train(self, loss_type='default'):
         """
         Description:
             A method to train the models that are included in this baseline. it has three training settings:
@@ -147,13 +147,13 @@ class Trainer:
                 if self.cuda:
                     tr_batch = train_sample[0].cuda(0)
                     tr_labels = torch.unsqueeze(train_sample[1], 1).cuda(0)
-                    if alogrithm != "mse":
+                    if loss_type != "mse":
                         noises_vars = train_sample[3].type(torch.float32).cuda(0)
                      
                 else:
                     tr_batch = train_sample[0]
                     tr_labels = torch.unsqueeze(train_sample[1], 1)
-                    if alogrithm != "mse":
+                    if loss_type != "mse":
                         noises_vars = train_sample[3].type(torch.float32)
                         
                 
@@ -162,7 +162,7 @@ class Trainer:
                 tr_out = self.model(tr_batch)
 
                 # Choose the loss function.
-                if alogrithm != "mse":
+                if loss_type != "mse":
                     mloss = self.loss(tr_out, tr_labels, noises_vars)
                 else:
                     mloss = self.mse_loss(tr_out,tr_labels)
