@@ -61,5 +61,7 @@ n_params = {
     'lr': 0.001,
     'wine_lr': 0.01,
     'bike_lr': 0.001,
-    'epochs': 100
+    'utkf_epochs': 20
+    'wine_epochs': 20
+    'bike_epochs': 100
 }
