@@ -48,6 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--noise_settings", type=str, default="0") 
     parser.add_argument("--params_settings", type=str, default="0")
     parser.add_argument("--parameters", type=str, default="0")
+    parser.add_argument("--batchsize", type=str, default="0")
 
     # Extract commandline arguments   
     args = parser.parse_args()
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     noise_settings = args.noise_settings.split(",")
     params_settings = args.params_settings.split(",")
     parameters = args.parameters.split(",")
+    batchsize = args.batchsize.split(",")
 
 ######################################################  Access CommandLine Arguments ############################################################
 
@@ -73,6 +75,8 @@ if __name__ == "__main__":
     assert isinstance(int(train_size), int), "Argument: train_size: " + warning_messages.get('datatype')
     train_size = int(train_size)
 
+    # Access "batch_size" arguments
+    train_bsize = int(batchsize[0])
 
 
     # Access "model_settings" arguments
@@ -229,6 +233,8 @@ if __name__ == "__main__":
 
         d_path = d_params.get('bike_path')
         tr_size = d_params.get('bike_tr_batch_size')
+        if train_bsize:
+            tr_size = train_bsize
         tst_size = d_params.get('bike_test_batch_size')
         learning_rate = n_params.get('bike_lr')
         epochs = n_params.get('bike_epochs')
@@ -241,6 +247,8 @@ if __name__ == "__main__":
         test_data = BikeSharing(d_path, seed=seed, train= False,  normalize=normalize, size=test_size)
 
     # Load the data
+    print("Training batch size: {}".format(tr_size))
+
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
 
