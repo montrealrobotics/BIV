@@ -198,6 +198,8 @@ if __name__ == "__main__":
 
         d_path = d_params.get('d_path')
         tr_size = d_params.get('tr_batch_size')
+        if train_bsize:
+            tr_size = train_bsize
         tst_size = d_params.get('test_batch_size')
         learning_rate = n_params.get('lr')
         epochs = n_params.get('utkf_epochs')
@@ -217,6 +219,8 @@ if __name__ == "__main__":
 
         d_path = d_params.get('wine_path')
         tr_size = d_params.get('wine_tr_batch_size')
+        if train_bsize:
+            tr_size = train_bsize
         tst_size = d_params.get('wine_test_batch_size')
         learning_rate = n_params.get('wine_lr')
         epochs = n_params.get('wine_epochs')
