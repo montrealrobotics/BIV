@@ -65,8 +65,7 @@ class BikeSharing(Dataset):
         self.dist_data = distribution_data
         self.data_slice_size = size
         self.seed = seed
-        print("data_slice_size: {}".format(size))
-
+        print("Train: {} -- data_slice_size: {}".format(train, size))
         # This is not the proper implementation, but doing that for research purproses.
 
         # Load the dataset
@@ -76,7 +75,7 @@ class BikeSharing(Dataset):
         # Generate noise for the training samples.
         if self.train:
             if self.noise:
-                self.lbl_noises, self.noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise. 
+                self.lbl_noises, self.noise_variances, self.noisy_noise_variances = self.generate_noise(norm = self.normalize)  # normalize the noise. 
                 # print("noises been added", self.lbl_noises)
                 print("maximum noise", max(self.lbl_noises))
                 # print("noise variances:", self.noise_variances)
@@ -332,8 +331,13 @@ class BikeSharing(Dataset):
 
         noises, noises_vars = self.gaussian_noise(dists, p)
 
+        # apply noise on noise variance
+        max_std_noise_var = torch.div(torch.FloatTensor(noises_vars),3)  # max std so that the probability is max 0.0015 to have a noisy variance less than 0 + noise is scaled by the variance
+        eff_std_noise_var = torch.mul(max_std_noise_var, math.sqrt(self.dist_data.get("var_disturbance")))  # apply parameter (coefficient of proportionality for the variance w.r.t. max variance)
+        noise_var_noise = [torch.distributions.normal.Normal(0, std).sample((1,)).item() for std in eff_std_noise_var]    # get noise
+        noisy_noises_var = [torch.abs(noise_var_noise[i] + noises_vars[i]) for i in range(0, len(noise_var_noise))]   # use the absolute value to prevent negative variance (will only break mean(noise_variance_noise) = 0, that's why we have a max std to make it very unlikely)
 
-        return (noises, noises_vars)
+        return (noises, noises_vars, noisy_noises_var)
 
             
     def __len__(self):
@@ -378,6 +382,7 @@ class BikeSharing(Dataset):
             if self.noise:
                 self.label_noise = self.lbl_noises[idx]
                 self.noise_variance = self.noise_variances[idx]
+                self.noisy_noise_variance = self.noisy_noise_variances[idx]
                 self.label = self.label + self.label_noise
                 # Apply normalization to the noisy training data.
                 if self.normalize:
@@ -386,12 +391,8 @@ class BikeSharing(Dataset):
                     # weight the noise value and its varince by the std of the labels of the dataset.
                     self.label_noise = self.label_noise/self.labels_std
                     self.noise_variance = self.noise_variance/(self.labels_std**2)
-                # apply noise on noise variance
-                max_std_dev_noise_var = self.noise_variance/3  # max std so that the probability is max 0.0015 to have a noisy variance less than 0 + noise is scaled by the variance
-                eff_std_dev_noise_var = math.sqrt(self.dist_data.get("varnoisevar"))*max_std_dev_noise_var  # apply parameter (coefficient of proportionality for the variance w.r.t. max variance)
-                noise_variance_noise = torch.distributions.normal.Normal(0, eff_std_dev_noise_var).sample((1,)).item() # get noise
-                self.noise_variance = torch.abs(self.noise_variance + noise_variance_noise)   # use the absolute value to prevent negative variance (will only break mean(noise_variance_noise) = 0, that's why we have a max std to make it very unlikely)
-                return (self.feature, self.label, self.label_noise, self.noise_variance)
+                    self.noisy_noise_variance = self.noisy_noise_variance/(self.labels_std**2)                
+                return (self.feature, self.label, self.label_noise, self.noisy_noise_variance)
             else:
             # Apply normalization to the training data.
                 if self.normalize:

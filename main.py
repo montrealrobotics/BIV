@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     # Access "extra_experiments" arguments
     train_bsize = int(extra_exp[0])    # Batch size for training
-    varnoisevar = float(extra_exp[1])  # Proportionality value for noise in the variance
+    var_disturbance = float(extra_exp[1])  # Proportionality value for noise in the variance
 
 
     # Access "model_settings" arguments
@@ -157,7 +157,7 @@ if __name__ == "__main__":
    # Print experiments information
     arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
                  "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, "epsilon": epsilon, "threshold value": threshold_value, 'params_type':params_type,
-                 'parameters':parameters}
+                 'parameters':parameters, 'train_batch_size': train_bsize, "var_disturbance": var_disturbance}
     
     # Print Experiment Information
     print_experiment_information(arguments)
@@ -187,12 +187,12 @@ if __name__ == "__main__":
     if noise and noise_type =="binary_uniform" and params_type=="meanvar_avg":
         # Overwrite mu2 if the average noise variance (X) is passed in the commandline arguments.
         parameters[1] = get_mean_avg_variance(noise_type,average_variance,parameters[0],distributions_ratio)
-        dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters, "varnoisevar":varnoisevar}
+        dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters, "var_disturbance":var_disturbance}
 
     elif noise and noise_type == "binary_uniform":
-        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale, "data":parameters, "varnoisevar":varnoisevar}
+        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale, "data":parameters, "var_disturbance":var_disturbance}
     else:
-        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale,"data":parameters, "varnoisevar":varnoisevar}
+        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale,"data":parameters, "var_disturbance":var_disturbance}
 
     # Define the dataset
     if dataset == "utkf":
