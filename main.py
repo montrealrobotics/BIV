@@ -78,7 +78,8 @@ if __name__ == "__main__":
     # Access "extra_experiments" arguments
     train_bsize = int(extra_exp[0])    # Batch size for training
     var_disturbance = float(extra_exp[1])  # Proportionality value for noise in the variance
-    normalize_loss = str_to_bool(extra_exp[2])
+    normalize_loss = str_to_bool(extra_exp[2])  # Boolean for the normalization of the weights in BIV loss function
+    learning_rate = float(extra_exp[4])    # Learning rate
 
 
     # Access "model_settings" arguments
@@ -203,7 +204,7 @@ if __name__ == "__main__":
         if train_bsize:
             tr_size = train_bsize
         tst_size = d_params.get('test_batch_size')
-        learning_rate = n_params.get('lr')
+        #learning_rate = n_params.get('lr')
         epochs = n_params.get('utkf_epochs')
         test_size = d_params.get('test_size')
         dataset_size = d_params.get('dataset_size')
@@ -224,7 +225,7 @@ if __name__ == "__main__":
         if train_bsize:
             tr_size = train_bsize
         tst_size = d_params.get('wine_test_batch_size')
-        learning_rate = n_params.get('wine_lr')
+        #learning_rate = n_params.get('wine_lr')
         epochs = n_params.get('wine_epochs')
         test_size = d_params.get('wine_test_size')
         dataset_size = d_params.get('wine_dataset_size')
@@ -242,7 +243,7 @@ if __name__ == "__main__":
         if train_bsize:
             tr_size = train_bsize
         tst_size = d_params.get('bike_test_batch_size')
-        learning_rate = n_params.get('bike_lr')
+        #learning_rate = n_params.get('bike_lr')
         epochs = n_params.get('bike_epochs')
         test_size = d_params.get('bike_test_size')
         dataset_size = d_params.get('bike_dataset_size')
