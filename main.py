@@ -78,6 +78,7 @@ if __name__ == "__main__":
     # Access "extra_experiments" arguments
     train_bsize = int(extra_exp[0])    # Batch size for training
     var_disturbance = float(extra_exp[1])  # Proportionality value for noise in the variance
+    normalize_loss = str_to_bool(extra_exp[2])
 
 
     # Access "model_settings" arguments
@@ -157,7 +158,7 @@ if __name__ == "__main__":
    # Print experiments information
     arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
                  "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, "epsilon": epsilon, "threshold value": threshold_value, 'params_type':params_type,
-                 'parameters':parameters, 'train_batch_size': train_bsize, "var_disturbance": var_disturbance}
+                 'parameters':parameters, 'train_batch_size': train_bsize, "var_disturbance": var_disturbance, "normalize_loss": normalize_loss}
     
     # Print Experiment Information
     print_experiment_information(arguments)
@@ -280,7 +281,7 @@ if __name__ == "__main__":
 
     # Select the loss function
     if loss_type == "biv":
-        loss = BIVLoss(epsilon=epsilon)
+        loss = BIVLoss(epsilon=epsilon, normalize = normalize_loss)
     elif loss_type == "cutoffMSE":
         loss = CutoffMSE(cutoffValue=threshold_value)
     else:

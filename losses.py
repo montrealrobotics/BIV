@@ -4,7 +4,7 @@ from utils import str_to_bool, filter_batch
 
 
 class BIVLoss(Module):
-    def __init__(self, epsilon=0.00001):
+    def __init__(self, epsilon=0.00001, normalize=True):
 
 
         """
@@ -20,6 +20,8 @@ class BIVLoss(Module):
 
         super(BIVLoss, self).__init__()
         self.epsilon = epsilon       # for numerical stability.
+        self.normalize = normalize
+
     def forward(self, y_pred,y,lbl_var):
         """
         Description:
@@ -27,7 +29,10 @@ class BIVLoss(Module):
         """
         # m = y.shape[0]
         l = torch.matmul(torch.sub(y_pred,y).t(), torch.sub(y_pred,y)*(1/(lbl_var + self.epsilon  ) ))
-        return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
+        if self.normalize:
+            return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
+        else:
+            return l
 
 
 class CutoffMSE(Module):
