@@ -79,7 +79,7 @@ if __name__ == "__main__":
     train_bsize = int(extra_exp[0])    # Batch size for training
     var_disturbance = float(extra_exp[1])  # Proportionality value for noise in the variance
     normalize_loss = str_to_bool(extra_exp[2])  # Boolean for the normalization of the weights in BIV loss function
-    learning_rate = float(extra_exp[4])    # Learning rate
+    learning_rate = float(extra_exp[3])    # Learning rate
 
 
     # Access "model_settings" arguments
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     
    # Print experiments information
-    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
+    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "learning_rate": learning_rate, "model_type": model_type, 
                  "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, "epsilon": epsilon, "threshold value": threshold_value, 'params_type':params_type,
                  'parameters':parameters, 'train_batch_size': train_bsize, "var_disturbance": var_disturbance, "normalize_loss": normalize_loss}
     
