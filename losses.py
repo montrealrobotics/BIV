@@ -19,8 +19,8 @@ class BIVLoss(Module):
             """
 
         super(BIVLoss, self).__init__()
-        self.epsilon = epsilon       # for numerical stability.
-        self.normalize = normalize
+        self.epsilon = epsilon       # for numerical stability
+        self.normalize = normalize   # normalizing the weights
 
     def forward(self, y_pred,y,lbl_var):
         """
@@ -28,11 +28,14 @@ class BIVLoss(Module):
             Compute the forward pass for BIV loss function.
         """
         # m = y.shape[0]
+
         l = torch.matmul(torch.sub(y_pred,y).t(), torch.sub(y_pred,y)*(1/(lbl_var + self.epsilon  ) ))
+
         if self.normalize:
-            return l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
+            l = l/(torch.sum(1/(lbl_var + self.epsilon  ) ))
         else:
-            return l
+            l = l/y.shape[0]
+        return l
 
 
 class CutoffMSE(Module):
