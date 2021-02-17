@@ -12,9 +12,6 @@ from torch.nn import MSELoss
 
 from settings import d_params
 
-import wandb
-
-
 
 class Trainer:
 
@@ -65,7 +62,6 @@ class Trainer:
 
     def save(self, df, path):
         df.to_csv(path)
-        wandb.save(path)
 
     def save_last_epoch(self, lst, path):
 
@@ -95,7 +91,6 @@ class Trainer:
             for file_name in files:
                 shutil.copyfile(os.path.join(self.save_path,file_name), os.path.join(self.save_path,directory_name,file_name))
             shutil.make_archive(os.path.join(self.save_path,directory_name),'zip', os.path.join(self.save_path,directory_name))
-            wandb.save(os.path.join(self.save_path,directory_name+".zip"))
         except OSError:
             print("zip operation has faild")
 
@@ -131,8 +126,6 @@ class Trainer:
         tr_losses = []
         tst_losses = []
         for epoch in range(self.epochs):
-            wandb_tr_losses = []
-            wandb_tst_losses = []
             # Saving the train and test predictions for logging and visualization purposes.
             tr_out_lst_epoch = []
             tst_out_lst_epoch = []
@@ -169,7 +162,6 @@ class Trainer:
                
                 if mloss !="cutoffMSE:NO_LOSS":
                     tr_losses.append(mloss.item())
-                    wandb_tr_losses.append(mloss.item())
                     # Optimize the model.
                     mloss.backward()
                     self.optimizer.step()
@@ -209,7 +201,6 @@ class Trainer:
                         # Estimating the mean of the losses over the test batches.
                         mean_tst_b_losses = np.mean(tst_b_losses)
                         tst_losses.append(mean_tst_b_losses)    
-                        wandb_tst_losses.append(np.mean(tst_b_losses))                       
 
                 if epoch == self.last_epoch and train_sample_idx == self.train_batches_number-1:
                     self.save_last_epoch(tr_out_lst_epoch, os.path.join(self.save_path,"train_outs.csv"))
@@ -219,13 +210,10 @@ class Trainer:
                 
                 #print("******************** Batch {} has finished ********************".format(train_sample_idx))
             print('#################### Epoch:{} has finished ####################'.format(epoch))
-            # log the results to wandb
-            for i in range(len(wandb_tr_losses)):
-                wandb.log({"train loss": wandb_tr_losses[i], "test loss": wandb_tst_losses[i]})
+
         
         self.save_last_epoch([tr_losses],os.path.join(self.save_path,"train_losses.csv"))
         self.save_last_epoch([tst_losses],os.path.join(self.save_path,"test_losses.csv"))
-        # Zip all the files and upload them to wandb.
         self.zip_results(["train_losses.csv", "test_losses.csv", \
             "train_outs.csv", "train_labels.csv", "test_outs.csv", "test_labels.csv"])
 
