@@ -1,4 +1,4 @@
-# Batch Inverse-Variance Weighting:  Deep Heteroscedastic Regression Using Privileged Information
+# Batch Inverse-Variance Weighting:  Deep Heteroscedastic Regression
 
 ## Introduction
 
