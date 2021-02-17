@@ -8,8 +8,6 @@ import torchvision
 from torch.utils.data import  DataLoader
 from torchvision import transforms
 
-import wandb
-
 # Import datasets
 from Dataloaders.utkf_dataloader import UTKface
 from Dataloaders.wine_dataloader import WineQuality
@@ -168,15 +166,6 @@ if __name__ == "__main__":
 
 
 ############################################################### Run the experiment ##############################################################
-    # Get Wandb tags
-    tag = [tag,]
-   # Initiate wandb client.
-    wandb.init(project="iv_deep_learning",tags=tag , entity="montreal_robotics", config=arguments)
-    # Get the api key from the environment variables.
-    api_key = os.environ.get('WANDB_API_KEY')
-    # login to my wandb account.
-    wandb.login(api_key)
-
     # Set expirement seed
     torch.manual_seed(seed)
     # Set experiment id
@@ -294,8 +283,6 @@ if __name__ == "__main__":
         model=model, loss= loss, optimizer= optimz, epochs = epochs)
 
 
-    # Call wandb to log model performance.
-    wandb.watch(model)
     # train the model
     trainer.train(loss_type=loss_type)
 
