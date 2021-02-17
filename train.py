@@ -217,7 +217,7 @@ class Trainer:
                     self.save_last_epoch(tst_out_lst_epoch,os.path.join(self.save_path,"test_outs.csv"))
                     self.save_last_epoch(tst_lbl_lst_epoch,os.path.join(self.save_path,"test_labels.csv"))
                 
-                print("******************** Batch {} has finished ********************".format(train_sample_idx))
+                #print("******************** Batch {} has finished ********************".format(train_sample_idx))
             print('#################### Epoch:{} has finished ####################'.format(epoch))
             # log the results to wandb
             for i in range(len(wandb_tr_losses)):

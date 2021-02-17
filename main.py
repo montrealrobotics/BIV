@@ -48,6 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--noise_settings", type=str, default="0") 
     parser.add_argument("--params_settings", type=str, default="0")
     parser.add_argument("--parameters", type=str, default="0")
+    parser.add_argument("--extra_exp", type=str, default="256,0,True,0.01")
 
     # Extract commandline arguments   
     args = parser.parse_args()
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     noise_settings = args.noise_settings.split(",")
     params_settings = args.params_settings.split(",")
     parameters = args.parameters.split(",")
+    extra_exp = args.extra_exp.split(",")
 
 ######################################################  Access CommandLine Arguments ############################################################
 
@@ -73,6 +75,11 @@ if __name__ == "__main__":
     assert isinstance(int(train_size), int), "Argument: train_size: " + warning_messages.get('datatype')
     train_size = int(train_size)
 
+    # Access "extra_experiments" arguments
+    train_bsize = int(extra_exp[0])    # Batch size for training
+    var_disturbance = float(extra_exp[1])  # Proportionality value for noise in the variance
+    normalize_loss = str_to_bool(extra_exp[2])  # Boolean for the normalization of the weights in BIV loss function
+    learning_rate = float(extra_exp[3])    # Learning rate
 
 
     # Access "model_settings" arguments
@@ -150,9 +157,9 @@ if __name__ == "__main__":
 
     
    # Print experiments information
-    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "model_type": model_type, 
+    arguments = {"tag": tag, "seed": seed, "dataset": dataset, "normalize": normalize, "train_size": train_size, "loss_type": loss_type, "learning_rate": learning_rate, "model_type": model_type, 
                  "noise": noise, "noise_type": noise_type, "is_estim_noise_params": is_estim_noise_params, "epsilon": epsilon, "threshold value": threshold_value, 'params_type':params_type,
-                 'parameters':parameters}
+                 'parameters':parameters, 'train_batch_size': train_bsize, "var_disturbance": var_disturbance, "normalize_loss": normalize_loss}
     
     # Print Experiment Information
     print_experiment_information(arguments)
@@ -164,7 +171,7 @@ if __name__ == "__main__":
     # Get Wandb tags
     tag = [tag,]
    # Initiate wandb client.
-    wandb.init(project="iv_deep_learning",tags=tag , entity="montreal_robotics")
+    wandb.init(project="iv_deep_learning",tags=tag , entity="montreal_robotics", config=arguments)
     # Get the api key from the environment variables.
     api_key = os.environ.get('WANDB_API_KEY')
     # login to my wandb account.
@@ -182,20 +189,22 @@ if __name__ == "__main__":
     if noise and noise_type =="binary_uniform" and params_type=="meanvar_avg":
         # Overwrite mu2 if the average noise variance (X) is passed in the commandline arguments.
         parameters[1] = get_mean_avg_variance(noise_type,average_variance,parameters[0],distributions_ratio)
-        dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters}
+        dist_data = {"coin_fairness":distributions_ratio,"is_params_est":is_estim_noise_params, "is_vmax":maximum_hetero, "vmax_scale":hetero_scale ,"data":parameters, "var_disturbance":var_disturbance}
 
     elif noise and noise_type == "binary_uniform":
-        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale, "data":parameters}
+        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale, "data":parameters, "var_disturbance":var_disturbance}
     else:
-        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale,"data":parameters}
+        dist_data = {"coin_fairness":distributions_ratio, "is_params_est":is_estim_noise_params,"is_vmax":maximum_hetero, "vmax_scale":hetero_scale,"data":parameters, "var_disturbance":var_disturbance}
 
     # Define the dataset
     if dataset == "utkf":
 
         d_path = d_params.get('d_path')
         tr_size = d_params.get('tr_batch_size')
+        if train_bsize:
+            tr_size = train_bsize
         tst_size = d_params.get('test_batch_size')
-        learning_rate = n_params.get('lr')
+        #learning_rate = n_params.get('lr')
         epochs = n_params.get('utkf_epochs')
         test_size = d_params.get('test_size')
         dataset_size = d_params.get('dataset_size')
@@ -213,8 +222,10 @@ if __name__ == "__main__":
 
         d_path = d_params.get('wine_path')
         tr_size = d_params.get('wine_tr_batch_size')
+        if train_bsize:
+            tr_size = train_bsize
         tst_size = d_params.get('wine_test_batch_size')
-        learning_rate = n_params.get('wine_lr')
+        #learning_rate = n_params.get('wine_lr')
         epochs = n_params.get('wine_epochs')
         test_size = d_params.get('wine_test_size')
         dataset_size = d_params.get('wine_dataset_size')
@@ -229,8 +240,10 @@ if __name__ == "__main__":
 
         d_path = d_params.get('bike_path')
         tr_size = d_params.get('bike_tr_batch_size')
+        if train_bsize:
+            tr_size = train_bsize
         tst_size = d_params.get('bike_test_batch_size')
-        learning_rate = n_params.get('bike_lr')
+        #learning_rate = n_params.get('bike_lr')
         epochs = n_params.get('bike_epochs')
         test_size = d_params.get('bike_test_size')
         dataset_size = d_params.get('bike_dataset_size')
@@ -241,6 +254,8 @@ if __name__ == "__main__":
         test_data = BikeSharing(d_path, seed=seed, train= False,  normalize=normalize, size=test_size)
 
     # Load the data
+    print("Training batch size: {}".format(tr_size))
+
     train_loader = DataLoader(train_data, batch_size=tr_size)
     test_loader = DataLoader(test_data, batch_size=tst_size)
 
@@ -267,7 +282,7 @@ if __name__ == "__main__":
 
     # Select the loss function
     if loss_type == "biv":
-        loss = BIVLoss(epsilon=epsilon)
+        loss = BIVLoss(epsilon=epsilon, normalize = normalize_loss)
     elif loss_type == "cutoffMSE":
         loss = CutoffMSE(cutoffValue=threshold_value)
     else:
