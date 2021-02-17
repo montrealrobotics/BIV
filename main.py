@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--noise_settings", type=str, default="0") 
     parser.add_argument("--params_settings", type=str, default="0")
     parser.add_argument("--parameters", type=str, default="0")
-    parser.add_argument("--extra_exp", type=str, default="0")
+    parser.add_argument("--extra_exp", type=str, default="256,0,True,0.01")
 
     # Extract commandline arguments   
     args = parser.parse_args()
