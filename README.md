@@ -42,8 +42,6 @@ module load singularity
 rsync -avz /path/to/pytorch_f.simg $SLURM_TMPDIR     # Change this!
 # 3. Copy your dataset on the compute node
 rsync -avz /path/to/your_dataset/ $SLURM_TMPDIR        # Change this!
-# 3.1 export wandb api key
-export WANDB_API_KEY="put your wandb key here"       # Change this!
 # 4. Executing your code with singularity
 singularity exec --nv -H $HOME:/home/ -B $SLURM_TMPDIR:/datasets/ -B $SLURM_TMPDIR:/final_outps/  $SLURM_TMPDIR/pytorch_f.simg python /path/to/main.py --experiment_settings=$1 --model_settings=$2 --noise_settings=$3 --params_settings=${4-"None"}  --parameters=${5-"None"}
 # 5. Move results back to the login node.
