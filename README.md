@@ -1,8 +1,13 @@
 # Batch Inverse-Variance Weighting:  Deep Heteroscedastic Regression
+ICML 2021 Workshop: Uncertainty in Deep Learning.
+
+Paper available here: https://arxiv.org/abs/2107.04497
 
 ## Introduction
 
 The performance of deep supervised learning methods is impacted when the training dataset, on which the parameters are optimized, and the testing dataset, which evaluates the performance of the model on the task, are not sampled from identical distributions. In heteroscedastic regression, the label for each training sample is corrupted by noise coming from a different distribution.  In some cases, it is possible to know an estimate of the variance of the noise for each label, which quantifies how much it contributes to the misalignment between the datasets. We propose an approach to include this privileged information in the loss function together with dataset statistics inferred from the mini-batch to mitigate the impact of the dataset misalignment. We adapt the idea of Fisher-information weighted average to function approximation and propose Batch Inverse-Variance weighting. We show the validity of this approach as it achieves a significant improvement of the performances of the network when confronted to high, input-independent noise. 
+
+This code 
 
 ### Prerequisites
 
