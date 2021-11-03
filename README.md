@@ -7,8 +7,6 @@ Paper available here: https://arxiv.org/abs/2107.04497
 
 The performance of deep supervised learning methods is impacted when the training dataset, on which the parameters are optimized, and the testing dataset, which evaluates the performance of the model on the task, are not sampled from identical distributions. In heteroscedastic regression, the label for each training sample is corrupted by noise coming from a different distribution.  In some cases, it is possible to know an estimate of the variance of the noise for each label, which quantifies how much it contributes to the misalignment between the datasets. We propose an approach to include this privileged information in the loss function together with dataset statistics inferred from the mini-batch to mitigate the impact of the dataset misalignment. We adapt the idea of Fisher-information weighted average to function approximation and propose Batch Inverse-Variance weighting. We show the validity of this approach as it achieves a significant improvement of the performances of the network when confronted to high, input-independent noise. 
 
-This code 
-
 ### Prerequisites
 
 To run the code, we wrapped up all the used libraries inside a singularity container, you can download it [here](https://drive.google.com/file/d/1I17AjFeC7GULokpb1_NkBdbXqX2LHT66/view?usp=sharing). To manually build your environment using anaconda, we provide the yml file [here](https://github.com/montrealrobotics/Adaptable-RL-via-IV-update/blob/master/env.yml). 
